@@ -374,7 +374,7 @@ void set_t0_from_mat(herm_pseudo<T> &G) {
 *  \par Purpose
 * <!-- ========= -->
 *
-* >  Calculates the correlation energy given by \f$ -i/2\f$ Tr\f$[G*\Sigma]^<\f$ at a given time step 'tstp'.
+* > Calculates the correlation energy given by \f$ 1/2\mathrm{Im}\mathrm{Tr}[G*\Sigma]^<(t,t)\f$ at a given time step 'tstp'.
 * > The objects 'G' and 'Sigma' are of the class type 'herm_matrix'.
 *
 *
@@ -398,17 +398,17 @@ template <typename T>
 T correlation_energy(int tstp, herm_matrix<T> &G, herm_matrix<T> &Sigma,
 		     integration::Integrator<T> &I, T beta, T h){
   int size1=G.size1();
-  std::complex<T> trGxSGM;
-  std::complex<T> *GxSGM = new std::complex<T>[size1*size1];
+  std::complex<T> trSGMxG;
+  std::complex<T> *SGMxG = new std::complex<T>[size1*size1];
 
-  convolution_density_matrix<T,herm_matrix<T>>(tstp, GxSGM, Sigma, G, I, beta, h);
-  trGxSGM = (0.0,0.0);
+  convolution_density_matrix<T,herm_matrix<T>>(tstp, SGMxG, Sigma, G, I, beta, h);
+  trSGMxG = (0.0,0.0);
   for(int i=0; i< size1; i++){
-    trGxSGM += GxSGM[i*size1 + i];
+    trSGMxG += SGMxG[i*size1 + i];
   }
-  return 0.5*trGxSGM.real();
+  return 0.5*trSGMxG.real();
 
-  delete GxSGM;
+  delete SGMxG;
 }
 
 /// @private
