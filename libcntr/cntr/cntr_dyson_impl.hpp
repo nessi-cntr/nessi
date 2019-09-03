@@ -447,7 +447,7 @@ void dyson_mat_fourier_dispatch(GG &G, GG &Sigma, T mu, std::complex<T> *H0, T b
 /// @private
 template <typename T, class GG, int SIZE1>
 void dyson_mat_fixpoint_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0,
-				 integration::Integrator<T> &I, T beta, int fixpiter){
+                 integration::Integrator<T> &I, T beta, int fixpiter){
 
   int k = I.get_k();
   int ntau = G.ntau(), size1=G.size1();
@@ -468,7 +468,7 @@ void dyson_mat_fixpoint_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0,
 /// @private
 template <typename T, class GG, int SIZE1>
 void dyson_mat_fixpoint_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0, function<T> &SigmaMF,
-				 integration::Integrator<T> &I, T beta, int fixpiter){
+                 integration::Integrator<T> &I, T beta, int fixpiter){
 
   int k = I.get_k();
   int ntau = G.ntau(), size1=G.size1();
@@ -492,7 +492,7 @@ void dyson_mat_fixpoint_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0, function<
 /// @private
 template <typename T, class GG, int SIZE1>
 void dyson_mat_fixpoint_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0, cdmatrix &SigmaMF,
-				 integration::Integrator<T> &I, T beta, int fixpiter){
+                 integration::Integrator<T> &I, T beta, int fixpiter){
 
   int k = I.get_k();
   int ntau = G.ntau(), size1=G.size1();
@@ -518,7 +518,7 @@ void dyson_mat_fixpoint_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0, cdmatrix 
 /// @private
 template <typename T, class GG, int SIZE1>
 void dyson_mat_steep_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0,
-			      integration::Integrator<T> &I, T beta, int maxiter, T tol){
+                  integration::Integrator<T> &I, T beta, int maxiter, T tol){
 
   int k = I.get_k();
   int ntau = G.ntau(), size1=G.size1();
@@ -541,7 +541,7 @@ void dyson_mat_steep_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0,
 /// @private
 template <typename T, class GG, int SIZE1>
 void dyson_mat_steep_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0, function<T> &SigmaMF,
-			      integration::Integrator<T> &I, T beta, int maxiter, T tol){
+                  integration::Integrator<T> &I, T beta, int maxiter, T tol){
 
   int k = I.get_k();
   int ntau = G.ntau(), size1=G.size1();
@@ -573,7 +573,7 @@ void dyson_mat_steep_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0, function<T> 
 /// @private
 template <typename T, class GG, int SIZE1>
 void dyson_mat_steep_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0, cdmatrix &SigmaMF,
-				 integration::Integrator<T> &I, T beta, int maxiter, T tol){
+                 integration::Integrator<T> &I, T beta, int maxiter, T tol){
 
   int k = I.get_k();
   int ntau = G.ntau(), size1=G.size1();
@@ -1077,7 +1077,7 @@ void dyson_mat_fourier(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<
 }
 template <typename T>
 void dyson_mat_fourier(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
-		       function<T> &SigmaMF, T beta, int order) {
+               function<T> &SigmaMF, T beta, int order) {
     int size1 = G.size1();
     assert(G.size1() == Sigma.size1());
     assert(G.ntau() == Sigma.ntau());
@@ -1099,7 +1099,7 @@ void dyson_mat_fourier(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<
 
 template <typename T>
 void dyson_mat_fixpoint(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
-			integration::Integrator<T> &I,T beta, int fixpiter) {
+            integration::Integrator<T> &I,T beta, int fixpiter) {
     assert(G.size1() == Sigma.size1());
     assert(G.ntau() == Sigma.ntau());
     int size1 = G.size1();
@@ -1110,12 +1110,12 @@ void dyson_mat_fixpoint(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function
       dyson_mat_fixpoint_dispatch<T, herm_matrix<T>, 1>(G, Sigma, mu, h0, I, beta, fixpiter);
     else
       dyson_mat_fixpoint_dispatch<T, herm_matrix<T>, LARGESIZE>(G, Sigma, mu, h0, I, beta,
-								fixpiter);
+                                fixpiter);
 }
 
 template <typename T>
 void dyson_mat_fixpoint(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
-			function<T> &SigmaMF, integration::Integrator<T> &I,T beta, int fixpiter) {
+            function<T> &SigmaMF, integration::Integrator<T> &I,T beta, int fixpiter) {
     assert(G.size1() == Sigma.size1());
     assert(G.ntau() == Sigma.ntau());
     int size1 = G.size1();
@@ -1126,14 +1126,14 @@ void dyson_mat_fixpoint(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function
       dyson_mat_fixpoint_dispatch<T, herm_matrix<T>, 1>(G, Sigma, mu, h0, SigmaMF, I, beta, fixpiter);
     else
       dyson_mat_fixpoint_dispatch<T, herm_matrix<T>, LARGESIZE>(G, Sigma, mu, h0, SigmaMF, I, beta,
-								fixpiter);
+                                fixpiter);
 }
 
 
 
 template <typename T>
 void dyson_mat_steep(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
-		     integration::Integrator<T> &I,T beta, int maxiter, T tol) {
+             integration::Integrator<T> &I,T beta, int maxiter, T tol) {
     assert(G.size1() == Sigma.size1());
     assert(G.ntau() == Sigma.ntau());
     assert(H.size1() == G.size1() );
@@ -1145,12 +1145,12 @@ void dyson_mat_steep(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T>
       dyson_mat_steep_dispatch<T, herm_matrix<T>, 1>(G, Sigma, mu, h0, I, beta, maxiter, tol);
     else
       dyson_mat_steep_dispatch<T, herm_matrix<T>, LARGESIZE>(G, Sigma, mu, h0, I, beta,
-							     maxiter, tol);
+                                 maxiter, tol);
 }
 
 template <typename T>
 void dyson_mat_steep(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
-		     function<T> &SigmaMF, integration::Integrator<T> &I,T beta, int maxiter, T tol) {
+             function<T> &SigmaMF, integration::Integrator<T> &I,T beta, int maxiter, T tol) {
     assert(G.size1() == Sigma.size1());
     assert(G.ntau() == Sigma.ntau());
     assert(H.size1() == G.size1() );
@@ -1162,7 +1162,7 @@ void dyson_mat_steep(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T>
       dyson_mat_steep_dispatch<T, herm_matrix<T>, 1>(G, Sigma, mu, h0, SigmaMF, I, beta, maxiter, tol);
     else
       dyson_mat_steep_dispatch<T, herm_matrix<T>, LARGESIZE>(G, Sigma, mu, h0, SigmaMF, I, beta,
-							     maxiter, tol);
+                                 maxiter, tol);
 }
 
 // global interface
@@ -1203,7 +1203,7 @@ void dyson_mat_steep(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T>
 */
 template <typename T>
 void dyson_mat(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
-	       function<T> &SigmaMF, integration::Integrator<T> &I,T beta, const int method,
+           function<T> &SigmaMF, integration::Integrator<T> &I,T beta, const int method,
          const bool force_hermitian){
   assert(method <= 2 && "UNKNOWN CNTR_MAT_METHOD");
 
@@ -1263,7 +1263,7 @@ void dyson_mat(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
 */
 template <typename T>
 void dyson_mat(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
-	       integration::Integrator<T> &I,T beta, const int method,const bool force_hermitian){
+           integration::Integrator<T> &I,T beta, const int method,const bool force_hermitian){
   assert(method <= 2 && "UNKNOWN CNTR_MAT_METHOD");
 
   const int fourier_order = 3;

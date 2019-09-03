@@ -1,0 +1,32 @@
+ /*! 
+    \mainpage Welcome to the NonEquilibrium Systems SImulation (NESSI) library!
+
+    \section S1 What is NESSI?
+
+    Nonequilibrium dynamics holds great promises of allowing for disentangling various degrees of freedom, thus providing microscopic insights in correlated systems. Simulating interacting electronic and/or bosonic systems in realistic scenarios remains a challenge. The nonequilibrium Greens function method in its time-dependent formulation provides one of the most flexible approaches to include various types of interaction effects. The drawback of the method is its substantial numerical effort scaling at least cubically with the simulation time, as well as the inherent complexity of the underlying algorithms. The latter applies, in particular, to higher-order schemes required to study long-time behavior. We present the open-source software suite <b>NESSI</b> for treating Greens functions on the Kadanoff-Baym (KB) contour.
+
+    \section S2 Overview
+       - NESSI is smart
+         - provides a number of tools for constructing Feynman diagram and solving efficiently the corresponding equations of motion
+         - high-order implementation: dividing the KB contour into \f$N\f$ points, the total integrated error of the equilibrium treatment and the two-time propagation scales with as \f$\mathcal{O}(N^{-5})\f$ or better
+         .
+       - NESSI is fast
+         - Efficient distributed-memory parallelization over reciprocal space allow large-scale calculations on extended systems
+         .
+       - NESSI gets support
+         - the software will be fully compatible with a follow-up software package for nonequilibrium dynamical mean-field theory in the strong-coupling limit
+         .
+       .
+
+
+    \section S3 Documentation
+
+    The full documentation, examples and tutorials are available <a href="http://www.nessi.tuxfamily.org">here</a>.
+
+    \section S4 How to cite
+    Please cite the following paper whenever you use parts of NESSI:
+    
+    <a href="http://www.nessi.tuxfamily.org">Michael Schüler, Denis Golež, Yuta Murakami, Nikolaj Bittner, Andreas Herrmann, 
+      Hugo U. R. Strand, Philipp Werner, Martin Eckstein, CPC XX, XX (2019) </a>.
+
+*/

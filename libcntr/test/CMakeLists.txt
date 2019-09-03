@@ -5,8 +5,25 @@
 FILE(GLOB all_h5_files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h5)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${all_h5_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-
-add_executable(runtest
+if (hdf5)
+  add_executable(runtest
+    fkm_bethe_quench.cpp
+    bubble.cpp
+    runtest.cpp
+    function.cpp
+    downfold.cpp
+    equilibrium.cpp
+    integration.cpp
+    linalg.cpp
+    herm_matrix_member.cpp  
+    convolution.cpp
+    utilities.cpp
+    matsubara.cpp
+    dyson.cpp
+    test_differentiation.cpp
+  )
+else(hdf5)
+  add_executable(runtest
   bubble.cpp
   runtest.cpp
   function.cpp
@@ -20,12 +37,8 @@ add_executable(runtest
   matsubara.cpp
   dyson.cpp
   test_differentiation.cpp
-  )
+)
 
-if (hdf5)
-  add_executable(runtest
-    fkm_bethe_quench.cpp
-  )
 endif (hdf5)
 
 
@@ -34,17 +47,6 @@ if (mpi)
 	 runtest_mpi.cpp
   	)
 endif (mpi)
-
-
-#include_directories(
-#  SYSTEM
-#  ../cntr/
-#  ../utils/
-#  ../hdf5/
-#  ../utils/
-#  )
-
-# -- Fixme, put this into the Catch framework
 
 
 target_link_libraries(runtest cntr ${COMMON_LIBS})

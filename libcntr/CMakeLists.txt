@@ -87,7 +87,7 @@ if(BUILD_DOC)
         message(STATUS "Doxygen build started")
 
          # set input and output files
-        set(MAIN_IN ${PROJECT_SOURCE_DIR}/doc/main.dox_inc)
+        set(MAIN_IN ${PROJECT_SOURCE_DIR}/main.dox_inc)
         set(MAIN_OUT ${CMAKE_CURRENT_BINARY_DIR}/main.dox)
         configure_file(${MAIN_IN} ${MAIN_OUT} @ONLY)
 
