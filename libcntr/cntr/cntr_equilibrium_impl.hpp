@@ -39,7 +39,7 @@ namespace cntr {
 * > [T] inverse temperature \f$\beta\f$
 * @param omega
 * > [T] energy
-*/
+*/  
 template <typename T>
 T fermi(T beta, T omega) {
     T arg = omega * beta;
@@ -66,7 +66,7 @@ T fermi(T beta, T omega) {
 * > [T] inverse temperature \f$\beta\f$
 * @param omega
 * > [dvector] vector of energies
-*/
+*/  
 template<typename T>
 dvector fermi(T beta,dvector &omega){
    int size=omega.size();
@@ -126,7 +126,7 @@ cdmatrix diag_prop(T time,dvector &omega){
 * > [T] inverse temperature \f$\beta\f$
 * @param omega
 * > [T] energy
-*/
+*/  
 template <typename T>
 T bose(T beta, T omega) {
     T arg = omega * beta;
@@ -158,7 +158,7 @@ T bose(T beta, T omega) {
 * > [T] inverse temperature \f$\beta\f$
 * @param omega
 * > [dvector] vector of energies
-*/
+*/  
 template<typename T>
 dvector bose(T beta,dvector &omega){
    int size=omega.size();
@@ -293,11 +293,11 @@ template < class dos > struct dos_wrapper{
  */
 class bethedos {
   public:
-    /** \brief <b> Higher edge of the density of states </b> */
+    /** \brief <b> Higher edge of the density of states  \f$ </b> */
     double hi_;
-    /** \brief <b> Lower edge of the density of states </b> */
+    /** \brief <b> Lower edge of the density of states \f$ </b> */
     double lo_;
-    /** \brief <b> Hopping integral and 4V corresponds to the bandwidth </b> */
+    /** \brief <b> Hopping integral and 4V corresponds to the bandwidth  \f$ </b> */
     double V_;
     bethedos() {
         V_ = 1;
@@ -360,17 +360,17 @@ class ohmic{
  */
 class smooth_box {
   public:
-    /** \brief <b> Internal value determining the higher edge of the Fourier transform region  </b> */
+    /** \brief <b> Internal value determining the higher edge of the Fourier transform region  \f$ </b> */
     double hi_;
-    /** \brief <b> Internal value determining the lower edge of the Fourier transform region  </b> */
+    /** \brief <b> Internal value determining the lower edge of the Fourier transform region  \f$ </b> */
     double lo_;
-    /** \brief <b> Lower border of the box </b> */
+    /** \brief <b> Lower border of the box \f$ </b> */
     double A_;
-    /** \brief <b> Higher border of the box </b> */
+    /** \brief <b> Higher border of the box \f$ </b> */
     double B_;
-    /** \brief <b> Smoothness parameter of the box </b> */
+    /** \brief <b> Smoothness parameter of the box \f$ </b> */
     double nu_;
-    /** \brief <b> Normalization of density of states </b> */
+    /** \brief <b> Normalization of density of states \f$ </b> */
     double N_;
     smooth_box() {
         A_ = -1.0;
@@ -510,7 +510,7 @@ void green_equilibrium_les(herm_matrix<T> &G,dos_function &dos,double beta,doubl
 *  \par Purpose
 * <!-- ========= -->
 *
-* > Calculate the equilibrium propagator G for the given density of states \f$A(\omega)\f$
+* > Calculate the equilibrium propagator G for the given density of states
 * > via \f$G(t,t') = -i \int d\omega A(\omega+\mu) exp(i\omega (t'-t)) [ \Theta(t,t') - \Theta(t',t)exp(-\beta*\omega)]\f$
 * <!-- ARGUMENTS
 *      ========= -->
@@ -553,14 +553,16 @@ void green_equilibrium(herm_matrix<T> &G,dos_function &dos,double beta,double h,
 *
 * @param G
 * > The output Greens function set to the equilibrium free propagator
+* @param mu
+* > chemical potential
 * @param beta
 * > inverse temperature
+* @param h
+* > timestep
 * @param limit
 * > max number of intervals in Fourier transform
 * @param nn
 * > number of points in each interval of the Fourier transform
-* @param mu
-* > chemical potential
 */
 template <typename T>
 void green_equilibrium_mat_bethe(herm_matrix<T> &G, double beta, int limit,

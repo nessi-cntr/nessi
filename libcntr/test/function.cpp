@@ -28,6 +28,24 @@ T func_norm2(cntr::function<T> &f0, cntr::function<T> &f1)
 	return err;
 }
 
+template <typename T>
+T func_norm2(cntr::function<T> &f0, cdmatrix &f1)
+{
+	T err = 0.0;
+	int nt = f0.nt_;
+	int size1 = f0.size1_;
+	int size2 = f0.size2_;
+	assert(size1 == f1.rows());
+	assert(size2 == f1.cols());
+	cdmatrix val(size1,size2);
+	for(int tstp=-1; tstp<=nt; tstp++) {
+		f0.get_value(tstp,val);
+		err += (val - f1).norm();
+	}
+	err = sqrt(err);
+	return err;
+}
+
 
 template <typename T>
 T func_norm2(cntr::function<T> &f0, std::complex<T> *f1)
@@ -59,19 +77,6 @@ T func_norm2(cntr::function<T> &f0, std::complex<T> constant)
 	return err;
 }
 
-template <typename T>
-T func_norm2(cntr::function<T> &f0, cdmatrix &constant)
-{
-	T err = 0.0;
-	int nt = f0.nt_;
-	for(int tstp = -1; tstp <= nt; tstp++)
-	{
-		cdmatrix f0_val;
-		f0.get_value(tstp,f0_val);
-		err += (f0_val-constant).norm();
-	}
-	return err;
-}
 
 
 
@@ -223,7 +228,7 @@ TEST_CASE("function","[function]"){
 	SECTION("new methods in function") {
 		int nt = 1000;
 		double err = 0.0;
-		double eps = 1e-10;
+		double eps = 1e-5;
 		std::cout << "test incr and smul" << std::endl;
 		{//incr and smul
 			int size1 = 3;
@@ -238,9 +243,6 @@ TEST_CASE("function","[function]"){
 			mat3 = mat0 + alpha * mat1;
 			f0.set_constant(mat0);
 			f1.set_constant(mat1);
-			cdmatrix cf1(size1,size2);
-			cdmatrix cf2(size1,size2);
-
 			f0.incr(f1, alpha);
 			err = func_norm2(f0, mat3);
 			REQUIRE(err < eps);
@@ -318,15 +320,15 @@ TEST_CASE("function","[function]"){
 					}
 				}
 			}
+			cdmatrix mat_1x1(1,1);
 			for(i1 = 0; i1 < size1; i1++)
 			{
 				for(i2 = 0; i2 < size2; i2++)
 				{
 					f0.get_matrixelement(i1, i2, f3);
-					cdmatrix tmp(1,1);
-					tmp(0,0) = mat0(i1, i2);
-					f4.set_constant(tmp);
-					err = func_norm2(f3, mat0(i1, i2));
+					mat_1x1(0,0) = mat0(i1, i2);
+					f4.set_constant(mat_1x1);
+					err = func_norm2(f3, mat_1x1);
 					REQUIRE(err < eps);
 					err = func_norm2(f3, f4);
 					REQUIRE(err < eps);
@@ -337,6 +339,7 @@ TEST_CASE("function","[function]"){
 
 	}
 
+#if CNTR_USE_HDF5 == 1
 	SECTION("function hdf5 file read write") {
 		int nt = 1000;
 		double h = 0.01;
@@ -352,7 +355,7 @@ TEST_CASE("function","[function]"){
 			   f0.set_value(t, func[t + 1]);
 			   }
 			   */
-			cdmatrix constant=MatrixXcd::Zero(1,1);
+			CPLX constant(0.0, 0.0);
 			f1.set_constant(constant);
 			f0.write_to_hdf5("test_func.h5", "data");
 			f1.read_from_hdf5("test_func.h5", "data");
@@ -362,6 +365,7 @@ TEST_CASE("function","[function]"){
 		}
 
 	}
+#endif
 
 }
 

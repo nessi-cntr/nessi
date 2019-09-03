@@ -28,6 +28,19 @@
 		
 ####################################################################################### */
 
+/*! 
+    \mainpage Welcome to the KAdanoff-BAym Non-Equilibrium COntour (Kaba-Neco) library!
+
+    \section S1 Introduction
+    Some stuff to explain why you coded all this
+
+    \section S2 Examples
+    Many examples of how the code can be used
+
+    \section S3 How to cite
+    Please cite the following paper whenever you use parts of Kaba-Neco:
+    
+*/
 
 
 #include "cntr_decl.hpp"

@@ -71,9 +71,9 @@ namespace cntr {
  * > [int] number of the time step
  * @param ntau
  * > [int] nuber of the tau points
- * @param C
+ * @param *C
  * > [std::complex] Pointer to the function, to which the results of calculation is given (this is just a constant matrix)
- * @param A
+ * @param *A
  * > [std::complex] Pointer to a function A (this is just a constant matrix)
  * @param B
  * > [std::complex] Pointer to a function B (this is just a constant matrix)
@@ -213,9 +213,9 @@ void matsubara_integral_1(int size1, int m, int ntau, std::complex<T> *C,
  * > [int] number of the time step
  * @param ntau
  * > [int] nuber of the tau points
- * @param C
+ * @param *C
  * > [std::complex] Pointer to the function, to which the results of calculation is given (this is just a constant matrix)
- * @param A
+ * @param *A
  * > [std::complex] Pointer to a function A (this is just a constant matrix)
  * @param B
  * > [std::complex] Pointer to a function B (this is just a constant matrix)
@@ -306,9 +306,9 @@ void matsubara_integral_1_1(int size1, int m, int ntau, std::complex<T> *C,
  * > [int] number of the time step
  * @param ntau
  * > [int] nuber of the tau points
- * @param C
+ * @param *C
  * > [std::complex] Pointer to the function, to which the results of calculation is given (this is just a constant matrix)
- * @param A
+ * @param *A
  * > [std::complex] Pointer to a function A (this is just a constant matrix)
  * @param B
  * > [std::complex] Pointer to a function B (this is just a constant matrix)
@@ -577,6 +577,8 @@ void convolution_matsubara_dispatch(GG &C, GG &A, GG &B,
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param nomp
+* > The number of threads.
 * @param C
 * > [GG] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A
@@ -709,7 +711,7 @@ void convolution_matsubara_nomp(int nomp, GG &C, GG &A, GG &B, integration::Inte
  * > Here we calculate
  * > \f{eqnarray*}{
  *     C &=& A*B\\
- *     C^{R}(t,t^\prime) &=& \int_{t^\prime}^t d\bar{t} A^{R}(t,\bar{t}) B^{R}(\bar{t},t^\prime)\f}
+ *     C^{R}(t,t') &=& \int_{t'}^t d\bar{t} A^{R}(t,\bar{t}) B^{R}(\bar{t},t')\f}
  * >
  * > At time-step `t = n h` for all \f$t'\f$.
  * > The result is written into `C`.
@@ -861,8 +863,8 @@ void convolution_timestep_ret(int n, GG &C, GG &A, GG &Acc, GG &B, GG &Bcc,
  * > Here we calculate
  * > \f{eqnarray*}{
  *     C &=& A*B\\
- *     C^{\rceil}(t,\tau^\prime) &=& \int_0^\beta ds  A^{\rceil}(t,s) B^M(s - \tau^\prime)
- *                       + \int_0^t ds A^R(t,s) B^{\rceil}(s,\tau^\prime) \f}
+ *     C^{\rceil}(t,\tau') &=& \int_0^\beta ds  A^{\rceil}(t,s) B^M(s - \tau')
+ *                       + \int_0^t ds A^R(t,s) B^{\rceil}(s,\tau') \f}
  * >
  * > At time-step `t = n h` for all \f$\tau'\f$.
  * > The result is written into `ctv`.
@@ -892,7 +894,7 @@ void convolution_timestep_ret(int n, GG &C, GG &A, GG &Acc, GG &B, GG &Bcc,
  * @param beta
  * > inverse temperature
  * @param h
- * > time step interval
+ * > time step
  */
 template <typename T, class GG, int SIZE1>
 void convolution_timestep_tv(int n, std::complex<T> *ctv, GG &C, GG &A,
@@ -980,8 +982,8 @@ void convolution_timestep_tv(int n, std::complex<T> *ctv, GG &C, GG &A,
  * > Here we calculate
  * > \f{eqnarray*}{
  *     C &=& A*B\\
- *     C^{\rceil}(t,\tau^\prime) &=& \int_0^\beta ds  A^{\rceil}(t,s) B^M(s - \tau^\prime)
- *                       + \int_0^t ds A^R(t,s) B^{\rceil}(s,\tau^\prime) \f}
+ *     C^{\rceil}(t,\tau') &=& \int_0^\beta ds  A^{\rceil}(t,s) B^M(s - \tau')
+ *                       + \int_0^t ds A^R(t,s) B^{\rceil}(s,\tau') \f}
  * >
  * > At time-step `t = n h` for all \f$\tau'\f$.
  * > The result is written at a given time step into 'C'.
@@ -1007,7 +1009,7 @@ void convolution_timestep_tv(int n, std::complex<T> *ctv, GG &C, GG &A,
  * @param beta
  * > inverse temperature
  * @param h
- * > time step interval
+ * > time step
  */
 template <typename T, class GG, int SIZE1>
 void convolution_timestep_tv(int n, GG &C, GG &A, GG &Acc, GG &B, GG &Bcc,
@@ -1486,8 +1488,8 @@ void convolution_timestep_les_retles(int n, std::complex<T> *cles, GG &C,
  * > Here we calculate
  * >   \f{eqnarray*}{
  *     C^{<} &=& A^{\rceil}*B^{\lceil} + A^<*B^{A} + A^R*B^<\\
- *     C^{<}(t,t^\prime) &=& -i \int_0^\beta ds  A^{\rceil}(t,s) B^{\lceil}(s,t^\prime)+ \int_0^{t^\prime} ds  A^{<}(t,s) B^A(s,t^\prime)
- *                       + \int_0^t ds  A^{R}(t,s) B^<(s,t^\prime) \f}
+ *     C^{<}(t,t') &=& -i \int_0^\beta ds  A^{\rceil}(t,s) B^{\lceil}(s,t')+ \int_0^t ds  A^{<}(t,s) B^A(s,t')
+ *                       + \int_0^t ds  A^{R}(t,s) B^<(s,t') \f}
  * > at a given time-step `t = n h`.
  * > The result is written into a contor Green's function `C`.
  *
@@ -1793,7 +1795,7 @@ void convolution_matsubara(GG &C, GG &A, std::complex<T> *f0, GG &B,
  * > Here we calculate
  * > \f{eqnarray*}{
  *     C &=& A*ft*B\\
- *     C^{R}(t,t^\prime) &=&  \int_{t^\prime}^t d\bar{t} A^{R}(t,\bar{t}) F(\bar{t}) B^{R}(\bar{t},t^\prime)\f}
+ *     C^{R}(t,t') &=&  \int_{t'}^t d\bar{t} A^{R}(t,\bar{t}) ft B^{R}(\bar{t},t')\f}
  * >
  * > At time-step `t = n h` for all \f$\tau'\f$. 'ft' is a pointer to \f$F(t)\f$ on the real axis.
  * > The result is written into `C`.
@@ -1949,8 +1951,8 @@ void convolution_timestep_ret(int n, GG &C, GG &A, GG &Acc, std::complex<T> *ft,
  * > Here we calculate
  * > \f{eqnarray*}{
  *     C &=& A*B\\
- *     C^{\rceil}(t,\tau^\prime) &=& \int_0^\beta ds  A^{\rceil}(t,s) F(0^-)B^M(s - \tau^\prime)
- *                       + \int_0^t ds A^R(t,s) F(s)B^{\rceil}(s,\tau^\prime) \f}
+ *     C^{\rceil}(t,\tau') &=& \int_0^\beta ds  A^{\rceil}(t,s) f0(s)B^M(s - \tau')
+ *                       + \int_0^t ds A^R(t,s) ft(s)B^{\rceil}(s,\tau') \f}
  * >
  * > At time-step `t = n h` for all \f$\tau'\f$.
  * > The result is written into `ctv`. 'f0' is a pointer to \f$F(-\mathrm{i}\beta)\f$ on the Matsubara axis, and
@@ -2076,8 +2078,8 @@ void convolution_timestep_tv(int n, std::complex<T> *ctv, GG &C, GG &A, GG &Acc,
  Here we calculate
  * > \f{eqnarray*}{
  *     C &=& A*B\\
- *     C^{\rceil}(t,\tau^\prime) &=& \int_0^\beta ds  A^{\rceil}(t,s) F(0^-)B^M(s - \tau^\prime)
- *                       + \int_0^t ds A^R(t,s) F(s)B^{\rceil}(s,\tau^\prime) \f}
+ *     C^{\rceil}(t,\tau') &=& \int_0^\beta ds  A^{\rceil}(t,s) f0(s)B^M(s - \tau')
+ *                       + \int_0^t ds A^R(t,s) ft(s)B^{\rceil}(s,\tau') \f}
  * >
  * > at time-step `t = n h` for all \f$\tau'\f$. 'f0' is a pointer to \f$F(-\mathrm{i}\beta)\f$ on the Matsubara axis, and
  * > 'ft' is a pointer to \f$F(t)\f$ on the real axis.
@@ -2107,7 +2109,7 @@ void convolution_timestep_tv(int n, std::complex<T> *ctv, GG &C, GG &A, GG &Acc,
  * @param beta
  * > inverse temperature
  * @param h
- * > time step interval
+ * > time step
  */
 template <typename T, class GG, int SIZE1>
 void convolution_timestep_tv(int n, GG &C, GG &A, GG &Acc, std::complex<T> *f0,
@@ -2498,8 +2500,8 @@ void convolution_timestep_les_retles(int n, std::complex<T> *cles, GG &C, GG &A,
  * > Here we calculate
  * >   \f{eqnarray*}{
  *     C^{<} &=& A^{\rceil}*f0*B^{\lceil} + A^<*ft*B^{A} + A^R*ft*B^<\\
- *     C^{<}(t,t^\prime) &=& -i \int_0^\beta ds  A^{\rceil}(t,s) F(0^-) B^{\lceil}(s,t^\prime)+ \int_0^{t^\prime} ds  A^{<}(t,s) F(s) B^A(s,t^\prime)
- *                       + \int_0^t ds  A^{R}(t,s) F(s) B^<(s,t^\prime) \f}
+ *     C^{<}(t,t') &=& -i \int_0^\beta ds  A^{\rceil}(t,s) f0 B^{\lceil}(s,t')+ \int_0^t ds  A^{<}(t,s) ft B^A(s,t')
+ *                       + \int_0^t ds  A^{R}(t,s) ft B^<(s,t') \f}
  * > at a given time-step `t = n h`.
  * > 'f0' is a pointer to \f$F(-\mathrm{i}\beta)\f$ on the Matsubara axis, and
  * > 'ft' is a pointer to \f$F(t)\f$ on the real axis. The result is written into a contour Green's function `C`.
@@ -2704,7 +2706,7 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, std::comp
 * @param beta
 * > inversed temperature
 * @param h
-* > time step interval
+* > time interval
 */
 template <typename T>
 void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
@@ -2750,7 +2752,7 @@ void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
 * @param beta
 * > inversed temperature
 * @param h
-* > time step interval
+* > time interval
 */
 template <typename T>
 void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
@@ -2863,7 +2865,7 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, function<
 * @param beta
 * > inversed temperature
 * @param h
-* > time step interval
+* > time interval
 */
 template <typename T>
 void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, function<T> &ft,
@@ -3352,7 +3354,7 @@ void convolution_timestep_les_jn(int j, int n, std::complex<T> *cc, int sizec, G
 * @param beta
 * > inversed temperature
 * @param h
-* > time step interval
+* > time interval
 */
 template <typename T, class GG>
 void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, function<T> &ft,
@@ -3424,7 +3426,7 @@ void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, fun
 * @param beta
 * > inversed temperature
 * @param h
-* > time step interval
+* > time interval
 */
 template <typename T, class GG>
 void convolution_density_matrix(int tstp, std::complex<T> *rho, GG &A, function<T> &ft,
@@ -3463,7 +3465,7 @@ void convolution_density_matrix(int tstp, std::complex<T> *rho, GG &A, function<
 * @param beta
 * > inversed temperature
 * @param h
-* > time step interval
+* > time interval
 */
 template <typename T, class GG>
 void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, GG &B, GG &Bcc,
@@ -3530,7 +3532,7 @@ void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, GG 
 * @param beta
 * > inversed temperature
 * @param h
-* > time step interval
+* > time interval
 */
 template <typename T, class GG>
 void convolution_density_matrix(int tstp, std::complex<T> *rho, GG &A, GG &B,
@@ -4454,7 +4456,7 @@ void convolution_new(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
  * <!-- ========= -->
  *
  * > Performs the operation \f$C \rightarrow C + \alpha A*ft*B\f$, where 'C', 'A',and 'B' are objects of the type 'GG',
- * > 'f0' is a pointer to \f$F(-\mathrm{i}\beta)\f$ on the Matsubara axis,'ft' is a pointer to \f$F(t)\f$ on the real axis,
+ * > 'f0' is a pointer to \f$F(-\mathrm{i}\beta)\f$ on the Matsubara axis,'ft' is a pointer to \f$F(t)\f$ on the real axis, 
  * > and \f$\alpha\f$ is a complex weight. The operation is performed at given time step `tstp`. `openMP` parallelized version.
  *
  * <!-- ARGUMENTS
@@ -4542,8 +4544,8 @@ void incr_convolution_omp(int omp_num_threads, int tstp, CPLX alpha, GG &C, GG &
 *
 * @param omp_num_threads
 * > [int] number of `openMP` threads
-* @param tstp
-* > [int] time step
+* @param n
+* > [int] number of the time step ('t=nh')
 * @param C
 * > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A
@@ -4645,7 +4647,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * <!-- ========= -->
 *
 * > Computes contour convolution C=A*f*B of the objects with class 'herm_matrix'
-* > at a given time step 't=nh'. Here we assume that A and B are hermitian.
+* > at a given time step 't=nh'. Here we assume that A and B are hermitian. 
 * > Works for a scalar and square matrices. `openMP` parallelized version.
 *
 *
@@ -4685,7 +4687,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * <!-- ========= -->
 *
 * > Computes contour convolution \f$ C=A\ast B\f$ of the objects with class 'herm_matrix'
-* > for the Matsubara component \f$C^\mathrm{M}(\tau)\f$. Here we assume that A and B are hermitian.
+* > for the Matsubara component \f$C^\mathrm{M}(\tau)\f$. Here we assume that A and B are hermitian. 
 * > Works for a scalar and square matrices. `openMP` parallelized version.
 *
 *
@@ -4704,6 +4706,8 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * > [Integrator] integrator class
 * @param beta
 * > inversed temperature
+* @param h
+* > time step interval
 */
 template <typename T>
 void convolution_matsubara_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
@@ -4718,7 +4722,7 @@ void convolution_matsubara_omp(int omp_num_threads, herm_matrix<T> &C, herm_matr
 * <!-- ========= -->
 *
 * > Computes contour convolution \f$ C=A\ast f \ast B\f$ of the objects with class 'herm_matrix'
-* > for the Matsubara component \f$C^\mathrm{M}(\tau)\f$. Here we assume that A and B are hermitian.
+* > for the Matsubara component \f$C^\mathrm{M}(\tau)\f$. Here we assume that A and B are hermitian. 
 * > Works for a scalar and square matrices. `openMP` parallelized version.
 *
 *
@@ -4739,6 +4743,8 @@ void convolution_matsubara_omp(int omp_num_threads, herm_matrix<T> &C, herm_matr
 * > [Integrator] integrator class
 * @param beta
 * > inversed temperature
+* @param h
+* > time step interval
 */
 template <typename T>
 void convolution_matsubara_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
@@ -4906,7 +4912,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * <!-- ========= -->
 *
 * > Computes contour convolution C=A*f*B of the objects with class 'herm_matrix'
-* > at a given time step 't=nh'. Here we assume that A and B are hermitian.
+* > at a given time step 't=nh'. Here we assume that A and B are hermitian. 
 * > Works for a scalar and square matrices. `openMP` parallelized version.
 *
 *
@@ -4921,6 +4927,8 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A
 * > [herm_matrix] contour Green's function
+* @param ft
+* > [function] function \f$f\f$
 * @param B
 * > [herm_matrix] contour Green's function
 * @param I

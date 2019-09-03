@@ -2,10 +2,10 @@
 #include "cntr.hpp"
 
 
-#define CPLX std::complex<double>
+#define CPLX std::complex<double>  
 using namespace std;
-#define GREEN cntr::herm_matrix<double>
-#define GREEN_TSTP cntr::herm_matrix_timestep<double>
+#define GREEN cntr::herm_matrix<double> 
+#define GREEN_TSTP cntr::herm_matrix_timestep<double> 
 
 void timedependent_from_vie(GREEN &G,double mu,cntr::function<double> &epst,double beta,double h){
   int nt=G.nt();
@@ -26,7 +26,7 @@ void timedependent_from_vie(GREEN &G,double mu,cntr::function<double> &epst,doub
 
   for(int tstp=-1;tstp<=nt;tstp++){
     G0eps.right_multiply(tstp,epst,-1.0);
-    epsG0.left_multiply(tstp,epst,-1.0);
+    epsG0.left_multiply(tstp,epst,-1.0);	
   }
 
   cntr::vie2(G,G0eps,epsG0,G0,integration::I<double>(5),beta,h);
@@ -92,7 +92,7 @@ void exact_timeindependent(double beta,double dt,GREEN &G){
 
 // -------------------------------
 // Driven harmonic oscillator
-// H(t)=
+// H(t)= 
 // [Delta,V exp(-2 I om t)]
 // [V exp(2 I om t), -Delta]
 // and the exact propagator  is given by
@@ -273,7 +273,7 @@ TEST_CASE("Non-interacting","[Herm_matrix_noniteracting]"){
     cntr::green_from_H(A2test,mu,epsilon,beta,h,5,4,true);
     // timedependent_from_vie(A4test,mu,epsilon,beta,h);
 
-
+   
     double err=0.0;
     for(int tstp=-1;tstp<nt;tstp++){
       err+=cntr::distance_norm2(tstp,Atest,exact);
@@ -294,24 +294,6 @@ TEST_CASE("Non-interacting","[Herm_matrix_noniteracting]"){
     // REQUIRE(err<eps);
   }
 
-  SECTION ("dos=box"){
-    GREEN A(nt,ntau,size,-1);
-    GREEN Aref(nt,ntau,size,-1);
-
-    cntr::smooth_box d1(-1.0,1.0,5.0);
-
-    cntr::green_equilibrium(A,d1,beta,h,100,20,mu);
-
-    double err=0.0;
-
-    //for(int tstp=-1;tstp<nt;tstp++){
-    //  err+=cntr::distance_norm2(tstp,A,Aref);
-    //}
-
-    REQUIRE(err<eps);
-
-  }
-
   SECTION ("Time-dependent-fermions"){
     A=GREEN(nt,ntau,size,-1);
     ACF2=GREEN(nt,ntau,size,-1);
@@ -322,7 +304,7 @@ TEST_CASE("Non-interacting","[Herm_matrix_noniteracting]"){
     double delta=1.0,V=0.5,omega=0.7;
     std::complex<double> I(0.0,1.0);
 
-
+		
 
     double t;
     cntr::function<double> epsT(nt,size),epsTrun(nt,size),UCN(nt,size),Uexp2(nt,size),Uexp4(nt,size);
@@ -355,7 +337,7 @@ TEST_CASE("Non-interacting","[Herm_matrix_noniteracting]"){
       Uexp2.get_value(tstp,tmp2);
       Uexp4.get_value(tstp,tmp4);
       if(tstp==-1){
-	err+=(U(0,size,delta,V,omega)-tmp4).norm();
+	err+=(U(0,size,delta,V,omega)-tmp4).norm();	
       }else{
 	err+=(U(tstp*h,size,delta,V,omega)-tmp4).norm();
       }
@@ -365,7 +347,7 @@ TEST_CASE("Non-interacting","[Herm_matrix_noniteracting]"){
     // -------------------------------------
     // Test propagators - running Hamiltonian
     // Idea is to have hamiltonian until tstp-1, extrapolate and obtain the propagator for the new time-step
-    // This is useful for predictor corrector like methods.
+    // This is useful for predictor corrector like methods. 
     // TODO: write test which does predictor-corrector for Hartree-Fock or something like this
     // -------------------------------------
     err=0.0;
@@ -381,7 +363,7 @@ TEST_CASE("Non-interacting","[Herm_matrix_noniteracting]"){
       cdmatrix tmp;
       Uexp4.get_value(tstp,tmp);
       if(tstp==-1){
-	err+=(U(0,size,delta,V,omega)-tmp).norm();
+	err+=(U(0,size,delta,V,omega)-tmp).norm();	
       }else{
 	err+=(U(tstp*h,size,delta,V,omega)-tmp).norm();
       }
@@ -464,3 +446,7 @@ TEST_CASE("Non-interacting","[Herm_matrix_noniteracting]"){
   }
 
 }
+
+
+
+

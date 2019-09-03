@@ -56,5 +56,9 @@
 #include "eigen_typedef.h"
 #include <eigen3/unsupported/Eigen/MatrixFunctions>
 
+// global types
+typedef double r_type;
+typedef std::complex<double> c_type;
+
 
 #endif // CNTR_GLOBAL_SETTINGS_H

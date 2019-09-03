@@ -14,15 +14,19 @@ add_executable(runtest
   equilibrium.cpp
   integration.cpp
   linalg.cpp
-  herm_matrix_member.cpp
-  fkm_bethe_quench.cpp
+  herm_matrix_member.cpp  
   convolution.cpp
-  #test_equilibrium_doped.cpp
   utilities.cpp
   matsubara.cpp
   dyson.cpp
   test_differentiation.cpp
   )
+
+if (hdf5)
+  add_executable(runtest
+    fkm_bethe_quench.cpp
+  )
+endif (hdf5)
 
 
 if (mpi)
@@ -32,18 +36,16 @@ if (mpi)
 endif (mpi)
 
 
-include_directories(
-  SYSTEM
-  ../cntr/
-  ../utils/
-  ../hdf5/
-  ../utils/
-  )
+#include_directories(
+#  SYSTEM
+#  ../cntr/
+#  ../utils/
+#  ../hdf5/
+#  ../utils/
+#  )
 
 # -- Fixme, put this into the Catch framework
 
-#test_LF_phonon_factor.cpp
-#downfold.cpp
 
 target_link_libraries(runtest cntr ${COMMON_LIBS})
 

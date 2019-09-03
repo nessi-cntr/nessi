@@ -15,8 +15,8 @@ template <typename T> class herm_matrix_timestep_view;
 // vt from tv etc.)
 // is currently not consistently treated ... safe only for fermionic GF
 template <typename T>
-/** \brief <b> Class `herm_matrix_timestep` deals with a timeslice \f$\mathcal{T}[C]_n\f$ contour objects \f$ C(t,t') \f$
- * at a particular timestep \f$n\f$.</b>
+/** \brief <b> Class `herm_matrix_timestep` deals with contour objects \f$ C(t,t') \f$
+ * at a particular timestep \f$t'\f$.</b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
  *
@@ -25,8 +25,10 @@ template <typename T>
  *
  *  The class 'herm_matrix_timestep' has almost the same functionality
  * as the class 'herm_matrix'. Here, one considers however contour objects \f$ C(t,t') \f$
- * at a particular timestep \f$t_n\f$, denoted as time slices \f$\mathcal{T}[C]_n\f$.
+ * at a particular timestep \f$t'\f$ (timeslice with respect to the first argument \f$t\f$)
  * The contour function \f$ C(t,t') \f$ can be of scalar type or matrix-valued.
+ * NOTE: the bose/fermi sign for the herm_matrix_timestep
+ * is currently not consistently treated ... safe only for fermionic Green's functions
  *
  */
 class herm_matrix_timestep {

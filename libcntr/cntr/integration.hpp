@@ -467,7 +467,7 @@ public:
    *      ========= -->
    *
    * @param f
-   * > A standard vector of class `M` with at least lenght `max(n+1,l)`.
+   * > A standard vector of class `M` with at least lenght `n+1`.
    * @param n
    * > The index of the upper integral bound.
    */
