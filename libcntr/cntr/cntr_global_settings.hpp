@@ -40,6 +40,12 @@
 #define CNTR_MAT_CG 1
 #define CNTR_MAT_FIXPOINT 2
 
+#define GREEN cntr::herm_matrix<double>
+#define GREEN_TSTP cntr::herm_matrix_timestep<double>
+#define CFUNC cntr::function<double>
+#define CINTEG integration::I<double>
+#define II cdouble(0.0,1.0)
+
 #define FERMION -1
 #define BOSON 1
 
@@ -59,6 +65,8 @@
 // global types
 typedef double r_type;
 typedef std::complex<double> c_type;
+
+
 
 
 #endif // CNTR_GLOBAL_SETTINGS_H
