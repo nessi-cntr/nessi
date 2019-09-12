@@ -1,8 +1,6 @@
 #include <eigen3/Eigen/Dense>
 #include <complex>
 
-#define cdouble std::complex<double>
-#define II cdouble(0.0,1.0)
 
 #define ivector VectorXi
 #define dvector VectorXd
