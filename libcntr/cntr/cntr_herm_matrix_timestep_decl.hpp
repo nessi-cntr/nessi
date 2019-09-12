@@ -74,14 +74,13 @@ class herm_matrix_timestep {
     };
     // TODO: Think about the structure  - should we have separate set_ret and set_ret_t_tstp
 
-    template <class Matrix>
-    void set_ret(int tstp,Matrix &M);
-    template <class Matrix>
-    void set_les(int tstp,Matrix &M);
-    template <class Matrix>
-    void set_tv(int tstp,Matrix &M);
-    template <class Matrix>
-    void set_mat(int tstp,Matrix &M);
+    template <class Matrix> void set_ret(int tstp,Matrix &M);
+    template <class Matrix> void set_ret(const int tstp, const int j, Matrix &M);
+    template <class Matrix> void set_les(int tstp,Matrix &M);
+    template <class Matrix> void set_les(const int tstp, const int j, Matrix &M);
+    template <class Matrix> void set_tv(int tstp,Matrix &M);
+    template <class Matrix> void set_tv(int tstp, const int j, Matrix &M);
+    template <class Matrix> void set_mat(int j, Matrix &M);
 
     ///// get_les_t_tstp(int i,Matrix &M) M = Gles(i*h,tstp) etc.
     template <class Matrix>
@@ -92,8 +91,6 @@ class herm_matrix_timestep {
     void get_ret_tstp_t(int j, Matrix &M);
     template <class Matrix>
     void get_ret_t_tstp(int i, Matrix &M);
-    template <class Matrix>
-    void get_tv(int j, Matrix &M);
     template <class Matrix>
     void get_vt(int i, Matrix &M, int sig);
     template <class Matrix>
@@ -117,8 +114,8 @@ class herm_matrix_timestep {
     inline void get_mat(int i, cplx &x);
     inline void get_matminus(int i, cplx &x);
     cplx density_matrix(int tstp);
-    template <class Matrix>
-    void density_matrix(Matrix &M);
+    void density_matrix(cplx &rho);
+    template <class Matrix> void density_matrix(Matrix &M);
     /////
     inline cplx *matptr(int i) { return data_ + i * element_size_; }
     // multiplication with function
@@ -126,8 +123,12 @@ class herm_matrix_timestep {
     void right_multiply(cplx *f0, cplx *ft, T weight = 1.0);
     void left_multiply(function<T> &ft, T weight = 1.0);
     void right_multiply(function<T> &ft, T weight = 1.0);
+    void left_multiply(const int tstp, function<T> &ft, T weight = 1.0);
+    void right_multiply(const int tstp, function<T> &ft, T weight = 1.0);
     void incr(herm_matrix_timestep<T> &g1, T weight);
     void incr(herm_matrix<T> &g, T weight = 1.0);
+    void incr_timestep(const int tstp, herm_matrix_timestep<T> &g1, T weight);
+    void incr_timestep(const int tstp, herm_matrix<T> &g, T weight = 1.0);
     void smul(T weight);
     void set_matrixelement(int i1, int i2, herm_matrix_timestep_view<T> &g,
                            int j1, int j2);
