@@ -1229,6 +1229,71 @@ void dyson_mat(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
   }
 }
 
+
+// global interface
+/** \brief <b> Dyson solver (integral-differential form) for a Green's function \f$G\f$. Global interface</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > One solves the Dyson equation of the following form:
+* > \f$ [ id/dt + \mu - H(t) ] G(t,t^\prime) - [\Sigma*G](t,t^\prime) = \delta(t,t^\prime)\f$
+* > for a hermitian matrix \f$G(t, t^\prime)\f$ on a Matsubara axis.
+* > There are 3 possible methods for solution: Fourier, steep, and fixpoint.
+* > Fixpoint method is choosen by default.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param &G
+* > [herm_matrix<T>] solution
+* @param &Sigma
+* > [herm_matrix<T>] self-energy
+* @param mu
+* > [T] chemical potential
+* @param &H
+* > [function<T>] time-dependent function
+* @param &SigmaMF
+* > [herm_matrix<T>] mean-field self-energy
+* @param I
+* > [Integrator] integrator class
+* @param beta
+* > [double] inverse temperature
+* @param method
+* > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
+* @param force_hermitian
+* > [const bool] force hermitian solution, if 'true'
+*/
+template <typename T>
+void dyson_mat(T beta, T mu, herm_matrix<T> &G, function<T> &H,
+           function<T> &SigmaMF, herm_matrix<T> &Sigma, const int kt,const int method,
+         const bool force_hermitian){
+  assert(method <= 2 && "UNKNOWN CNTR_MAT_METHOD");
+  assert(kt <= MAX_ORDER);
+
+  const int fourier_order = 3;
+  const double tol=1.0e-12;
+  int maxiter;
+  switch(method){
+  case CNTR_MAT_FOURIER:
+    dyson_mat_fourier(G, Sigma, mu, H, SigmaMF, beta, fourier_order);
+    break;
+  case CNTR_MAT_CG:
+    maxiter = 40;
+    dyson_mat_steep(G, Sigma, mu, H, SigmaMF, integration::I<T>(kt), beta, maxiter, tol);
+    break;
+  default:
+    maxiter = 6;
+    dyson_mat_fixpoint(G, Sigma, mu, H, SigmaMF, integration::I<T>(kt), beta, maxiter);
+    break;
+  }
+  if(force_hermitian){
+    force_matsubara_hermitian(G);
+  }
+}
+
 /** \brief <b> Dyson solver (integral-differential form) for a Green's function \f$G\f$</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1288,6 +1353,66 @@ void dyson_mat(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
   }
 }
 
+/** \brief <b> Dyson solver (integral-differential form) for a Green's function \f$G\f$</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > One solves the Dyson equation of the following form:
+* > \f$ [ id/dt + \mu - H(t) ] G(t,t^\prime) - [\Sigma*G](t,t^\prime) = \delta(t,t^\prime)\f$
+* > for a hermitian matrix \f$G(t, t^\prime)\f$ on a Matsubara axis.
+* > There are 3 possible methods for solution: Fourier, steep, and fixpoint.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param &G
+* > [herm_matrix<T>] solution
+* @param &Sigma
+* > [herm_matrix<T>] self-energy
+* @param mu
+* > [T] chemical potential
+* @param &H
+* > [function<T>] time-dependent function
+* @param I
+* > [Integrator] integrator class
+* @param beta
+* > [double] inverse temperature
+* @param method
+* > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
+* @param force_hermitian
+* > [const bool] force hermitian solution, if 'true'
+*/
+template <typename T>
+void dyson_mat(T beta, T mu, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma,
+           const int kt, const int method,const bool force_hermitian){
+  assert(method <= 2 && "UNKNOWN CNTR_MAT_METHOD");
+  assert(kt <= MAX_ORDER);
+
+  const int fourier_order = 3;
+  const double tol=1.0e-12;
+  int maxiter;
+
+  switch(method){
+  case 0:
+    dyson_mat_fourier(G, Sigma, mu, H, beta, fourier_order);
+    break;
+  case 1:
+    maxiter = 40;
+    dyson_mat_steep(G, Sigma, mu, H, integration::I<T>(kt), beta, maxiter, tol);
+    break;
+  case 2:
+    maxiter=6;
+    dyson_mat_fixpoint(G, Sigma, mu, H, integration::I<T>(kt), beta, maxiter);
+    break;
+  }
+  if(force_hermitian){
+    force_matsubara_hermitian(G);
+  }
+}
+
 /** \brief <b> Start-up procedure for solving the Dyson equation of the integral-differential form for a Green's function \f$G\f$</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1335,6 +1460,56 @@ void dyson_start(herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<T> &Sigma,
         dyson_start_ret<T, herm_matrix<T>, LARGESIZE>(G, mu, H.ptr(0), Sigma, I, h);
         dyson_start_tv<T, herm_matrix<T>, LARGESIZE>(G, mu, H.ptr(0), Sigma, I, beta, h);
         dyson_start_les<T, herm_matrix<T>, LARGESIZE>(G, mu, H.ptr(0), Sigma, I, beta, h);
+    }
+}
+
+/** \brief <b> Start-up procedure for solving the Dyson equation of the integral-differential form for a Green's function \f$G\f$</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > One solves the Dyson equation of the following form:
+* > \f$ [ id/dt + \mu - H(t) ] G(t,t^\prime) - [\Sigma*G](t,t^\prime) = \delta(t,t^\prime)\f$
+* > for a hermitian matrix \f$G(t, t^\prime)\f$ for the first k timesteps (given by the integrator class 'I').
+* > One assumes that the Matsubara component of \f$G\f$ and \f$\Sigma(t,t^\prime)\f$
+* > for \f$t,t^\prime\f$<=k are given.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param &G
+* > [herm_matrix<T>] solution
+* @param mu
+* > [T] chemical potential
+* @param &H
+* > [function<T>] time-dependent function
+* @param &Sigma
+* > [herm_matrix<T>] self-energy
+* @param I
+* > [Integrator] integrator class
+* @param beta
+* > [double] inverse temperature
+* @param h
+* > [double] time interval
+*/
+template <typename T>
+void dyson_start(T beta, T mu, T h, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma,
+                 const int kt) {
+    int size1 = G.size1();
+    assert(G.size1() == Sigma.size1());
+    assert(G.ntau() == Sigma.ntau());
+    assert(G.nt() >= kt);
+    assert(Sigma.nt() >= kt);
+    if (size1 == 1) {
+        dyson_start_ret<T, herm_matrix<T>, 1>(G, mu, H.ptr(0), Sigma, integration::I<T>(kt), h);
+        dyson_start_tv<T, herm_matrix<T>, 1>(G, mu, H.ptr(0), Sigma, integration::I<T>(kt), beta, h);
+        dyson_start_les<T, herm_matrix<T>, 1>(G, mu, H.ptr(0), Sigma, integration::I<T>(kt), beta, h);
+    } else {
+        dyson_start_ret<T, herm_matrix<T>, LARGESIZE>(G, mu, H.ptr(0), Sigma, integration::I<T>(kt), h);
+        dyson_start_tv<T, herm_matrix<T>, LARGESIZE>(G, mu, H.ptr(0), Sigma, integration::I<T>(kt), beta, h);
+        dyson_start_les<T, herm_matrix<T>, LARGESIZE>(G, mu, H.ptr(0), Sigma, integration::I<T>(kt), beta, h);
     }
 }
 
@@ -1397,6 +1572,66 @@ void dyson_timestep(int n, herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<
     }
 }
 
+
+/** \brief <b> One step Dyson solver (integral-differential form) for a Green's function \f$G\f$</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > One solves the Dyson equation of the following form:
+* > \f$ [ id/dt + \mu - H(t) ] G(t,t^\prime) - [\Sigma*G](t,t^\prime) = \delta(t,t^\prime)\f$
+* > for a hermitian matrix \f$G(t, t^\prime)\f$ at a given timestep 'n',
+* > i.e.,  G^ret(nh,t'<=nh), G^les(t<=nh,nh), G^tv(nt,tau=0..beta). Timestep must be >k,
+* > where k is the Integration order 'I'.
+* > The timesteps n=0..k must be computed seperately, using the routine
+* > "_start", which assumes that the Matsubara component of \f$G\f$ and \f$\Sigma(t,t^\prime)\f$
+* > for \f$t,t^\prime\f$<=k are given.
+* > Here, are given: \f$\Sigma(t, t^\prime)\f$, \f$\mu\f$, and \f$H(t)\f$.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param n
+* > [int] time step
+* @param &G
+* > [herm_matrix<T>] solution
+* @param mu
+* > [T] chemical potential
+* @param &H
+* > [function<T>] time-dependent function
+* @param &Sigma
+* > [herm_matrix<T>] self-energy
+* @param I
+* > [Integrator] integrator class
+* @param beta
+* > [double] inverse temperature
+* @param h
+* > [double] time interval
+*/
+template <typename T>
+void dyson_timestep(int n, T beta, T mu, T h, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma,
+                    const int kt) {
+    int size1 = G.size1();
+    assert(G.size1() == Sigma.size1());
+    assert(G.ntau() == Sigma.ntau());
+    assert(G.nt() >= n);
+    assert(Sigma.nt() >= n);
+    assert(n > kt);
+    if (size1 == 1) {
+        dyson_timestep_ret<T, herm_matrix<T>, 1>(n, G, mu, H.ptr(0), Sigma, integration::I<T>(kt), h);
+        dyson_timestep_tv<T, herm_matrix<T>, 1>(n, G, mu, H.ptr(n), Sigma, integration::I<T>(kt), beta, h);
+        dyson_timestep_les<T, herm_matrix<T>, 1>(n, G, mu, H.ptr(0), Sigma, integration::I<T>(kt), beta, h);
+    } else {
+        dyson_timestep_ret<T, herm_matrix<T>, LARGESIZE>(n, G, mu, H.ptr(0), Sigma, integration::I<T>(kt), h);
+        dyson_timestep_tv<T, herm_matrix<T>, LARGESIZE>(n, G, mu, H.ptr(n), Sigma, integration::I<T>(kt), beta,
+                                                        h);
+        dyson_timestep_les<T, herm_matrix<T>, LARGESIZE>(n, G, mu, H.ptr(0), Sigma, integration::I<T>(kt), beta,
+                                                         h);
+    }
+}
+
 /** \brief <b> Solver of the Dyson equation in the integral-differential form for a Green's function \f$G\f$</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1443,6 +1678,55 @@ void dyson(herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<T> &Sigma,
         dyson_start(G, mu, H, Sigma, I, beta, h);
     for (n = k + 1; n <= nt; n++)
         dyson_timestep(n, G, mu, H, Sigma, I, beta, h);
+}
+
+
+/** \brief <b> Solver of the Dyson equation in the integral-differential form for a Green's function \f$G\f$</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > One solves the Dyson equation of the following form:
+* > \f$ [ id/dt + \mu - H(t) ] G(t,t^\prime) - [\Sigma*G](t,t^\prime) = \delta(t,t^\prime)\f$
+* > for a hermitian matrix \f$G(t, t^\prime)\f$
+* > with given \f$\Sigma(t, t^\prime)\f$, \f$\mu\f$, and \f$H(t)\f$.
+* > Here, one calls the routines 'dyson_mat()', 'dyson_start()', 'dyson_timestep'.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param &G
+* > [herm_matrix<T>] solution
+* @param mu
+* > [T] chemical potential
+* @param &H
+* > [function<T>] time-dependent function
+* @param &Sigma
+* > [herm_matrix<T>] self-energy
+* @param I
+* > [Integrator] integrator class
+* @param beta
+* > [double] inverse temperature
+* @param h
+* > [double] time interval
+* @param matsubara_method
+* > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
+* @param force_hermitian
+* > [const bool] force hermitian solution
+*/
+template <typename T>
+void dyson(T beta, T mu, T h, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma,
+           const int kt, const int matsubara_method,
+           const bool force_hermitian) {
+    int n, nt = G.nt();
+    dyson_mat(beta, mu, G, H, Sigma, kt, matsubara_method, force_hermitian);
+    if (nt >= 0)
+        dyson_start(beta, mu, h, G, H, Sigma, kt);
+    for (n = kt + 1; n <= nt; n++)
+        dyson_timestep(n, beta, mu, h, G, H, Sigma, kt);
 }
 
 }

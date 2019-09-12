@@ -18,7 +18,7 @@ namespace cntr {
 #   implemented in green_cntr_dyson.hpp
 #
 ###########################################################################################*/
-// preferred call: H passed as cntr::function
+// internal interface 
   template <typename T>
   void dyson_mat_fourier(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H, T beta,
     int order = 3);
@@ -54,6 +54,7 @@ namespace cntr {
   template <typename T>
   void dyson_start(herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<T> &Sigma,
     integration::Integrator<T> &I, T beta, T h);
+
   template <typename T>
   void dyson_timestep(int n, herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<T> &Sigma,
     integration::Integrator<T> &I, T beta, T h);
@@ -63,6 +64,31 @@ namespace cntr {
     integration::Integrator<T> &I, T beta, T h, const int matsubara_method=CNTR_MAT_FIXPOINT,
     const bool force_hermitian=true);
 
+// documented user interfaces
+
+  template <typename T>
+  void dyson_mat(T beta, T mu, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma, 
+     const int kt=MAX_ORDER, const int method=CNTR_MAT_FIXPOINT,
+     const bool force_hermitian=true);
+
+  template <typename T>
+  void dyson_mat(T beta, T mu, herm_matrix<T> &G, function<T> &H, function<T> &SigmaMF, 
+     herm_matrix<T> &Sigma, const int kt=MAX_ORDER, const int method=CNTR_MAT_FIXPOINT,
+     const bool force_hermitian=true);
+
+  template <typename T>
+  void dyson_start(T beta, T mu, T h, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma,
+    const int kt=MAX_ORDER);
+
+  template <typename T>
+  void dyson_timestep(int n, T beta, T mu, T h, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma,
+    const int kt=MAX_ORDER);
+
+  template <typename T>
+  void dyson(T beta, T mu, T h, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma,
+    const int kt=MAX_ORDER, const int matsubara_method=CNTR_MAT_FIXPOINT,
+    const bool force_hermitian=true);
+  
 } // namespace cntr
 
 #endif  // CNTR_DYSON_DECL_H
