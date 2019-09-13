@@ -14,6 +14,8 @@ namespace cntr {
 #  [1+F]G=Q, G,Q hermitian
 #
 ###########################################################################################*/
+  
+// internal interfaces
   template <typename T>
   void vie2_mat(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
 		T beta, integration::Integrator<T> &I, const int method=CNTR_MAT_FIXPOINT);
@@ -22,26 +24,50 @@ namespace cntr {
   void vie2_mat_fourier(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
 		T beta, int order = 3);
   template <typename T>
+
   void vie2_mat_fixpoint(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
 		      herm_matrix<T> &Q, T beta, integration::Integrator<T> &I,
 		      int nfixpoint = 6);
+
   template <typename T>
   void vie2_mat_steep(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
 		   herm_matrix<T> &Q, T beta, integration::Integrator<T> &I,
 		   int maxiter = 8, T tol=1.0e-16);
+
   template <typename T>
   void vie2_start(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
 		  integration::Integrator<T> &I, T beta, T h);
+
   template <typename T>
   void vie2_timestep(int n, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
-		     herm_matrix<T> &Q, integration::Integrator<T> &I, T beta, T h,
-		     const int matsubara_method=CNTR_MAT_FIXPOINT);
+         herm_matrix<T> &Q, integration::Integrator<T> &I, T beta, T h,
+         const int matsubara_method=CNTR_MAT_FIXPOINT);
+
   template <typename T>
   void vie2(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
-	    integration::Integrator<T> &I, T beta, T h, const int matsubara_method=CNTR_MAT_FIXPOINT);
+      integration::Integrator<T> &I, T beta, T h, const int matsubara_method=CNTR_MAT_FIXPOINT);
+
   template <typename T>
   void vie2_timestep_sin(int n,herm_matrix<T> &G,function<T> &Gsin,herm_matrix<T> &F,herm_matrix<T> &Fcc, function<T> &Fsin ,
       herm_matrix<T> &Q,function<T> &Qsin,T beta,T h,int kt);
+
+// documented user interfaces
+  template <typename T>
+  void vie2_mat(T beta, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
+    const int kt=MAX_ORDER, const int method=CNTR_MAT_FIXPOINT);
+
+  template <typename T>
+  void vie2_start(T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
+      const int kt=MAX_ORDER);
+ 
+
+  template <typename T>
+  void vie2_timestep(int n, T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
+                   herm_matrix<T> &Q, const int kt=MAX_ORDER,  const int matsubara_method=CNTR_MAT_FIXPOINT);
+  
+  template <typename T>
+  void vie2(T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
+      const int kt=MAX_ORDER, const int matsubara_method=CNTR_MAT_FIXPOINT);
 
 /* /////////////////////////////////////////////////////////////////////////////////////////
 // OpenMP
@@ -53,9 +79,19 @@ namespace cntr {
 			 herm_matrix<T> &Fcc, herm_matrix<T> &Q, integration::Integrator<T> &I,
 			 T beta, T h, const int matsubara_method=CNTR_MAT_FIXPOINT);
   template <typename T>
+  void vie2_timestep_omp(int omp_num_threads, int tstp, T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F,
+       herm_matrix<T> &Fcc, herm_matrix<T> &Q, const int kt=MAX_ORDER,
+       const int matsubara_method=CNTR_MAT_FIXPOINT);
+
+  template <typename T>
   void vie2_omp(int omp_num_threads, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
 		herm_matrix<T> &Q, integration::Integrator<T> &I, T beta, T h,
 		const int matsubara_method=CNTR_MAT_FIXPOINT);
+
+  template <typename T>
+  void vie2_omp(int omp_num_threads,  T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
+    herm_matrix<T> &Q, const int kt=MAX_ORDER,
+    const int matsubara_method=CNTR_MAT_FIXPOINT);
 #endif // CNTR_USE_OMP
 
 } // namespace cntr

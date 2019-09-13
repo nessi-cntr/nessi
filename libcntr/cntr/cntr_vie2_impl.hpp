@@ -1242,6 +1242,60 @@ void vie2_mat(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
 
 }
 
+/** \brief <b> VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$ on the Matsubara axis</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > One solves the linear equation \f$(1+F)*G=Q\f$ for a hermitian matrix \f$G(t, t^\prime)\f$ on a Matsubara axis, for given:
+* > input kernel \f$F(t, t^\prime)\f$, its hermitian conjugate \f$F^\ddagger(t, t^\prime)\f$, and the source term \f$Q(t, t^\prime)\f$.
+* > There are 3 possible methods for solution: Fourier, steep, and fixpoint.
+* > Fixpoint method is choosen by default.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param &G
+* > [herm_matrix] solution
+* @param &F
+* > [herm_matrix] green's function  on left-hand side
+* @param &Fcc
+* > [herm_matrix] Complex conjugate of F
+* @param &Q
+* > [herm_matrix] green's function  on right-hand side
+* @param beta
+* > [double] inverse temperature
+* @param I
+* > [Integrator] integrator class
+* @param method
+* > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
+*/
+template <typename T>
+void vie2_mat(T beta, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
+     herm_matrix<T> &Q, const int kt, const int method){
+
+  const int fourier_order=3;
+  int maxiter;
+  T tol = 1.0e-12;
+
+  switch(method) {
+  case CNTR_MAT_FOURIER:
+    vie2_mat_fourier(G, F, Fcc, Q, beta, fourier_order);
+    break;
+  case CNTR_MAT_CG:
+    maxiter = 40;
+    vie2_mat_steep(G, F, Fcc, Q, beta, integration::I<T>(kt), maxiter, tol);
+    break;
+  default:
+    maxiter = 6;
+    vie2_mat_fixpoint(G, F, Fcc, Q, beta, integration::I<T>(kt), maxiter);
+    break;
+  }
+
+}
+
 /** \brief <b> VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$ for the first k timesteps</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1320,6 +1374,88 @@ void vie2_start(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_
         vie2_start_ret<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, I, h);
         vie2_start_tv<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, I, beta, h);
         vie2_start_les<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, I, beta, h);
+        break;
+    }
+}
+
+/** \brief <b> VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$ for the first k timesteps</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > One solves the linear equation \f$(1+F)*G=Q\f$ for a hermitian matrix \f$G(t, t^\prime)\f$
+* > for the first k timesteps (given by the integrator class 'I').
+* > Here, are given: input kernel \f$F(t, t^\prime)\f$, its hermitian conjugate \f$F^\ddagger(t, t^\prime)\f$,
+* > and the source term \f$Q(t, t^\prime)\f$. Basically, the function calls 'vie2_start_ret', 'vie2_start_tv', and 'vie2_start_les'.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param &G
+* > [herm_matrix] solution
+* @param &F
+* > [herm_matrix] green's function  on left-hand side
+* @param &Fcc
+* > [herm_matrix] Complex conjugate of F
+* @param &Q
+* > [herm_matrix] green's function  on right-hand side
+* @param I
+* > [Integrator] integrator class
+* @param beta
+* > [double] inverse temperature
+* @param h
+* > [double] time interval
+*/
+template <typename T>
+void vie2_start(T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
+                const int kt) {
+    int size1 = G.size1();
+    assert(G.size1() == F.size1());
+    assert(G.ntau() == F.ntau());
+    assert(G.nt() >= kt);
+    assert(F.nt() >= kt);
+    assert(G.size1() == Fcc.size1());
+    assert(G.ntau() == Fcc.ntau());
+    assert(Fcc.nt() >= kt);
+
+    switch (size1) {
+    case 1:
+        vie2_start_ret<T, herm_matrix<T>, 1>(G, F, Fcc, Q, integration::I<T>(kt), h);
+        vie2_start_tv<T, herm_matrix<T>, 1>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 1>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        break;
+    case 2:
+        vie2_start_ret<T, herm_matrix<T>, 2>(G, F, Fcc, Q, integration::I<T>(kt), h);
+        vie2_start_tv<T, herm_matrix<T>, 2>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 2>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        break;
+    case 3:
+        vie2_start_ret<T, herm_matrix<T>, 3>(G, F, Fcc, Q, integration::I<T>(kt), h);
+        vie2_start_tv<T, herm_matrix<T>, 3>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 3>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        break;
+    case 4:
+        vie2_start_ret<T, herm_matrix<T>, 4>(G, F, Fcc, Q, integration::I<T>(kt), h);
+        vie2_start_tv<T, herm_matrix<T>, 4>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 4>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        break;
+    case 5:
+        vie2_start_ret<T, herm_matrix<T>, 5>(G, F, Fcc, Q, integration::I<T>(kt), h);
+        vie2_start_tv<T, herm_matrix<T>, 5>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 5>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        break;
+    case 8:
+        vie2_start_ret<T, herm_matrix<T>, 8>(G, F, Fcc, Q, integration::I<T>(kt), h);
+        vie2_start_tv<T, herm_matrix<T>, 8>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 8>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        break;
+    default:
+        vie2_start_ret<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, integration::I<T>(kt), h);
+        vie2_start_tv<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_les<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
         break;
     }
 }
@@ -1415,6 +1551,98 @@ void vie2_timestep(int n, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &
     }
 }
 
+
+/** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$ at a given timestep</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > One solves the linear equation \f$(1+F)*G=Q\f$ for \f$G(t, t^\prime)\f$ at a given timestep, for given:
+* > input kernel \f$F(t, t^\prime)\f$, its hermitian conjugate \f$F^\ddagger(t, t^\prime)\f$, the source term \f$Q(t, t^\prime)\f$, and
+* > the integrator class 'I'.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param n
+* > [int] time step
+* @param &G
+* > [herm_matrix<T>] solution
+* @param &F
+* > [herm_matrix<T>] green's function  on left-hand side
+* @param &Fcc
+* > [herm_matrix<T>] Complex conjugate of F
+* @param &Q
+* > [herm_matrix<T>] green's function  on right-hand side
+* @param I
+* > [Integrator] integrator class
+* @param beta
+* > [double] inverse temperature
+* @param h
+* > [double] time interval
+* @param matsubara_method
+* > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
+*/
+template <typename T>
+void vie2_timestep(int n, T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
+                   herm_matrix<T> &Q, const int kt,  const int matsubara_method) {
+    int size1 = G.size1(), k = I.k();
+    assert(G.size1() == F.size1());
+    assert(G.size1() == Fcc.size1());
+    assert(G.ntau() == F.ntau());
+    assert(G.ntau() == Fcc.ntau());
+    assert(G.nt() >= n);
+    assert(F.nt() >= n);
+    assert(Fcc.nt() >= n);
+
+    if (n==-1){
+        vie2_mat(G, F, Fcc, Q, beta, integration::I<T>(kt), matsubara_method);
+    }else if(n<=k){
+        vie2_start(G,F,Fcc,Q,integration::I<T>(n),beta,h);
+    }else{
+        switch (size1) {
+        case 1:
+            vie2_timestep_ret<T, herm_matrix<T>, 1>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 1>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 1>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            break;
+        case 2:
+            vie2_timestep_ret<T, herm_matrix<T>, 2>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 2>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 2>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            break;
+        case 3:
+            vie2_timestep_ret<T, herm_matrix<T>, 3>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 3>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 3>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            break;
+        case 4:
+            vie2_timestep_ret<T, herm_matrix<T>, 4>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 4>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 4>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            break;
+        case 5:
+            vie2_timestep_ret<T, herm_matrix<T>, 5>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 5>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 5>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            break;
+        case 8:
+            vie2_timestep_ret<T, herm_matrix<T>, 8>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 8>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 8>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            break;
+        default:
+            vie2_timestep_ret<T, herm_matrix<T>, LARGESIZE>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
+            vie2_timestep_tv<T, herm_matrix<T>, LARGESIZE>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, LARGESIZE>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        break;
+        }
+    }
+}
+
 /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1452,11 +1680,53 @@ void vie2(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix
           integration::Integrator<T> &I, T beta, T h, const int matsubara_method) {
     int tstp, k = I.k();
     vie2_mat(G, F, Fcc, Q, beta, I, matsubara_method);
-    // vie2_mat(G,F,Fcc,Q,beta,3);
     if (G.nt() >= 0)
         vie2_start(G, F, Fcc, Q, I, beta, h);
     for (tstp = k + 1; tstp <= G.nt(); tstp++)
         vie2_timestep(tstp, G, F, Fcc, Q, I, beta, h);
+}
+
+/** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > One solves the linear equation \f$(1+F)*G=Q\f$ for a hermitian matrix \f$G(t, t^\prime)\f$
+* > with given \f$F(t, t^\prime)\f$ and \f$Q(t, t^\prime)\f$.
+* > Here, one calls the routines 'vie2_mat()', 'vie2_start()', 'vie2_timestep'.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param &G
+* > [herm_matrix<T>] solution
+* @param &F
+* > [herm_matrix<T>] green's function  on left-hand side
+* @param &Fcc
+* > [herm_matrix<T>] Complex conjugate of F
+* @param &Q
+* > [herm_matrix<T>] green's function  on right-hand side
+* @param I
+* > [Integrator] integrator class
+* @param beta
+* > [double] inverse temperature
+* @param h
+* > [double] time interval
+* @param matsubara_method
+* > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
+*/
+template <typename T>
+void vie2(T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
+          const int kt, const int matsubara_method) {
+    int tstp, k = I.k();
+    vie2_mat(beta, G, F, Fcc, Q, kt, matsubara_method);
+    if (G.nt() >= 0)
+        vie2_start(beta, h, G, F, Fcc, Q, kt);
+    for (tstp = k + 1; tstp <= G.nt(); tstp++)
+        vie2_timestep(tstp, beta, h, G, F, Fcc, Q, kt);
 }
 
 /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for Green's function with instantaneous contributions for given integration order. </b>

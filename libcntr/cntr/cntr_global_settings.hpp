@@ -34,6 +34,8 @@
 #include "./hdf5/hdf5_interface.hpp"
 #endif
 
+#define MAX_ORDER 5
+
 #define CNTR_PI 3.14159265358979323846
 
 #define CNTR_MAT_FOURIER 0
