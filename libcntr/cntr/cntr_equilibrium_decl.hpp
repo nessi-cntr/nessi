@@ -38,18 +38,18 @@ namespace cntr {
 
   // BETHE DOS, bandwidh 4
   template <typename T>
-  void green_equilibrium_mat_bethe(herm_matrix<T> &G, T beta,
-    int limit = 100, int nn = 20,T mu=0.0);
+  void green_equilibrium_mat_bethe(herm_matrix<T> &G, double beta,
+    int limit = 100, int nn = 20,double mu=0.0);
   template <typename T>
-  void green_equilibrium_bethe(herm_matrix<T> &G, double beta, T h,
-    int limit = 100, int nn = 20,T mu=0.0);
+  void green_equilibrium_bethe(herm_matrix<T> &G, double beta, double h,
+    int limit = 100, int nn = 20,double mu=0.0);
   // user-defined DOS
   template <typename T, class dos_function>
-  void green_equilibrium_mat(herm_matrix<T> &G, dos_function &dos, T beta,
-    int limit = 100, int nn = 20,T mu=0.0);
+  void green_equilibrium_mat(herm_matrix<T> &G, dos_function &dos, double beta,
+    int limit = 100, int nn = 20,double mu=0.0);
   template <typename T, class dos_function>
-  void green_equilibrium(herm_matrix<T> &G, dos_function &dos, T beta,
-    T h, int limit = 100, int nn = 20, T mu=0.0);
+  void green_equilibrium(herm_matrix<T> &G, dos_function &dos, double beta,
+    double h, int limit = 100, int nn = 20, double mu=0.0);
   // other "simple" Greenfunctions: [idt + mu - H(t)]^{-1} and [idt + mu -
   // H0]^{-1} etc
   // template <typename T>

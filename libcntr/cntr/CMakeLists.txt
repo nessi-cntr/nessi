@@ -4,7 +4,6 @@ add_library(cntr SHARED
     linalg_eigen.cpp
     integration.cpp
     integration_extern_templates.cpp
-    #hdf5/hdf5_interface.cpp
     cntr_convolution_extern_templates.cpp
     cntr_pseudo_convolution_extern_templates.cpp
     #cntr_cyclic_timestep_extern_templates.cpp
@@ -23,6 +22,7 @@ add_library(cntr SHARED
     cntr_vie2_extern_templates.cpp
     cntr_distributed_array_extern_templates.cpp
     cntr_distributed_timestep_array_extern_templates.cpp
+    cntr_getset_extern_templates.cpp
     )
 set_property(TARGET cntr APPEND_STRING PROPERTY COMPILE_FLAGS " -w")
 

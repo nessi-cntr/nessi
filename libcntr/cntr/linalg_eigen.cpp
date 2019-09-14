@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "eigen_typedef.h"
+#include "cntr_global_settings.hpp"
 
 namespace linalg {
 

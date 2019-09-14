@@ -29,10 +29,13 @@
 #include <mpi.h>
 #endif
 
-
 #ifdef CNTR_USE_HDF5
-#include "./hdf5/hdf5_interface.hpp"
+#include "hdf5/hdf5_interface.hpp"
 #endif
+
+// global types
+typedef double r_type;
+typedef std::complex<double> cdouble;
 
 #define MAX_ORDER 5
 
@@ -63,10 +66,6 @@
 // using eigen library
 #include "eigen_typedef.h"
 #include <eigen3/unsupported/Eigen/MatrixFunctions>
-
-// global types
-typedef double r_type;
-typedef std::complex<double> c_type;
 
 
 

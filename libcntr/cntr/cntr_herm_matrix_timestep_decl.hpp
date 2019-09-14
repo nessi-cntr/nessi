@@ -23,12 +23,11 @@ template <typename T>
  *  \par Purpose
  * <!-- ========= -->
  *
- *  The class 'herm_matrix_timestep' has almost the same functionality
- * as the class 'herm_matrix'. Here, one considers however contour objects \f$ C(t,t') \f$
- * at a particular timestep \f$t'\f$ (timeslice with respect to the first argument \f$t\f$)
+ * The class 'herm_matrix_timestep' describes a time slice \f$\mathcal{T}[C]_n\f$
+ * of the contour function \f$C(t,t')\f$ at the time step \f$ n \f$, storing
+ * \f$C^<(t_j, t_n), C^\mathrm{R}(t_n, t_j)\f$ for \f$j=0,\dots,n\f$ and \f$C^\mathrm{M}(\tau_m),
+ * C^\rceil(t_n, \tau_m)\f$ for \f$m=0,\dots,N_\tau\f$.
  * The contour function \f$ C(t,t') \f$ can be of scalar type or matrix-valued.
- * NOTE: the bose/fermi sign for the herm_matrix_timestep
- * is currently not consistently treated ... safe only for fermionic Green's functions
  *
  */
 class herm_matrix_timestep {
@@ -39,8 +38,8 @@ class herm_matrix_timestep {
     herm_matrix_timestep();
     ~herm_matrix_timestep();
     herm_matrix_timestep(int tstp,int ntau,int size1=1);
-	  herm_matrix_timestep(int tstp,int ntau,int size1,int sig);
-	  herm_matrix_timestep(int tstp,int ntau,int size1,int size2,int sig);
+	herm_matrix_timestep(int tstp,int ntau,int size1,int sig);
+	herm_matrix_timestep(int tstp,int ntau,int size1,int size2,int sig);
     herm_matrix_timestep(const herm_matrix_timestep &g);
 	  herm_matrix_timestep & operator=(const herm_matrix_timestep &g);
 #if __cplusplus >= 201103L
@@ -72,49 +71,58 @@ class herm_matrix_timestep {
     inline cplx *lesptr(int i) {
         return data_ + (tstp_ + 1 + ntau_ + 1 + i) * element_size_;
     };
-    // TODO: Think about the structure  - should we have separate set_ret and set_ret_t_tstp
+    // preferred interfaces
 
-    template <class Matrix> void set_ret(int tstp,Matrix &M);
-    template <class Matrix> void set_ret(const int tstp, const int j, Matrix &M);
-    template <class Matrix> void set_les(int tstp,Matrix &M);
-    template <class Matrix> void set_les(const int tstp, const int j, Matrix &M);
-    template <class Matrix> void set_tv(int tstp,Matrix &M);
-    template <class Matrix> void set_tv(int tstp, const int j, Matrix &M);
-    template <class Matrix> void set_mat(int j, Matrix &M);
+    template <class Matrix> void set_ret(int i, int j, Matrix &M);
+    template <class Matrix> void set_les(int i, int j, Matrix &M);
+    template <class Matrix> void set_tv(int i, int j, Matrix &M);
+    template <class Matrix> void set_mat(int i, Matrix &M);
 
-    ///// get_les_t_tstp(int i,Matrix &M) M = Gles(i*h,tstp) etc.
-    template <class Matrix>
-    void get_les_t_tstp(int i, Matrix &M);
-    template <class Matrix>
-    void get_les_tstp_t(int i, Matrix &M);
-    template <class Matrix>
-    void get_ret_tstp_t(int j, Matrix &M);
-    template <class Matrix>
-    void get_ret_t_tstp(int i, Matrix &M);
-    template <class Matrix>
-    void get_vt(int i, Matrix &M, int sig);
-    template <class Matrix>
-    void get_mat(int i, Matrix &M);
-    template <class Matrix>
-    void get_matminus(int i, Matrix &M, int sig);
-    template <class Matrix>
-    void get_gtr_tstp_t(int i, Matrix &M);
-    template <class Matrix>
-    void get_gtr_t_tstp(int i, Matrix &M);
+    template <class Matrix> void get_les(int i, int j, Matrix &M);
+    template <class Matrix> void get_ret(int i, int j, Matrix &M);
+    template <class Matrix> void get_tv(int i, int j, Matrix &M);
+    template <class Matrix> void get_mat(int i, Matrix &M);
+    template <class Matrix> void get_matminus(int i, Matrix &M);
+
+    template <class Matrix> void density_matrix(int tstp, Matrix &M);
+
     // reading complex numbers:
     // these will adress only (0,0) element for dim>1:
-    // !!! these assume heremitian symmetry !!!
-    // one dummy argument (must be tstp), in order to have some interface as
-    // herm_matrix
     inline void get_les(int i, int j, cplx &x);
-    inline void get_gtr(int i, int j, cplx &x);
     inline void get_ret(int i, int j, cplx &x);
-    inline void get_vt(int i, int j, cplx &x);
     inline void get_tv(int i, int j, cplx &x);
     inline void get_mat(int i, cplx &x);
     inline void get_matminus(int i, cplx &x);
+
+    inline void density_matrix(int tstp, cplx &rho);
+
+    // legacy interfaces
+
+    template <class Matrix> void set_ret(int j, Matrix &M);
+    template <class Matrix> void set_les(int j, Matrix &M);
+    template <class Matrix> void set_tv(int j, Matrix &M);
+
+    ///// get_les_t_tstp(int i,Matrix &M) M = Gles(i*h,tstp) etc.
+    template <class Matrix> void get_les_t_tstp(int i, Matrix &M);
+    template <class Matrix> void get_les_tstp_t(int i, Matrix &M);
+
+    template <class Matrix> void get_ret_tstp_t(int j, Matrix &M);
+    template <class Matrix> void get_ret_t_tstp(int i, Matrix &M);
+
+    template <class Matrix> void get_tv(int j, Matrix &M);
+
+    template <class Matrix> void get_vt(int i, Matrix &M, int sig);
+
+    template <class Matrix> void get_matminus(int i, Matrix &M, int sig);
+
+    template <class Matrix> void get_gtr_tstp_t(int i, Matrix &M);
+
+    template <class Matrix> void get_gtr_t_tstp(int i, Matrix &M);
+
+    inline void get_vt(int i, int j, cplx &x);
+
     cplx density_matrix(int tstp);
-    void density_matrix(cplx &rho);
+
     template <class Matrix> void density_matrix(Matrix &M);
     /////
     inline cplx *matptr(int i) { return data_ + i * element_size_; }
@@ -123,12 +131,13 @@ class herm_matrix_timestep {
     void right_multiply(cplx *f0, cplx *ft, T weight = 1.0);
     void left_multiply(function<T> &ft, T weight = 1.0);
     void right_multiply(function<T> &ft, T weight = 1.0);
-    void left_multiply(const int tstp, function<T> &ft, T weight = 1.0);
-    void right_multiply(const int tstp, function<T> &ft, T weight = 1.0);
+    void left_multiply(int tstp, function<T> &ft, T weight = 1.0);
+    void right_multiply(int tstp, function<T> &ft, T weight = 1.0);
     void incr(herm_matrix_timestep<T> &g1, T weight);
     void incr(herm_matrix<T> &g, T weight = 1.0);
-    void incr_timestep(const int tstp, herm_matrix_timestep<T> &g1, T weight);
-    void incr_timestep(const int tstp, herm_matrix<T> &g, T weight = 1.0);
+    void incr_timestep(int tstp, herm_matrix_timestep<T> &g1, T weight);
+    void incr_timestep(int tstp, herm_matrix<T> &g, T weight = 1.0);
+    void smul(int tstp, T weight);
     void smul(T weight);
     void set_matrixelement(int i1, int i2, herm_matrix_timestep_view<T> &g,
                            int j1, int j2);

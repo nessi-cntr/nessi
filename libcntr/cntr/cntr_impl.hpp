@@ -34,4 +34,7 @@
 #include "cntr_bubble_impl.hpp"
 #include "cntr_distributed_array_impl.hpp"
 #include "cntr_distributed_timestep_array_impl.hpp"
+
+#include "cntr_getset_impl.hpp"
+
 #endif  // CNTR_IMPL_H

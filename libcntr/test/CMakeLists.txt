@@ -21,6 +21,7 @@ if (hdf5)
     matsubara.cpp
     dyson.cpp
     test_differentiation.cpp
+    getset.cpp
   )
 else(hdf5)
   add_executable(runtest
@@ -37,6 +38,7 @@ else(hdf5)
   matsubara.cpp
   dyson.cpp
   test_differentiation.cpp
+  getset.cpp
 )
 
 endif (hdf5)

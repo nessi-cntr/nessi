@@ -1589,7 +1589,7 @@ void vie2_timestep(int n, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &
 template <typename T>
 void vie2_timestep(int n, T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
                    herm_matrix<T> &Q, const int kt,  const int matsubara_method) {
-    int size1 = G.size1(), k = I.k();
+    int size1 = G.size1();
     assert(G.size1() == F.size1());
     assert(G.size1() == Fcc.size1());
     assert(G.ntau() == F.ntau());
@@ -1600,7 +1600,7 @@ void vie2_timestep(int n, T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, her
 
     if (n==-1){
         vie2_mat(G, F, Fcc, Q, beta, integration::I<T>(kt), matsubara_method);
-    }else if(n<=k){
+    }else if(n<=kt){
         vie2_start(G,F,Fcc,Q,integration::I<T>(n),beta,h);
     }else{
         switch (size1) {
@@ -1721,11 +1721,11 @@ void vie2(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix
 template <typename T>
 void vie2(T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
           const int kt, const int matsubara_method) {
-    int tstp, k = I.k();
+    int tstp;
     vie2_mat(beta, G, F, Fcc, Q, kt, matsubara_method);
     if (G.nt() >= 0)
         vie2_start(beta, h, G, F, Fcc, Q, kt);
-    for (tstp = k + 1; tstp <= G.nt(); tstp++)
+    for (tstp = kt + 1; tstp <= G.nt(); tstp++)
         vie2_timestep(tstp, beta, h, G, F, Fcc, Q, kt);
 }
 

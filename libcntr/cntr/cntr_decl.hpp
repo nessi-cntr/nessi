@@ -28,5 +28,6 @@
 #include "cntr_distributed_array_decl.hpp"
 #include "cntr_distributed_timestep_array_decl.hpp"
 
+#include "cntr_getset_decl.hpp"
 
 #endif  // CNTR_DECL_H

@@ -19,8 +19,6 @@ namespace cntr {
 ////////////////////////////////////////////////////////////////*/
 
 #define CPLX std::complex<T>
-#define GREEN herm_matrix<T>
-#define GREEN_TSTP herm_matrix_timestep<T>
 
 // res = int_0^n dt f(t),   f(i*dt)=f[sf*i+idxf], i=0..,n
 /// @private

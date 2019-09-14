@@ -338,8 +338,8 @@ void herm_matrix_timestep<T>::clear(void) {
 * <!-- ========= -->
 *
 *
-* > Returns the lesser component \f$ C^\mathrm{<}(t_j,tstp) \f$
-* > at a given time \f$ t_j\f$ with \f$ j <= tstp\f$ for particular time step `tstp`
+* > Returns the lesser component \f$ C^\mathrm{<}(t_j,t_i) \f$
+* > at a given time \f$ t_j\f$ with \f$ j <= tstp\f$ for particular time step `i=tstp`
 * > to a given matrix class.
 *
 * <!-- ARGUMENTS
@@ -351,10 +351,10 @@ void herm_matrix_timestep<T>::clear(void) {
 * > Matrix to which the lesser component is given.
 */
 template <typename T> template <class Matrix> 
-      void herm_matrix_timestep<T>::get_les(const int tstp, const int j, Matrix &M){
-         assert(j <= tstp && "[herm_matrix_timestep:get_les] j > tstp");
+      void herm_matrix_timestep<T>::get_les(int i, int j, Matrix &M){
+         assert(j == tstp_ && i <= tstp_);
          cplx *x;
-         x = lesptr(j);
+         x = lesptr(i);
          herm_matrix_READ_ELEMENT
       }
 
@@ -439,8 +439,8 @@ template <class Matrix>
 */
 template <typename T>
 template <class Matrix>
-      void herm_matrix_timestep<T>::get_ret(const int tstp, const int j, Matrix &M) {
-         assert(j <= tstp && "[herm_matrix_timestep:get_ret] j > tstp");
+      void herm_matrix_timestep<T>::get_ret(int i, int j, Matrix &M) {
+         assert(i == tstp_ && j <= tstp_);
          cplx *x;
          x = retptr(j);
          herm_matrix_READ_ELEMENT
@@ -527,8 +527,8 @@ template <class Matrix>
 */
 template <typename T>
 template <class Matrix>
-      void herm_matrix_timestep<T>::get_tv(const int tstp, const int j, Matrix &M) {
-         assert(tstp == tstp_);
+      void herm_matrix_timestep<T>::get_tv(int i, int j, Matrix &M) {
+         assert(i == tstp_);
          cplx *x = tvptr(j);
          herm_matrix_READ_ELEMENT
       }
@@ -643,6 +643,35 @@ template <class Matrix>
          herm_matrix_READ_ELEMENT if (sig == -1) M = -M;
       }
 
+
+/** \brief <b> Returns the Matsubara component for the negative of a given imaginary time.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Returns the Matsubara component \f$ C^\mathrm{M}(-\tau_i) \f$ at given
+* > imaginary time \f$ \tau_i\f$ to a given matrix class M. If
+* 'sig' is negative, return M =-M
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of imaginary time \f$ \tau_i\f$ .
+* @param M
+* > Matrix to which the Matsubara component is given.
+* @param sig
+* > Set `sig = -1` for fermions or `sig = +1` for bosons
+*/
+template <typename T>
+template <class Matrix>
+      void herm_matrix_timestep<T>::get_matminus(int i, Matrix &M) {
+         cplx *x = matptr(ntau_ - i);
+         herm_matrix_READ_ELEMENT if (sig_ == -1) M = -M;
+      }
+
 /** \brief <b> Returns the greater component at given times.</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -750,8 +779,8 @@ template <typename T>
 *
 * > Returns the scalar-valued lesser component of a scalar type
 * > \f$ C^\mathrm{<}(t_i,t_j) \f$ at a given times \f$ t_i\f$ and \f$ t_j\f$.
-* > If \f$ t_i\f$ = `tstp`, \f$ C^\mathrm{R}(tstp,t_j) \f$ is returned.
-* > Otherwise, one gets \f$ C^\mathrm{R}(t_i, tstp) \f$.
+* > If \f$ t_i\f$ = `tstp`, \f$ C^<(tstp,t_j) \f$ is returned.
+* > Otherwise, one gets \f$ C^<(t_i, tstp) \f$.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -768,7 +797,7 @@ template <typename T>
 *
 */
 template <typename T>
-      inline void herm_matrix_timestep<T>::get_les(const int i, const int j, cplx &x) {
+      inline void herm_matrix_timestep<T>::get_les(int i, int j, cplx &x) {
          assert(i == tstp_ || j == tstp_);
 
          if (j == tstp_) {
@@ -806,7 +835,7 @@ template <typename T>
 *
 */
 template <typename T>
-      inline void herm_matrix_timestep<T>::get_tv(const int i, const int j, cplx &x) {
+      inline void herm_matrix_timestep<T>::get_tv(int i, int j, cplx &x) {
          assert(i == tstp_);
          x = *tvptr(j);
       }
@@ -899,34 +928,6 @@ template <typename T>
             x = -x;
       }
 
-/** \brief <b> Returns the greater component at a given time step. </b>
-*
-* <!-- ====== DOCUMENTATION ====== -->
-*
-*  \par Purpose
-* <!-- ========= -->
-*
-*
-* > Returns the scalar-valued greater component \f$ C^>(t_i,t_j) \f$
-* > at given times \f$t_i\f$ \f$t_j\f$.
-*
-* <!-- ARGUMENTS
-*      ========= -->
-*
-* @param i
-* > Index of time \f$ t_i\f$ .
-* @param j
-* > Index of time \f$ t_j\f$ .
-* @param x
-* > The value of the greater component.
-*/
-template <typename T>
-      inline void herm_matrix_timestep<T>::get_gtr(int i, int j, cplx &x) {
-         cplx x1;
-         get_ret(i, j, x);
-         get_les(i, j, x1);
-         x += x1;
-      }
 
 /** \brief <b> Returns the density matrix at given time step. </b>
 *
@@ -980,7 +981,7 @@ template <typename T>
 * > The time step at which the density matrix is returned.
 */
 template <typename T>
-      std::complex<T> herm_matrix_timestep<T>::density_matrix(const int tstp, cplx &rho) {
+      inline void herm_matrix_timestep<T>::density_matrix(int tstp, cplx &rho) {
          assert(tstp_ == tstp);
          cplx x1;
          if (tstp_ == -1) {
@@ -1043,7 +1044,7 @@ template<typename T> template<class Matrix>
 * > The density matrix at time step `tstp`.
 */
 template<typename T> template<class Matrix>
-      void herm_matrix_timestep<T>::density_matrix(const int tstp, Matrix &M){
+      void herm_matrix_timestep<T>::density_matrix(int tstp, Matrix &M){
          assert(tstp == tstp_);
          if(tstp_==-1){
             get_mat(ntau_,M);
@@ -1112,8 +1113,8 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_r
 * @param M
 * > Matrix in which the retarded component is given.
 */
-template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_ret(const int tstp, const int j,Matrix &M){
-         assert(tstp == tstp_);
+template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_ret(int i, int j,Matrix &M){
+         assert(i == tstp_);
          cplx *x=retptr(j);
          herm_matrix_SET_ELEMENT_MATRIX
       }
@@ -1162,12 +1163,35 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_l
 * @param M
 * > Matrix in which the lesser component is given.
 */
-template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_les(const int tstp, const int j, Matrix &M){
-      assert(tstp == tstp_);
-      cplx *x=lesptr(j);
+template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_les(int i, int j, Matrix &M){
+      assert(j == tstp_);
+      cplx *x=lesptr(i);
       herm_matrix_SET_ELEMENT_MATRIX
    }
 
+/** \brief <b> Returns the left-mixing component into the reserved memory. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Return the left-mixing component in `herm_matrix_timestep`
+* > at a given time \f$ t_j\f$ into the reserved memory.
+* > Works for scalar or general-matrix contour objects
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param j
+* > Index of time \f$ t_j\f$.
+* @param M
+* > Matrix in which the left-mixing component is given.
+*/
+template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_tv(int j,Matrix &M){
+  cplx *x=tvptr(j);
+  herm_matrix_SET_ELEMENT_MATRIX
+}
 
 
 /** \brief <b> Returns the left-mixing component into the reserved memory. </b>
@@ -1189,8 +1213,8 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_l
 * @param M
 * > Matrix in which the left-mixing component is given.
 */
-template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_tv(const int tstp, const int j, Matrix &M){
-   assert(tstp == tstp_);
+template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_tv(int i, int j, Matrix &M){
+   assert(i == tstp_);
    cplx *x=tvptr(j);
    herm_matrix_SET_ELEMENT_MATRIX
 }
@@ -1214,8 +1238,8 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_t
 * @param M
 * > Matrix in which the Matsubara component is given.
 */
-template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_mat(int j,Matrix &M){
-cplx *x=matptr(j);
+template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_mat(int i,Matrix &M){
+cplx *x=matptr(i);
 herm_matrix_SET_ELEMENT_MATRIX
 }
 
@@ -1664,7 +1688,7 @@ void herm_matrix_timestep<T>::smul(T weight) {
 */
 
 template <typename T>
-void herm_matrix_timestep<T>::smul(const int tstp, T weight) {
+void herm_matrix_timestep<T>::smul(int tstp, T weight) {
    assert(tstp == tstp_);
    herm_matrix_timestep_view<T> g_view(*this);
 

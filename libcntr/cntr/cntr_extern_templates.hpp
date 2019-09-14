@@ -20,4 +20,6 @@
 #include "cntr_vie2_extern_templates.hpp"
 #include "cntr_dyson_extern_templates.hpp"
 
+#include "cntr_getset_extern_templates.hpp"
+
 #endif  // CNTR_EXTERN_TEMPLATES_H
