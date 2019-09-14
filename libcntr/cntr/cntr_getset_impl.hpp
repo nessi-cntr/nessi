@@ -13,6 +13,7 @@ namespace cntr {
 template <typename T>
 void map_component(int size1, int size2, std::complex<T> *ptr, cdmatrix &M){
 	assert(size1 == size2);
+	// M.resize(size1, size2);
 	switch (size1){
 		case 1:
 			M = element_map<1, 1>(size1, size2, ptr);
@@ -73,20 +74,32 @@ void map_component(int size1, int size2, std::complex<T> *ptr, cdmatrix &M){
 * > Matrix to which the lesser component is given.
 */	
 template <typename T>
-inline void get_les(const int i, const int j, std::complex<T> &G_les, herm_matrix<T> &G){
+inline void get_les(const int i, const int j, std::complex<T> &G_les, herm_matrix<T> &G, herm_matrix<T> &Gcc){
 	assert(i <= G.nt() && j <= G.nt());
+	assert(i <= Gcc.nt() && j <= Gcc.nt());
+	assert(G.nt() == Gcc.nt());
+	assert(G.ntau() == Gcc.ntau());
+	assert(G.size1() == Gcc.size1());
+	assert(G.size2() == Gcc.size2());
+	assert(G.sig() == Gcc.sig());
 	
 	if (i <= j) {
 		G_les = *G.lesptr(i,j);
 	} else {
-		G_les = *G.lesptr(j,i);
+		G_les = *Gcc.lesptr(j,i);
 		G_les = -std::conj(G_les);
 	}
 }
 
 template <typename T>  
-void get_les(const int i, const int j, cdmatrix &G_les, herm_matrix<T> &G){
+void get_les(const int i, const int j, cdmatrix &G_les, herm_matrix<T> &G, herm_matrix<T> &Gcc){
 	assert(i <= G.nt() && j <= G.nt());
+	assert(i <= Gcc.nt() && j <= Gcc.nt());
+	assert(G.nt() == Gcc.nt());
+	assert(G.ntau() == Gcc.ntau());
+	assert(G.size1() == Gcc.size1());
+	assert(G.size2() == Gcc.size2());
+	assert(G.sig() == Gcc.sig());	
 	int size1 = G.size1(), size2 = G.size2();
 	std::complex<T> *les;
 
@@ -94,7 +107,7 @@ void get_les(const int i, const int j, cdmatrix &G_les, herm_matrix<T> &G){
 		les = G.lesptr(i,j);
 		map_component(size1, size2, les, G_les);
 	} else {
-		les = G.lesptr(j,i);
+		les = Gcc.lesptr(j,i);
 		map_component(size1, size2, les, G_les);
 		G_les.noalias() = -G_les.adjoint();
 	}
