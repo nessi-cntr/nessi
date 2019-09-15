@@ -158,7 +158,7 @@ TEST_CASE("Global get","[Global get]"){
 	SECTION ("herm_matrix_timestep.get_XXX - matrix"){
 		cdmatrix les1,les2,ret1,ret2;
 		cdmatrix mat1,mat2,tv1,tv2;
-		GREEN_TSTP A_step(-1,ntau,size);
+		GREEN_TSTP A_step(-1,ntau,size, BOSON);
 		A_matrix.get_timestep(-1, A_step);
 		double err=0.0;
 		for (int m=0; m <= ntau; m++){
@@ -168,7 +168,7 @@ TEST_CASE("Global get","[Global get]"){
 		}	
 
 		for(int i = 0; i <= nt; i++){
-			GREEN_TSTP A_step(i,ntau,size);
+			GREEN_TSTP A_step(i,ntau,size, BOSON);
 			A_matrix.get_timestep(i, A_step);
 			for (int j = 0; j <= i; j++)
 			{
@@ -181,7 +181,7 @@ TEST_CASE("Global get","[Global get]"){
 			}
 		}
 		for(int i = 0; i <= nt; i++){
-			GREEN_TSTP A_step(i,ntau,size);
+			GREEN_TSTP A_step(i,ntau,size, BOSON);
 			A_matrix.get_timestep(i, A_step);
 			for (int m=0; m <= ntau; m++){
 				A_matrix.get_tv(i, m, tv1);

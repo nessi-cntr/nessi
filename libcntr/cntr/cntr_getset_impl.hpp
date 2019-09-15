@@ -8,6 +8,8 @@
 #include "cntr_herm_matrix_timestep_view_decl.hpp"
 #include "cntr_getset_decl.hpp"
 
+
+
 namespace cntr {
 
 /// @private	
@@ -15,6 +17,8 @@ template <typename T>
 void map_component(int size1, int size2, std::complex<T> *ptr, cdmatrix &M){
 	assert(size1 == size2);
 	// M.resize(size1, size2);
+    // for(int i=0;i<size1;i++) for(int j=0;j<size1;j++) M(i,j)=ptr[i*size1+j];
+
 	switch (size1){
 		case 1:
 			M = element_map<1, 1>(size1, size2, ptr);
