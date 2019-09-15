@@ -36,7 +36,7 @@ namespace cntr {
   extern template void herm_matrix_timestep<double>::get_gtr_tstp_t<Eigen::MatrixXcd>(int i,Eigen::MatrixXcd &M);
   extern template void herm_matrix_timestep<double>::get_gtr_t_tstp<Eigen::MatrixXcd>(int i,Eigen::MatrixXcd &M);
   
-  template void herm_matrix_timestep<double>::density_matrix<Eigen::MatrixXcd>(Eigen::MatrixXcd &rho);
+  extern template void herm_matrix_timestep<double>::density_matrix<Eigen::MatrixXcd>(Eigen::MatrixXcd &rho);
 
 }  // namespace cntr
 

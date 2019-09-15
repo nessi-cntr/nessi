@@ -122,8 +122,8 @@ class herm_matrix_timestep {
     inline void get_vt(int i, int j, cplx &x);
 
     cplx density_matrix(int tstp);
-
     template <class Matrix> void density_matrix(Matrix &M);
+
     /////
     inline cplx *matptr(int i) { return data_ + i * element_size_; }
     // multiplication with function

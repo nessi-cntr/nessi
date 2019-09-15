@@ -47,6 +47,7 @@ class herm_matrix_timestep_view {
     int size1(void) const { return size1_; }
     int size2(void) const { return size2_; }
     int ntau(void) const { return ntau_; }
+    int tstp(void) const { return tstp_; }
     int sig(void) const { return sig_; }
     inline std::complex<T> *retptr(int i) { return ret_ + i * element_size_; }
     inline std::complex<T> *tvptr(int i) { return tv_ + i * element_size_; }

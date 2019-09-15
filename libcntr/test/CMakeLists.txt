@@ -25,20 +25,21 @@ if (hdf5)
   )
 else(hdf5)
   add_executable(runtest
-  bubble.cpp
   runtest.cpp
-  function.cpp
-  downfold.cpp
-  equilibrium.cpp
-  integration.cpp
-  linalg.cpp
-  herm_matrix_member.cpp  
-  convolution.cpp
-  utilities.cpp
-  matsubara.cpp
-  dyson.cpp
-  test_differentiation.cpp
+  #bubble.cpp
+  #function.cpp
+  #downfold.cpp
+  #equilibrium.cpp
+  #integration.cpp
+  #linalg.cpp
+  #herm_matrix_member.cpp  
+  #convolution.cpp
+  #utilities.cpp
+  #matsubara.cpp
+  #dyson.cpp
+  #test_differentiation.cpp
   getset.cpp
+  getset_nonherm.cpp
 )
 
 endif (hdf5)

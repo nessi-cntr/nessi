@@ -33,9 +33,6 @@
 #include "hdf5/hdf5_interface.hpp"
 #endif
 
-// global types
-typedef double r_type;
-typedef std::complex<double> cdouble;
 
 #define MAX_ORDER 5
 
@@ -68,6 +65,8 @@ typedef std::complex<double> cdouble;
 #include <eigen3/unsupported/Eigen/MatrixFunctions>
 
 
-
+// global types
+typedef double r_type;
+typedef std::complex<double> cdouble;
 
 #endif // CNTR_GLOBAL_SETTINGS_H
