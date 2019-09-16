@@ -1156,13 +1156,13 @@ void green_from_H(herm_matrix<T> &G,T mu,cdmatrix &eps,T beta,T h){
 */
 
 template<typename T>
-void green_from_H(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,T h,int kt,int order,bool fixHam){
+void green_from_H(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,T h,int SolveOrder,int cf_order,bool fixHam){
   assert(G.size1()==eps.size2_);
   assert(eps.size1_==eps.size2_);
 
   int size=G.size1();
-  if(size==1) green_from_H_dispatch<T,1>(G,mu,eps,beta,h,kt,order,fixHam);
-  else green_from_H_dispatch<T,LARGESIZE>(G,mu,eps,beta,h,kt,order,fixHam);
+  if(size==1) green_from_H_dispatch<T,1>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
+  else green_from_H_dispatch<T,LARGESIZE>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
 }
 
 
@@ -1237,13 +1237,13 @@ void green_from_H(herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h){
 * > If True Hamiltonian is known for all times and no extrapolation is needed for the predictor/corrector
 */
 template<typename T>
-void green_from_H(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,T beta,T h,int kt,int order,bool fixHam){
+void green_from_H(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,T beta,T h,int SolveOrder,int cf_order,bool fixHam){
   assert(G.size1()==eps.size2_);
   assert(eps.size1_==eps.size2_);
 
   int size=G.size1();
-  if(size==1) green_from_H_dispatch<T,1>(G,mu,eps,beta,h,kt,order,fixHam);
-  else green_from_H_dispatch<T,LARGESIZE>(G,mu,eps,beta,h,kt,order,fixHam);
+  if(size==1) green_from_H_dispatch<T,1>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
+  else green_from_H_dispatch<T,LARGESIZE>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
 }
 
 

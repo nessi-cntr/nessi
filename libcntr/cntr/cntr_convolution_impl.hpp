@@ -4,7 +4,6 @@
 #include "eigen_map.hpp"
 #include "cntr_convolution_decl.hpp"
 #include "cntr_elements.hpp"
-//#include "cntr_exception.hpp"
 #include "cntr_function_decl.hpp"
 #include "cntr_herm_matrix_decl.hpp"
 
@@ -1613,6 +1612,82 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A,
     }
 }
 
+
+/** \brief <b> Returns convolution of two matrices at a given time step</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Computes contour convolution C=A*B of the objects with class 'herm_matrix'
+* > at a given time step 't=nh'. Works for a scalar and square matrices.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param n
+* > [int] number of the time step ('t=nh')
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
+* @param A
+* > [herm_matrix] contour Green's function
+* @param Acc
+* > [herm_matrix] complex conjugate to A
+* @param B
+* > [herm_matrix] contour Green's function
+* @param Bcc
+* > [herm_matrix] complex conjugate to B
+* @param beta
+* > inversed temperature
+* @param h
+* > time step interval
+* @param SolveOrder
+* > [int] integrator order
+*/
+template <typename T>
+void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A,
+                          herm_matrix<T> &Acc, herm_matrix<T> &B,
+                          herm_matrix<T> &Bcc,
+                          T beta, T h, int SolveOrder) {
+    int size1 = C.size1(), ntau = C.ntau(), n1 = (n < SolveOrder ? SolveOrder : n);
+    if (n == -1) {
+        convolution_matsubara(C, A, B, integration::I<T>(SolveOrder), beta);
+        return;
+    }
+    assert(n >= 0);
+    assert(A.size1() == size1);
+    assert(Acc.size1() == size1);
+    assert(B.size1() == size1);
+    assert(Bcc.size1() == size1);
+    assert(A.ntau() == ntau);
+    assert(Acc.ntau() == ntau);
+    assert(B.ntau() == ntau);
+    assert(Bcc.ntau() == ntau);
+    assert(A.nt() >= n1);
+    assert(Acc.nt() >= n1);
+    assert(B.nt() >= n1);
+    assert(Bcc.nt() >= n1);
+    assert(C.nt() >= n);
+    if (size1 == 1) {
+        convolution_timestep_ret<T, herm_matrix<T>, 1>(n, C, A, Acc, B, Bcc,
+                                                       integration::I<T>(SolveOrder), h);
+        convolution_timestep_tv<T, herm_matrix<T>, 1>(n, C, A, Acc, B, Bcc, integration::I<T>(SolveOrder),
+                                                      beta, h);
+        convolution_timestep_les<T, herm_matrix<T>, 1>(n, C, A, Acc, B, Bcc,
+                                                       integration::I<T>(SolveOrder), beta, h);
+    } else {
+        convolution_timestep_ret<T, herm_matrix<T>, LARGESIZE>(n, C, A, Acc,
+                                                               B, Bcc, integration::I<T>(SolveOrder), h);
+        convolution_timestep_tv<T, herm_matrix<T>, LARGESIZE>(
+            n, C, A, Acc, B, Bcc, integration::I<T>(SolveOrder), beta, h);
+        convolution_timestep_les<T, herm_matrix<T>, LARGESIZE>(
+            n, C, A, Acc, B, Bcc, integration::I<T>(SolveOrder), beta, h);
+    }
+}
+
+
 /** \brief <b> Returns convolution of two hermitian matrices at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1650,6 +1725,43 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A,
     convolution_timestep<T>(n, C, A, A, B, B, I, beta, h);
 }
 
+
+/** \brief <b> Returns convolution of two hermitian matrices at a given time step</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Calls convolution routine to compute contour convolution C=A*B of two hermitian matrices
+* > at a given time step 't=nh'.
+* > The objects A,B and C are of the class 'herm_matrix'. Works for a scalar and square matrices.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param n
+* > [int] number of the time step ('t=nh')
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
+* @param A
+* > [herm_matrix] contour Green's function (A=Acc)
+* @param B
+* > [herm_matrix] contour Green's function (B=Bcc)
+* @param beta
+* > inversed temperature
+* @param h
+* > time step interval
+* @param SolveOrder
+* > [int] integrator order
+*/
+template <typename T>
+void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A,
+                          herm_matrix<T> &B,
+                          T beta, T h, int SolveOrder) {
+    convolution_timestep<T>(n, C, A, A, B, B, beta, h, SolveOrder);
+}
 
 /** \brief <b> Returns the result of the contour convolution of two 'herm_matrix' objects</b>
 *
@@ -2831,17 +2943,17 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matr
 * > inversed temperature
 * @param h
 * > time interval
-* @param kt
+* @param SolveOrder
 * > [int] integrator order
 */
 template <typename T>
 void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
                           function<T> &ft, herm_matrix<T> &B, herm_matrix<T> &Bcc,
-                          T beta, T h, int kt) {
-    int size1 = C.size1(), ntau = C.ntau(), n1 = (n < kt ? kt : n);
+                          T beta, T h, int SolveOrder) {
+    int size1 = C.size1(), ntau = C.ntau(), n1 = (n < SolveOrder ? SolveOrder : n);
     assert(ft.size1() == size1 && ft.nt() >= -1);
     if (n == -1) {
-        convolution_matsubara(C, A, ft.ptr(-1), B, integration::I<T>(kt), beta);
+        convolution_matsubara(C, A, ft.ptr(-1), B, integration::I<T>(SolveOrder), beta);
         return;
     }
     assert(n >= 0);
@@ -2860,19 +2972,19 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matr
     assert(ft.nt() >= n1);
     assert(C.nt() >= n);
     if (size1 == 1) {
-        convolution_timestep_ret<T, herm_matrix<T>, 1>(n, C, A, Acc, ft.ptr(0), B, Bcc, integration::I<T>(kt),
+        convolution_timestep_ret<T, herm_matrix<T>, 1>(n, C, A, Acc, ft.ptr(0), B, Bcc, integration::I<T>(SolveOrder),
                                                        h);
         convolution_timestep_tv<T, herm_matrix<T>, 1>(n, C, A, Acc, ft.ptr(-1), ft.ptr(0), B,
-                                                      Bcc, integration::I<T>(kt), beta, h);
+                                                      Bcc, integration::I<T>(SolveOrder), beta, h);
         convolution_timestep_les<T, herm_matrix<T>, 1>(n, C, A, Acc, ft.ptr(-1), ft.ptr(0),
-                                                       B, Bcc, integration::I<T>(kt), beta, h);
+                                                       B, Bcc, integration::I<T>(SolveOrder), beta, h);
     } else {
         convolution_timestep_ret<T, herm_matrix<T>, LARGESIZE>(n, C, A, Acc, ft.ptr(0), B,
-                                                               Bcc, integration::I<T>(kt), h);
+                                                               Bcc, integration::I<T>(SolveOrder), h);
         convolution_timestep_tv<T, herm_matrix<T>, LARGESIZE>(n, C, A, Acc, ft.ptr(-1),
-                                                              ft.ptr(0), B, Bcc, integration::I<T>(kt), beta, h);
+                                                              ft.ptr(0), B, Bcc, integration::I<T>(SolveOrder), beta, h);
         convolution_timestep_les<T, herm_matrix<T>, LARGESIZE>(
-            n, C, A, Acc, ft.ptr(-1), ft.ptr(0), B, Bcc, integration::I<T>(kt), beta, h);
+            n, C, A, Acc, ft.ptr(-1), ft.ptr(0), B, Bcc, integration::I<T>(SolveOrder), beta, h);
     }
 }
 
@@ -2945,13 +3057,13 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, function<
 * > inversed temperature
 * @param h
 * > time step interval
-* @param kt
+* @param SolveOrder
 * > [int] integrator order
 */
 template <typename T>
 void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, function<T> &ft,
-                          herm_matrix<T> &B, T beta, T h, int kt) {
-    convolution_timestep<T>(n, C, A, A, ft, B, B, beta, h, kt);
+                          herm_matrix<T> &B, T beta, T h, int SolveOrder) {
+    convolution_timestep<T>(n, C, A, A, ft, B, B, beta, h, SolveOrder);
 }
 
 /** \brief <b> Returns the result of the contour convolution of two matrices and a function object</b>
@@ -3032,18 +3144,18 @@ void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, func
 * > inversed temperature
 * @param h
 * > time interval
-* @param kt
+* @param SolveOrder
 * > [int] integrator order
 
 */
 template <typename T>
 void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, function<T> &ft,
                  herm_matrix<T> &B, herm_matrix<T> &Bcc,
-                 T beta, T h, int kt) {
+                 T beta, T h, int SolveOrder) {
     int tstp;
-    convolution_matsubara(C, A, ft.ptr(-1), B, integration::I<T>(kt), beta);
+    convolution_matsubara(C, A, ft.ptr(-1), B, integration::I<T>(SolveOrder), beta);
     for (tstp = 0; tstp <= C.nt(); tstp++)
-        convolution_timestep<T>(tstp, C, A, Acc, ft, B, Bcc, beta, h, kt);
+        convolution_timestep<T>(tstp, C, A, Acc, ft, B, Bcc, beta, h, SolveOrder);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3599,18 +3711,18 @@ void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, fun
 * > inversed temperature
 * @param h
 * > time interval
-* @param kt
+* @param SolveOrder
 * > [int] integrator order
 */
 template <typename T, class GG>
 void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, function<T> &ft,
-                                GG &B, GG &Bcc, T beta, T h, int kt) {
+                                GG &B, GG &Bcc, T beta, T h, int SolveOrder) {
     int size1 = A.size1();
     int element_size = size1;
     std::complex<T> *rho_ptr;
     rho_ptr = new std::complex<T>[element_size];
 
-    convolution_density_matrix<T, GG>(n, rho_ptr, A, Acc, ft, B, Bcc, integration::I<T>(kt), beta, h);
+    convolution_density_matrix<T, GG>(n, rho_ptr, A, Acc, ft, B, Bcc, integration::I<T>(SolveOrder), beta, h);
     map_ptr2matrix<T>(size1, size1, rho_ptr, rho);
 
     delete[] rho_ptr;
@@ -3685,18 +3797,18 @@ void convolution_density_matrix(int tstp, std::complex<T> *rho, GG &A, function<
 * > inversed temperature
 * @param h
 * > time interval
-* @param kt
+* @param SolveOrder
 * > [int] integrator order
 */
 template <typename T, class GG>
 void convolution_density_matrix(int n, cdmatrix &rho, GG &A, function<T> &ft,
-                                GG &B, T beta, T h, int kt) {
+                                GG &B, T beta, T h, int SolveOrder) {
     int size1 = A.size1();
     int element_size = size1;
     std::complex<T> *rho_ptr;
     rho_ptr = new std::complex<T>[element_size];
 
-    convolution_density_matrix<T, GG>(n, rho_ptr, A, A, ft, B, B, integration::I<T>(kt), beta, h);
+    convolution_density_matrix<T, GG>(n, rho_ptr, A, A, ft, B, B, integration::I<T>(SolveOrder), beta, h);
     map_ptr2matrix<T>(size1, size1, rho_ptr, rho);
 
     delete[] rho_ptr;
@@ -3805,19 +3917,19 @@ void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, GG 
 * > inversed temperature
 * @param h
 * > time interval
-* @param kt
+* @param SolveOrder
 * > [int] integrator order
 */
 template <typename T, class GG>
 void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, GG &B, GG &Bcc, 
-    T beta, T h, int kt) {
+    T beta, T h, int SolveOrder) {
 
     int size1 = A.size1();
     int element_size = size1;
     std::complex<T> *rho_ptr;
     rho_ptr = new std::complex<T>[element_size];
 
-    convolution_density_matrix<T, GG>(n, rho_ptr, A, Acc, B, Bcc, integration::I<T>(kt), beta, h);
+    convolution_density_matrix<T, GG>(n, rho_ptr, A, Acc, B, Bcc, integration::I<T>(SolveOrder), beta, h);
     map_ptr2matrix<T>(size1, size1, rho_ptr, rho);
 
     delete[] rho_ptr;
@@ -3888,18 +4000,18 @@ void convolution_density_matrix(int tstp, std::complex<T> *rho, GG &A, GG &B,
 * > inversed temperature
 * @param h
 * > time interval
-* @param kt
+* @param SolveOrder
 * > [int] integrator ordder
 */
 template <typename T, class GG>
 void convolution_density_matrix(int tstp, cdmatrix &rho, GG &A, GG &B,
-                                T beta, T h, int kt) {
+                                T beta, T h, int SolveOrder) {
     int size1 = A.size1();
     int element_size = size1;
     std::complex<T> *rho_ptr;
     rho_ptr = new std::complex<T>[element_size];
 
-    convolution_density_matrix<T, GG>(tstp, rho_ptr, A, A, B, B, integration::I<T>(kt), beta, h);
+    convolution_density_matrix<T, GG>(tstp, rho_ptr, A, A, B, B, integration::I<T>(SolveOrder), beta, h);
     map_ptr2matrix<T>(size1, size1, rho_ptr, rho);
 
     delete[] rho_ptr;
@@ -4068,8 +4180,8 @@ void incr_convolution_ret(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
     int sc = size1 * size1;
     bool func = (ft == NULL ? false : true);
     CPLX adt = alpha * h;
-    int kt = I.get_k();
-    int n1 = (tstp >= kt ? tstp : kt);
+    int SolveOrder = I.get_k();
+    int n1 = (tstp >= SolveOrder ? tstp : SolveOrder);
     {
         // CONVOLUTION OF RET SECTION
         int j, n, l;
@@ -4113,8 +4225,8 @@ void incr_convolution_ret(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
                 // int_n^tstp dj Aret(tstp,j)Bret(j,n)  ==>  Cret(tstp,n)
                 int n2 = tstp - n;
                 element_set_zero<T, SIZE1>(size1, ctemp0);
-                if (tstp < kt) {
-                    for (j = 0; j <= kt; j++) {
+                if (tstp < SolveOrder) {
+                    for (j = 0; j <= SolveOrder; j++) {
                         wt = I.poly_integration(n, tstp, j);
                         if (j >= n) {
                             element_incr<T, SIZE1>(size1, ctemp0, wt, aret + j * saf,
@@ -4124,8 +4236,8 @@ void incr_convolution_ret(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
                             element_incr<T, SIZE1>(size1, ctemp0, wt, aret + j * saf, btmp);
                         }
                     }
-                } else if (n2 < kt) {
-                    for (l = 0; l <= kt; l++) {
+                } else if (n2 < SolveOrder) {
+                    for (l = 0; l <= SolveOrder; l++) {
                         j = tstp - l;
                         wt = I.gregory_weights(n2, l);
                         if (j >= n) {
@@ -4136,7 +4248,7 @@ void incr_convolution_ret(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
                             element_incr<T, SIZE1>(size1, ctemp0, wt, aret + j * saf, btmp);
                         }
                     }
-                } else if (n2 <= 2 * kt + 2) {
+                } else if (n2 <= 2 * SolveOrder + 2) {
                     for (l = 0; l <= n2; l++) {
                         j = n + l;
                         wt = I.gregory_weights(n2, l);
@@ -4144,16 +4256,16 @@ void incr_convolution_ret(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
                                                B.retptr(j, n));
                     }
                 } else {
-                    for (j = n; j <= n + kt; j++) {
+                    for (j = n; j <= n + SolveOrder; j++) {
                         wt = I.gregory_omega(j - n);
                         element_incr<T, SIZE1>(size1, ctemp0, wt, aret + j * saf,
                                                B.retptr(j, n));
                     }
-                    for (j = n + kt + 1; j < tstp - kt; j++) {
+                    for (j = n + SolveOrder + 1; j < tstp - SolveOrder; j++) {
                         element_incr<T, SIZE1>(size1, ctemp0, aret + j * saf,
                                                B.retptr(j, n));
                     }
-                    for (l = 0; l <= kt; l++) {
+                    for (l = 0; l <= SolveOrder; l++) {
                         j = tstp - l;
                         wt = I.gregory_omega(l);
                         element_incr<T, SIZE1>(size1, ctemp0, wt, aret + j * saf,
@@ -4222,8 +4334,8 @@ void incr_convolution_tv(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, G
     bool func = (ft == NULL ? false : true);
     CPLX adt = alpha * h;
     CPLX adtau = alpha * beta * (1.0 / ntau);
-    int kt = I.get_k();
-    int n1 = (tstp >= kt ? tstp : kt);
+    int SolveOrder = I.get_k();
+    int n1 = (tstp >= SolveOrder ? tstp : SolveOrder);
     {
         // CONVOLUTION OF TV SECTION
         int j, m, n, saf = size1 * size1, sfb = size1 * size1;
@@ -4280,20 +4392,20 @@ void incr_convolution_tv(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, G
                 element_smul<T, SIZE1>(size1, ctemp1, adtau);
                 // CONTRIBUTION FROM Aret * Btv
                 element_set_zero<T, SIZE1>(size1, ctemp2);
-                if (tstp <= 2 * kt + 2) {
+                if (tstp <= 2 * SolveOrder + 2) {
                     for (n = 0; n <= n1; n++) {
                         element_incr<T, SIZE1>(size1, ctemp2, I.gregory_weights(tstp, n),
                                                aret + n * saf, B.tvptr(n, m));
                     }
                 } else {
-                    for (n = 0; n <= kt; n++) {
+                    for (n = 0; n <= SolveOrder; n++) {
                         element_incr<T, SIZE1>(size1, ctemp2, I.gregory_omega(n),
                                                aret + n * saf, B.tvptr(n, m));
                     }
-                    for (n = kt + 1; n < tstp - kt; n++) {
+                    for (n = SolveOrder + 1; n < tstp - SolveOrder; n++) {
                         element_incr<T, SIZE1>(size1, ctemp2, aret + n * saf, B.tvptr(n, m));
                     }
-                    for (n = tstp - kt; n <= tstp; n++) {
+                    for (n = tstp - SolveOrder; n <= tstp; n++) {
                         element_incr<T, SIZE1>(size1, ctemp2, I.gregory_omega(tstp - n),
                                                aret + n * saf, B.tvptr(n, m));
                     }
@@ -4364,8 +4476,8 @@ void incr_convolution_les(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
     bool func = (ft == NULL ? false : true);
     CPLX adt = alpha * h;
     CPLX adtau = alpha * beta * (1.0 / ntau);
-    int kt = I.get_k();
-    int n1 = (tstp >= kt ? tstp : kt);
+    int SolveOrder = I.get_k();
+    int n1 = (tstp >= SolveOrder ? tstp : SolveOrder);
     {
         // CONVOLUTION OF LES SECTION
         int m, j, n, sfb = size1 * size1;
@@ -4434,9 +4546,9 @@ void incr_convolution_les(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
                 T wt;
                 /* int_0^n dj Aret(n,j)Bles(j,tstp)  ==>  Cles(n,tstp)  */
                 {
-                    int nup = (n > kt ? n : kt);
+                    int nup = (n > SolveOrder ? n : SolveOrder);
                     element_set_zero<T, SIZE1>(size1, ctemp1);
-                    if (n <= 2 * kt + 2) {
+                    if (n <= 2 * SolveOrder + 2) {
                         for (j = 0; j <= nup; j++) {
                             wt = I.gregory_weights(n, j);
                             if (j <= n) {
@@ -4449,16 +4561,16 @@ void incr_convolution_les(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
                             }
                         }
                     } else {
-                        for (j = 0; j <= kt; j++) {
+                        for (j = 0; j <= SolveOrder; j++) {
                             wt = I.gregory_omega(j);
                             element_incr<T, SIZE1>(size1, ctemp1, wt, A.retptr(n, j),
                                                    bles + j * sfb);
                         }
-                        for (j = kt + 1; j < n - kt; j++) {
+                        for (j = SolveOrder + 1; j < n - SolveOrder; j++) {
                             element_incr<T, SIZE1>(size1, ctemp1, A.retptr(n, j),
                                                    bles + j * sfb);
                         }
-                        for (j = n - kt; j <= n; j++) {
+                        for (j = n - SolveOrder; j <= n; j++) {
                             wt = I.gregory_omega(n - j);
                             element_incr<T, SIZE1>(size1, ctemp1, wt, A.retptr(n, j),
                                                    bles + j * sfb);
@@ -4468,15 +4580,15 @@ void incr_convolution_les(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
                 /* int_0^beta dj Atv(n,j)Bvt(j,tstp) ==>  Cles(n,tstp) */
                 {
                     element_set_zero<T, SIZE1>(size1, ctemp2);
-                    for (m = 0; m <= kt; m++) {
+                    for (m = 0; m <= SolveOrder; m++) {
                         wt = I.gregory_omega(m);
                         element_incr<T, SIZE1>(size1, ctemp2, wt, A.tvptr(n, m),
                                                bvt + sfb * m);
                     }
-                    for (m = kt + 1; m < ntau - kt; m++) {
+                    for (m = SolveOrder + 1; m < ntau - SolveOrder; m++) {
                         element_incr<T, SIZE1>(size1, ctemp2, A.tvptr(n, m), bvt + sfb * m);
                     }
-                    for (m = ntau - kt; m <= ntau; m++) {
+                    for (m = ntau - SolveOrder; m <= ntau; m++) {
                         wt = I.gregory_omega(ntau - m);
                         element_incr<T, SIZE1>(size1, ctemp2, wt, A.tvptr(n, m),
                                                bvt + sfb * m);
@@ -4485,7 +4597,7 @@ void incr_convolution_les(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
                 /* int_0^tstp dj Ales(n,j)Badv(j,tstp)  ==>  Cles(n,tstp) */
                 {
                     element_set_zero<T, SIZE1>(size1, ctemp3);
-                    if (tstp <= 2 * kt + 2) {
+                    if (tstp <= 2 * SolveOrder + 2) {
                         for (j = 0; j <= n; j++) {
                             wt = I.gregory_weights(tstp, j);
                             element_minusconj<T, SIZE1>(size1, atemp, Acc.lesptr(j, n));
@@ -4497,7 +4609,7 @@ void incr_convolution_les(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
                                                    badv + sfb * j);
                         }
                     } else {
-                        for (j = 0; j <= kt; j++) {
+                        for (j = 0; j <= SolveOrder; j++) {
                             wt = I.gregory_omega(j);
                             if (j < n) {
                                 element_minusconj<T, SIZE1>(size1, atemp, Acc.lesptr(j, n));
@@ -4508,27 +4620,27 @@ void incr_convolution_les(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
                                                        badv + sfb * j);
                             }
                         }
-                        if (n <= kt) {
-                            for (j = kt + 1; j < tstp - kt; j++) {
+                        if (n <= SolveOrder) {
+                            for (j = SolveOrder + 1; j < tstp - SolveOrder; j++) {
                                 element_incr<T, SIZE1>(size1, ctemp3, A.lesptr(n, j),
                                                        badv + sfb * j);
                             }
-                        } else if (n < tstp - kt) {
-                            for (j = kt + 1; j < n; j++) {
+                        } else if (n < tstp - SolveOrder) {
+                            for (j = SolveOrder + 1; j < n; j++) {
                                 element_minusconj<T, SIZE1>(size1, atemp, Acc.lesptr(j, n));
                                 element_incr<T, SIZE1>(size1, ctemp3, atemp, badv + sfb * j);
                             }
-                            for (j = n; j < tstp - kt; j++) {
+                            for (j = n; j < tstp - SolveOrder; j++) {
                                 element_incr<T, SIZE1>(size1, ctemp3, A.lesptr(n, j),
                                                        badv + sfb * j);
                             }
                         } else {
-                            for (j = kt + 1; j < tstp - kt; j++) {
+                            for (j = SolveOrder + 1; j < tstp - SolveOrder; j++) {
                                 element_minusconj<T, SIZE1>(size1, atemp, Acc.lesptr(j, n));
                                 element_incr<T, SIZE1>(size1, ctemp3, atemp, badv + sfb * j);
                             }
                         }
-                        for (j = tstp - kt; j <= tstp; j++) {
+                        for (j = tstp - SolveOrder; j <= tstp; j++) {
                             wt = I.gregory_omega(tstp - j);
                             if (j < n) {
                                 element_minusconj<T, SIZE1>(size1, atemp, Acc.lesptr(j, n));
@@ -4630,8 +4742,8 @@ void convolution_timestep_new(int tstp, herm_matrix<T> &C, herm_matrix<T> &A,
                               herm_matrix<T> &Acc, function<T> &ft, herm_matrix<T> &B,
                               herm_matrix<T> &Bcc, integration::Integrator<T> &I, T beta,
                               T h) {
-    int kt = I.k();
-    int ntmin = (tstp == -1 || tstp > kt ? tstp : kt);
+    int SolveOrder = I.k();
+    int ntmin = (tstp == -1 || tstp > SolveOrder ? tstp : SolveOrder);
     if (tstp < -1)
         return;
     int size1 = A.size1();
@@ -4642,8 +4754,8 @@ void convolution_timestep_new(int tstp, herm_matrix<T> &C, herm_matrix<T> &A,
     assert(B.size1() == size1);
     assert(Bcc.size1() == size1);
     assert(Acc.size1() == size1);
-    assert(kt > 0 && kt <= 5);
-    assert(kt <= C.ntau());
+    assert(SolveOrder > 0 && SolveOrder <= 5);
+    assert(SolveOrder <= C.ntau());
     assert(ntmin <= C.nt());
     assert(ntmin <= A.nt());
     assert(ntmin <= Acc.nt());
@@ -4661,43 +4773,43 @@ void convolution_timestep_new(int tstp, herm_matrix<T> &C, herm_matrix<T> &A,
     switch (size1) {
     case 1:
         incr_convolution<T, herm_matrix<T>, 1>(tstp, CPLX(1, 0), C, A, Acc, ft.ptr(-1),
-                                               fttemp, B, Bcc, integration::I<T>(kt), beta,
+                                               fttemp, B, Bcc, integration::I<T>(SolveOrder), beta,
                                                h);
         break;
     case 2:
         incr_convolution<T, herm_matrix<T>, 2>(tstp, CPLX(1, 0), C, A, Acc, ft.ptr(-1),
-                                               fttemp, B, Bcc, integration::I<T>(kt), beta,
+                                               fttemp, B, Bcc, integration::I<T>(SolveOrder), beta,
                                                h);
         break;
     case 3:
         incr_convolution<T, herm_matrix<T>, 3>(tstp, CPLX(1, 0), C, A, Acc, ft.ptr(-1),
-                                               fttemp, B, Bcc, integration::I<T>(kt), beta,
+                                               fttemp, B, Bcc, integration::I<T>(SolveOrder), beta,
                                                h);
         break;
     case 4:
         incr_convolution<T, herm_matrix<T>, 4>(tstp, CPLX(1, 0), C, A, Acc, ft.ptr(-1),
-                                               fttemp, B, Bcc, integration::I<T>(kt), beta,
+                                               fttemp, B, Bcc, integration::I<T>(SolveOrder), beta,
                                                h);
         break;
     case 5:
         incr_convolution<T, herm_matrix<T>, 5>(tstp, CPLX(1, 0), C, A, Acc, ft.ptr(-1),
-                                               fttemp, B, Bcc, integration::I<T>(kt), beta,
+                                               fttemp, B, Bcc, integration::I<T>(SolveOrder), beta,
                                                h);
         break;
     case 6:
         incr_convolution<T, herm_matrix<T>, 6>(tstp, CPLX(1, 0), C, A, Acc, ft.ptr(-1),
-                                               fttemp, B, Bcc, integration::I<T>(kt), beta,
+                                               fttemp, B, Bcc, integration::I<T>(SolveOrder), beta,
                                                h);
         break;
     case 8:
         incr_convolution<T, herm_matrix<T>, 8>(tstp, CPLX(1, 0), C, A, Acc, ft.ptr(-1),
-                                               fttemp, B, Bcc, integration::I<T>(kt), beta,
+                                               fttemp, B, Bcc, integration::I<T>(SolveOrder), beta,
                                                h);
         break;
     default:
         incr_convolution<T, herm_matrix<T>, LARGESIZE>(tstp, CPLX(1, 0), C, A, Acc,
                                                        ft.ptr(-1), fttemp, B, Bcc,
-                                                       integration::I<T>(kt), beta, h);
+                                                       integration::I<T>(SolveOrder), beta, h);
         break;
     }
 }
@@ -4734,8 +4846,8 @@ template <typename T>
 void convolution_timestep_new(int tstp, herm_matrix<T> &C, herm_matrix<T> &A,
                               herm_matrix<T> &Acc, herm_matrix<T> &B, herm_matrix<T> &Bcc,
                               integration::Integrator<T> &I, T beta, T h) {
-    int kt = I.k();
-    int ntmin = (tstp == -1 || tstp > kt ? tstp : kt);
+    int SolveOrder = I.k();
+    int ntmin = (tstp == -1 || tstp > SolveOrder ? tstp : SolveOrder);
     if (tstp < -1)
         return;
     int size1 = A.size1();
@@ -4744,8 +4856,8 @@ void convolution_timestep_new(int tstp, herm_matrix<T> &C, herm_matrix<T> &A,
     assert(B.size1() == size1);
     assert(Bcc.size1() == size1);
     assert(Acc.size1() == size1);
-    assert(kt > 0 && kt <= 5);
-    assert(kt <= C.ntau());
+    assert(SolveOrder > 0 && SolveOrder <= 5);
+    assert(SolveOrder <= C.ntau());
     assert(ntmin <= C.nt());
     assert(ntmin <= A.nt());
     assert(ntmin <= Acc.nt());
@@ -4760,35 +4872,35 @@ void convolution_timestep_new(int tstp, herm_matrix<T> &C, herm_matrix<T> &A,
     switch (size1) {
     case 1:
         incr_convolution<T, herm_matrix<T>, 1>(tstp, CPLX(1, 0), C, A, Acc, NULL, NULL, B,
-                                               Bcc, integration::I<T>(kt), beta, h);
+                                               Bcc, integration::I<T>(SolveOrder), beta, h);
         break;
     case 2:
         incr_convolution<T, herm_matrix<T>, 2>(tstp, CPLX(1, 0), C, A, Acc, NULL, NULL, B,
-                                               Bcc, integration::I<T>(kt), beta, h);
+                                               Bcc, integration::I<T>(SolveOrder), beta, h);
         break;
     case 3:
         incr_convolution<T, herm_matrix<T>, 3>(tstp, CPLX(1, 0), C, A, Acc, NULL, NULL, B,
-                                               Bcc, integration::I<T>(kt), beta, h);
+                                               Bcc, integration::I<T>(SolveOrder), beta, h);
         break;
     case 4:
         incr_convolution<T, herm_matrix<T>, 4>(tstp, CPLX(1, 0), C, A, Acc, NULL, NULL, B,
-                                               Bcc, integration::I<T>(kt), beta, h);
+                                               Bcc, integration::I<T>(SolveOrder), beta, h);
         break;
     case 5:
         incr_convolution<T, herm_matrix<T>, 5>(tstp, CPLX(1, 0), C, A, Acc, NULL, NULL, B,
-                                               Bcc, integration::I<T>(kt), beta, h);
+                                               Bcc, integration::I<T>(SolveOrder), beta, h);
         break;
     case 6:
         incr_convolution<T, herm_matrix<T>, 6>(tstp, CPLX(1, 0), C, A, Acc, NULL, NULL, B,
-                                               Bcc, integration::I<T>(kt), beta, h);
+                                               Bcc, integration::I<T>(SolveOrder), beta, h);
         break;
     case 8:
         incr_convolution<T, herm_matrix<T>, 8>(tstp, CPLX(1, 0), C, A, Acc, NULL, NULL, B,
-                                               Bcc, integration::I<T>(kt), beta, h);
+                                               Bcc, integration::I<T>(SolveOrder), beta, h);
         break;
     default:
         incr_convolution<T, herm_matrix<T>, LARGESIZE>(
-            tstp, CPLX(1, 0), C, A, Acc, NULL, NULL, B, Bcc, integration::I<T>(kt), beta, h);
+            tstp, CPLX(1, 0), C, A, Acc, NULL, NULL, B, Bcc, integration::I<T>(SolveOrder), beta, h);
         break;
     }
 }
@@ -4935,8 +5047,8 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
                               herm_matrix<T> &A, herm_matrix<T> &Acc, function<T> &ft,
                               herm_matrix<T> &B, herm_matrix<T> &Bcc,
                               integration::Integrator<T> &I, T beta, T h) {
-    int kt = I.k();
-    int ntmin = (tstp == -1 || tstp > kt ? tstp : kt);
+    int SolveOrder = I.k();
+    int ntmin = (tstp == -1 || tstp > SolveOrder ? tstp : SolveOrder);
     if (tstp < -1)
         return;
     int size1 = A.size1();
@@ -4946,8 +5058,8 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
     assert(B.size1()==size1);
     assert(Bcc.size1()==size1);
     assert(Acc.size1()==size1);
-    assert(kt>=0 && kt <=5);
-    assert(C.ntau()>=kt);
+    assert(SolveOrder>=0 && SolveOrder <=5);
+    assert(C.ntau()>=SolveOrder);
     assert(C.nt()>=ntmin);
     assert(A.nt()>=ntmin);
     assert(Acc.nt()>=ntmin);
@@ -4965,45 +5077,159 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
     case 1:
         incr_convolution_omp<T, herm_matrix<T>, 1>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, ft.ptr(-1), fttemp, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 2:
         incr_convolution_omp<T, herm_matrix<T>, 2>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, ft.ptr(-1), fttemp, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 3:
         incr_convolution_omp<T, herm_matrix<T>, 3>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, ft.ptr(-1), fttemp, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 4:
         incr_convolution_omp<T, herm_matrix<T>, 4>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, ft.ptr(-1), fttemp, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 5:
         incr_convolution_omp<T, herm_matrix<T>, 5>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, ft.ptr(-1), fttemp, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 6:
         incr_convolution_omp<T, herm_matrix<T>, 6>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, ft.ptr(-1), fttemp, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 8:
         incr_convolution_omp<T, herm_matrix<T>, 8>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, ft.ptr(-1), fttemp, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     default:
         incr_convolution_omp<T, herm_matrix<T>, LARGESIZE>(
             omp_num_threads, tstp, CPLX(1, 0), C, A, Acc, ft.ptr(-1), fttemp, B, Bcc,
-            integration::I<T>(kt), beta, h);
+            integration::I<T>(SolveOrder), beta, h);
         break;
     }
 }
+
+
+/** \brief <b> Returns convolution \f$C = A\ast f\ast B\f$ at a given time step</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Computes contour convolution C=A*f*B of the objects with class 'herm_matrix'
+* > at a given time step 't=nh'. Works for a scalar and square matrices. `openMP` parallelized version.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param omp_num_threads
+* > [int] number of `openMP` threads
+* @param n
+* > [int] number of the time step ('t=nh')
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
+* @param A
+* > [herm_matrix] contour Green's function
+* @param Acc
+* > [herm_matrix] hermitian conjugate of A
+* @param ft
+* > [herm_matrix] function \f$f\f$
+* @param B
+* > [herm_matrix] contour Green's function
+* @param Bcc
+* > [herm_matrix] hermitian conjugate of B
+* @param beta
+* > inversed temperature
+* @param h
+* > time step interval
+* @param SolveOrder
+* > [int] integrator order
+*/
+template <typename T>
+void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
+                              herm_matrix<T> &A, herm_matrix<T> &Acc, function<T> &ft,
+                              herm_matrix<T> &B, herm_matrix<T> &Bcc,
+                              T beta, T h, int SolveOrder) {
+    int ntmin = (tstp == -1 || tstp > SolveOrder ? tstp : SolveOrder);
+    if (tstp < -1)
+        return;
+    int size1 = A.size1();
+    std::complex<T> *fttemp;
+    assert(C.size1()==size1);
+    assert(ft.size1()==size1);
+    assert(B.size1()==size1);
+    assert(Bcc.size1()==size1);
+    assert(Acc.size1()==size1);
+    assert(SolveOrder>=0 && SolveOrder <=5);
+    assert(C.ntau()>=SolveOrder);
+    assert(C.nt()>=ntmin);
+    assert(A.nt()>=ntmin);
+    assert(Acc.nt()>=ntmin);
+    assert(B.nt()>=ntmin);
+    assert(Bcc.nt()>=ntmin);
+    assert(ft.nt()>=ntmin);
+    assert(C.ntau()==A.ntau());
+    assert(C.ntau()==Acc.ntau());
+    assert(C.ntau()==B.ntau());
+    assert(C.ntau()==Bcc.ntau());
+    C.set_timestep_zero(tstp);
+    fttemp = (tstp == -1 ? ft.ptr(-1) : ft.ptr(0));
+
+    switch (size1) {
+    case 1:
+        incr_convolution_omp<T, herm_matrix<T>, 1>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, ft.ptr(-1), fttemp, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 2:
+        incr_convolution_omp<T, herm_matrix<T>, 2>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, ft.ptr(-1), fttemp, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 3:
+        incr_convolution_omp<T, herm_matrix<T>, 3>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, ft.ptr(-1), fttemp, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 4:
+        incr_convolution_omp<T, herm_matrix<T>, 4>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, ft.ptr(-1), fttemp, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 5:
+        incr_convolution_omp<T, herm_matrix<T>, 5>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, ft.ptr(-1), fttemp, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 6:
+        incr_convolution_omp<T, herm_matrix<T>, 6>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, ft.ptr(-1), fttemp, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 8:
+        incr_convolution_omp<T, herm_matrix<T>, 8>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, ft.ptr(-1), fttemp, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    default:
+        incr_convolution_omp<T, herm_matrix<T>, LARGESIZE>(
+            omp_num_threads, tstp, CPLX(1, 0), C, A, Acc, ft.ptr(-1), fttemp, B, Bcc,
+            integration::I<T>(SolveOrder), beta, h);
+        break;
+    }
+}
+
+
 /** \brief <b> Returns convolution \f$C = A\ast f\ast B\f$ at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -5044,6 +5270,50 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
                               integration::Integrator<T> &I, T beta, T h) {
     convolution_timestep_omp<T>(omp_num_threads, tstp, C, A, A, ft, B, B, I, beta, h);
 }
+
+
+/** \brief <b> Returns convolution \f$C = A\ast f\ast B\f$ at a given time step</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Computes contour convolution C=A*f*B of the objects with class 'herm_matrix'
+* > at a given time step 't=nh'. Here we assume that A and B are hermitian. 
+* > Works for a scalar and square matrices. `openMP` parallelized version.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param omp_num_threads
+* > [int] number of `openMP` threads
+* @param tstp
+* > [int] index of the time step ('t=nh')
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
+* @param A
+* > [herm_matrix] contour Green's function
+* @param ft
+* > [function] function \f$f\f$
+* @param B
+* > [herm_matrix] contour Green's function
+* @param beta
+* > inversed temperature
+* @param h
+* > time step interval
+* @param SolveOrder
+* > [int] integrator order
+*/
+template <typename T>
+void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
+                              herm_matrix<T> &A, function<T> &ft, herm_matrix<T> &B,
+                              T beta, T h, int SolveOrder) {
+    convolution_timestep_omp<T>(omp_num_threads, tstp, C, A, A, ft, B, B, beta, h, SolveOrder);
+}
+
+
 /** \brief <b> Returns convolution \f$C = A\ast B\f$ for the Matsubara component.</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -5162,6 +5432,57 @@ void convolution_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
         convolution_timestep_omp<T>(omp_num_threads, tstp, C, A, Acc, ft, B, Bcc, I, beta,
                                     h);
 }
+
+
+
+/** \brief <b> Returns convolution \f$C = A\ast f \ast B\f$ for all timesteps.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Computes contour convolution \f$C = A\ast f \ast B\f$  of the objects with class 'herm_matrix'
+* > for all time steps.
+* > Works for a scalar and square matrices. `openMP` parallelized version.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param omp_num_threads
+* > [int] number of `openMP` threads
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
+* @param A
+* > [herm_matrix] contour Green's function
+* @param Acc
+* > [herm_matrix] hermitian conjugate of A
+* @param ft
+* > [function] function \f$f\f$
+* @param B
+* > [herm_matrix] contour Green's function
+* @param Bcc
+* > [herm_matrix] hermitian conjugate of B
+* @param beta
+* > inversed temperature
+* @param h
+* > time step interval
+* @param SolveOrder
+* > [int] integrator order
+*/
+template <typename T>
+void convolution_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
+                     herm_matrix<T> &Acc, function<T> &ft, herm_matrix<T> &B,
+                     herm_matrix<T> &Bcc, T beta, T h, int SolveOrder) {
+    int tstp;
+    for (tstp = -1; tstp <= C.nt(); tstp++)
+        convolution_timestep_omp<T>(omp_num_threads, tstp, C, A, Acc, ft, B, Bcc, beta,
+                                    h, SolveOrder);
+}
+
+
+
 /** \brief <b> Returns convolution \f$C = A\ast B\f$ at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -5203,8 +5524,8 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
                               herm_matrix<T> &A, herm_matrix<T> &Acc, herm_matrix<T> &B,
                               herm_matrix<T> &Bcc, integration::Integrator<T> &I, T beta,
                               T h) {
-    int kt = I.k();
-    int ntmin = (tstp == -1 || tstp > kt ? tstp : kt);
+    int SolveOrder = I.k();
+    int ntmin = (tstp == -1 || tstp > SolveOrder ? tstp : SolveOrder);
     if (tstp < -1)
         return;
     int size1 = A.size1();
@@ -5212,8 +5533,8 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
     assert(B.size1()==size1);
     assert(Bcc.size1()==size1);
     assert(Acc.size1()==size1);
-    assert(kt>=0 && kt <=5);
-    assert(C.ntau()>=kt);
+    assert(SolveOrder>=0 && SolveOrder <=5);
+    assert(C.ntau()>=SolveOrder);
     assert(C.nt()>=ntmin);
     assert(A.nt()>=ntmin);
     assert(Acc.nt()>=ntmin);
@@ -5229,45 +5550,155 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
     case 1:
         incr_convolution_omp<T, herm_matrix<T>, 1>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, NULL, NULL, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 2:
         incr_convolution_omp<T, herm_matrix<T>, 2>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, NULL, NULL, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 3:
         incr_convolution_omp<T, herm_matrix<T>, 3>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, NULL, NULL, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 4:
         incr_convolution_omp<T, herm_matrix<T>, 4>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, NULL, NULL, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 5:
         incr_convolution_omp<T, herm_matrix<T>, 5>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, NULL, NULL, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 6:
         incr_convolution_omp<T, herm_matrix<T>, 6>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, NULL, NULL, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     case 8:
         incr_convolution_omp<T, herm_matrix<T>, 8>(omp_num_threads, tstp, CPLX(1, 0), C, A,
                                                    Acc, NULL, NULL, B, Bcc,
-                                                   integration::I<T>(kt), beta, h);
+                                                   integration::I<T>(SolveOrder), beta, h);
         break;
     default:
         incr_convolution_omp<T, herm_matrix<T>, LARGESIZE>(omp_num_threads, tstp, CPLX(1, 0),
                                                            C, A, Acc, NULL, NULL, B, Bcc,
-                                                           integration::I<T>(kt), beta, h);
+                                                           integration::I<T>(SolveOrder), beta, h);
         break;
     }
 }
+
+
+/** \brief <b> Returns convolution \f$C = A\ast B\f$ at a given time step</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Computes contour convolution C=A*B of the objects with class 'herm_matrix'
+* > at a given time step 't=nh'.
+* > Works for a scalar and square matrices. `openMP` parallelized version.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param omp_num_threads
+* > [int] number of `openMP` threads
+* @param tstp
+* > [int] index of the time step ('t=nh')
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
+* @param A
+* > [herm_matrix] contour Green's function
+* @param Acc
+* > [herm_matrix] hermitian conjugate of A
+* @param B
+* > [herm_matrix] contour Green's function
+* @param Bcc
+* > [herm_matrix] hermitian conjugate of B
+* @param beta
+* > inversed temperature
+* @param h
+* > time step interval
+* @param SolveOrder
+* > [int] integrator order
+*/
+template <typename T>
+void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
+                              herm_matrix<T> &A, herm_matrix<T> &Acc, herm_matrix<T> &B,
+                              herm_matrix<T> &Bcc, T beta,
+                              T h, int SolveOrder) {
+    int ntmin = (tstp == -1 || tstp > SolveOrder ? tstp : SolveOrder);
+    if (tstp < -1)
+        return;
+    int size1 = A.size1();
+    assert(C.size1()==size1);
+    assert(B.size1()==size1);
+    assert(Bcc.size1()==size1);
+    assert(Acc.size1()==size1);
+    assert(SolveOrder>=0 && SolveOrder <=5);
+    assert(C.ntau()>=SolveOrder);
+    assert(C.nt()>=ntmin);
+    assert(A.nt()>=ntmin);
+    assert(Acc.nt()>=ntmin);
+    assert(B.nt()>=ntmin);
+    assert(Bcc.nt()>=ntmin);
+    assert(C.ntau()==A.ntau());
+    assert(C.ntau()==Acc.ntau());
+    assert(C.ntau()==B.ntau());
+    assert(C.ntau()==Bcc.ntau());
+    C.set_timestep_zero(tstp);
+
+    switch (size1) {
+    case 1:
+        incr_convolution_omp<T, herm_matrix<T>, 1>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, NULL, NULL, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 2:
+        incr_convolution_omp<T, herm_matrix<T>, 2>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, NULL, NULL, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 3:
+        incr_convolution_omp<T, herm_matrix<T>, 3>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, NULL, NULL, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 4:
+        incr_convolution_omp<T, herm_matrix<T>, 4>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, NULL, NULL, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 5:
+        incr_convolution_omp<T, herm_matrix<T>, 5>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, NULL, NULL, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 6:
+        incr_convolution_omp<T, herm_matrix<T>, 6>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, NULL, NULL, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    case 8:
+        incr_convolution_omp<T, herm_matrix<T>, 8>(omp_num_threads, tstp, CPLX(1, 0), C, A,
+                                                   Acc, NULL, NULL, B, Bcc,
+                                                   integration::I<T>(SolveOrder), beta, h);
+        break;
+    default:
+        incr_convolution_omp<T, herm_matrix<T>, LARGESIZE>(omp_num_threads, tstp, CPLX(1, 0),
+                                                           C, A, Acc, NULL, NULL, B, Bcc,
+                                                           integration::I<T>(SolveOrder), beta, h);
+        break;
+    }
+}
+
+
+
 
 /** \brief <b> Returns convolution \f$C = A\ast f\ast B\f$ at a given time step.</b>
 *
@@ -5309,6 +5740,48 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
                               integration::Integrator<T> &I, T beta, T h) {
     convolution_timestep_omp<T>(omp_num_threads, tstp, C, A, A, B, B, I, beta, h);
 }
+
+/** \brief <b> Returns convolution \f$C = A\ast f\ast B\f$ at a given time step.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Computes contour convolution C=A*f*B of the objects with class 'herm_matrix'
+* > at a given time step 't=nh'. Here we assume that A and B are hermitian. 
+* > Works for a scalar and square matrices. `openMP` parallelized version.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param omp_num_threads
+* > [int] number of `openMP` threads
+* @param tstp
+* > [int] index of the time step ('t=nh')
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
+* @param A
+* > [herm_matrix] contour Green's function
+* @param ft
+* > [function] function \f$f\f$
+* @param B
+* > [herm_matrix] contour Green's function
+* @param beta
+* > inversed temperature
+* @param h
+* > time step interval
+* @param SolveOrder
+* > [int] integrator order
+*/
+template <typename T>
+void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
+                              herm_matrix<T> &A, herm_matrix<T> &B,
+                              T beta, T h, int SolveOrder) {
+    convolution_timestep_omp<T>(omp_num_threads, tstp, C, A, A, B, B, beta, h, SolveOrder);
+}
+
 /** \brief <b> Returns convolution \f$C = A\ast B\f$ for all timesteps.</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -5350,6 +5823,49 @@ void convolution_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
     int tstp;
     for (tstp = -1; tstp <= C.nt(); tstp++)
         convolution_timestep_omp<T>(omp_num_threads, tstp, C, A, Acc, B, Bcc, I, beta, h);
+}
+
+/** \brief <b> Returns convolution \f$C = A\ast B\f$ for all timesteps.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Computes contour convolution C=A*B of the objects with class 'herm_matrix'
+* > for all time steps.
+* > Works for a scalar and square matrices. `openMP` parallelized version.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param omp_num_threads
+* > [int] number of `openMP` threads
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
+* @param A
+* > [herm_matrix] contour Green's function
+* @param Acc
+* > [herm_matrix] hermitian conjugate of A
+* @param B
+* > [herm_matrix] contour Green's function
+* @param Bcc
+* > [herm_matrix] hermitian conjugate of B
+* @param beta
+* > inversed temperature
+* @param h
+* > time step interval
+* @param SolveOrder
+* > [int] integrator order
+*/
+template <typename T>
+void convolution_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
+                     herm_matrix<T> &Acc, herm_matrix<T> &B, herm_matrix<T> &Bcc,
+                     T beta, T h, int SolveOrder) {
+    int tstp;
+    for (tstp = -1; tstp <= C.nt(); tstp++)
+        convolution_timestep_omp<T>(omp_num_threads, tstp, C, A, Acc, B, Bcc, beta, h, SolveOrder);
 }
 
 #undef CPLX

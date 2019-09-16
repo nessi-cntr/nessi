@@ -67,26 +67,26 @@ namespace cntr {
 // documented user interfaces
 
   template <typename T>
-  void dyson_mat(T beta, T mu, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma, 
-     const int kt=MAX_ORDER, const int method=CNTR_MAT_FIXPOINT,
+  void dyson_mat(herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<T> &Sigma, T beta, 
+     const int SolveOrder=MAX_SOLVE_ORDER, const int method=CNTR_MAT_FIXPOINT,
      const bool force_hermitian=true);
 
   template <typename T>
-  void dyson_mat(T beta, T mu, herm_matrix<T> &G, function<T> &H, function<T> &SigmaMF, 
-     herm_matrix<T> &Sigma, const int kt=MAX_ORDER, const int method=CNTR_MAT_FIXPOINT,
+  void dyson_mat(herm_matrix<T> &G, T mu, function<T> &H, function<T> &SigmaMF, T beta, 
+     herm_matrix<T> &Sigma, const int SolveOrder=MAX_SOLVE_ORDER, const int method=CNTR_MAT_FIXPOINT,
      const bool force_hermitian=true);
 
   template <typename T>
-  void dyson_start(T beta, T mu, T h, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma,
-    const int kt=MAX_ORDER);
+  void dyson_start(herm_matrix<T> &G,  T mu, function<T> &H, herm_matrix<T> &Sigma, T beta,T h, 
+    const int SolveOrder=MAX_SOLVE_ORDER);
 
   template <typename T>
-  void dyson_timestep(int n, T beta, T mu, T h, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma,
-    const int kt=MAX_ORDER);
+  void dyson_timestep(int n, herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<T> &Sigma, T beta, T h, 
+    const int SolveOrder=MAX_SOLVE_ORDER);
 
   template <typename T>
-  void dyson(T beta, T mu, T h, herm_matrix<T> &G, function<T> &H, herm_matrix<T> &Sigma,
-    const int kt=MAX_ORDER, const int matsubara_method=CNTR_MAT_FIXPOINT,
+  void dyson(herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<T> &Sigma, T beta, T h, 
+    const int SolveOrder=MAX_SOLVE_ORDER, const int matsubara_method=CNTR_MAT_FIXPOINT,
     const bool force_hermitian=true);
   
 } // namespace cntr

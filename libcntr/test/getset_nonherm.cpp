@@ -26,8 +26,8 @@ TEST_CASE("cntr::get_XXX for nonhermitian functions","[cntr::get_XXX for nonherm
 	cntr::green_from_H(A_scalar,0.0,a1x1,beta,h);
 	cntr::green_from_H(B_scalar,0.0,b1x1,beta,h);
 
-	cntr::convolution(C_scalar, A_scalar, A_scalar, B_scalar, B_scalar, CINTEG(MAX_ORDER), beta, h);
-	cntr::convolution(Ccc_scalar, B_scalar, B_scalar, A_scalar, A_scalar, CINTEG(MAX_ORDER), beta, h);
+	cntr::convolution(C_scalar, A_scalar, A_scalar, B_scalar, B_scalar, CINTEG(MAX_SOLVE_ORDER), beta, h);
+	cntr::convolution(Ccc_scalar, B_scalar, B_scalar, A_scalar, A_scalar, CINTEG(MAX_SOLVE_ORDER), beta, h);
 
 	// Square Green's function
 	GREEN A_matrix=GREEN(nt,ntau,size,FERMION);
@@ -52,8 +52,8 @@ TEST_CASE("cntr::get_XXX for nonhermitian functions","[cntr::get_XXX for nonherm
 	cntr::green_from_H(A_matrix,0.0,a,beta,h);
 	cntr::green_from_H(B_matrix,0.0,b,beta,h);
 
-	cntr::convolution(C_matrix, A_matrix, A_matrix, B_matrix, B_matrix, CINTEG(MAX_ORDER), beta, h);
-	cntr::convolution(Ccc_matrix, B_matrix, B_matrix, A_matrix, A_matrix, CINTEG(MAX_ORDER), beta, h);
+	cntr::convolution(C_matrix, A_matrix, A_matrix, B_matrix, B_matrix, CINTEG(MAX_SOLVE_ORDER), beta, h);
+	cntr::convolution(Ccc_matrix, B_matrix, B_matrix, A_matrix, A_matrix, CINTEG(MAX_SOLVE_ORDER), beta, h);
 
 	SECTION ("Get for herm_matrix - scalar"){
 		std::complex<double> les1,les2,ret1,ret2,gtr1,gtr2;

@@ -53,26 +53,26 @@ void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, func
 template <typename T>
 void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
                           herm_matrix<T> &B, herm_matrix<T> &Bcc,
-                          T beta, T h, int kt=MAX_ORDER);
+                          T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
 template <typename T>
 void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &B,
-                          T beta, T h, int kt=MAX_ORDER);
+                          T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
 template <typename T>
 void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
                  herm_matrix<T> &B, herm_matrix<T> &Bcc,
-                 T beta, T h, int kt=MAX_ORDER);
+                 T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
 // with f
 template <typename T>
 void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
                           function<T> &ft, herm_matrix<T> &B, herm_matrix<T> &Bcc,
-                          T beta, T h, int kt=MAX_ORDER);
+                          T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
 template <typename T>
 void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, function<T> &ft,
-                          herm_matrix<T> &B, T beta, T h, int kt=MAX_ORDER);
+                          herm_matrix<T> &B, T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
 template <typename T>
 void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, function<T> &ft,
                  herm_matrix<T> &B, herm_matrix<T> &Bcc,
-                 T beta, T h, int kt=MAX_ORDER);
+                 T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
 
 
 //
@@ -104,16 +104,16 @@ void convolution_les_timediag(int tstp, cdmatrix &Cles, GG &A, GG &B,
 template <typename T, class GG>
 void convolution_density_matrix(int tstp, cdmatrix &rho, GG &A, GG &Acc,
                                 function<T> &ft, GG &B, GG &Bcc,
-                                T beta, T h, int kt=MAX_ORDER);
+                                T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
 template <typename T, class GG>
 void convolution_density_matrix(int tstp, cdmatrix &rho, GG &A, function<T> &ft,
-                                GG &B, T beta, T h, int kt=MAX_ORDER);
+                                GG &B, T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
 template <typename T, class GG>
 void convolution_density_matrix(int tstp, cdmatrix &rho, GG &A, GG &Acc, GG &B,
-                                GG &Bcc, T beta, T h, int kt=MAX_ORDER);
+                                GG &Bcc, T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
 template <typename T, class GG>
 void convolution_density_matrix(int tstp, cdmatrix &rho, GG &A, GG &B,
-                                T beta, T h, int kt=MAX_ORDER);
+                                T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
 // raw pointer versions 
 
 template <typename T, class GG>
@@ -351,6 +351,38 @@ template <typename T>
 void convolution_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
                      herm_matrix<T> &Acc, herm_matrix<T> &B, herm_matrix<T> &Bcc,
                      integration::Integrator<T> &I, T beta, T h);
+
+// simplified new interfaces 
+template <typename T>
+void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
+                              herm_matrix<T> &A, herm_matrix<T> &Acc, function<T> &ft,
+                              herm_matrix<T> &B, herm_matrix<T> &Bcc,
+                              T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
+template <typename T>
+void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
+                              herm_matrix<T> &A, function<T> &ft, herm_matrix<T> &B,
+                              T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
+
+template <typename T>
+void convolution_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
+                     herm_matrix<T> &Acc, function<T> &ft, herm_matrix<T> &B,
+                     herm_matrix<T> &Bcc, T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
+template <typename T>
+void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
+                              herm_matrix<T> &A, herm_matrix<T> &Acc, herm_matrix<T> &B,
+                              herm_matrix<T> &Bcc, T beta,
+                              T h, int SolveOrder=MAX_SOLVE_ORDER);
+template <typename T>
+void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
+                              herm_matrix<T> &A, herm_matrix<T> &B,
+                              T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
+template <typename T>
+void convolution_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
+                     herm_matrix<T> &Acc, herm_matrix<T> &B, herm_matrix<T> &Bcc,
+                     T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
+
+
+
 #undef CPLX
 #endif // CNTR_USE_OMP
 

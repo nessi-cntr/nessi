@@ -1267,14 +1267,14 @@ void vie2_mat(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
 * > [herm_matrix] green's function  on right-hand side
 * @param beta
 * > [double] inverse temperature
-* @param I
-* > [Integrator] integrator class
+* @param SolveOrder
+* > [int] integrator order
 * @param method
 * > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
 */
 template <typename T>
-void vie2_mat(T beta, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
-     herm_matrix<T> &Q, const int kt, const int method){
+void vie2_mat(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
+     herm_matrix<T> &Q, T beta, const int SolveOrder, const int method){
 
   const int fourier_order=3;
   int maxiter;
@@ -1286,11 +1286,11 @@ void vie2_mat(T beta, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
     break;
   case CNTR_MAT_CG:
     maxiter = 40;
-    vie2_mat_steep(G, F, Fcc, Q, beta, integration::I<T>(kt), maxiter, tol);
+    vie2_mat_steep(G, F, Fcc, Q, beta, integration::I<T>(SolveOrder), maxiter, tol);
     break;
   default:
     maxiter = 6;
-    vie2_mat_fixpoint(G, F, Fcc, Q, beta, integration::I<T>(kt), maxiter);
+    vie2_mat_fixpoint(G, F, Fcc, Q, beta, integration::I<T>(SolveOrder), maxiter);
     break;
   }
 
@@ -1402,60 +1402,60 @@ void vie2_start(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_
 * > [herm_matrix] Complex conjugate of F
 * @param &Q
 * > [herm_matrix] green's function  on right-hand side
-* @param I
-* > [Integrator] integrator class
 * @param beta
 * > [double] inverse temperature
 * @param h
 * > [double] time interval
+* @param SolveOrder
+* > [int] integrator order
 */
 template <typename T>
-void vie2_start(T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
-                const int kt) {
+void vie2_start(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
+                T beta, T h, const int SolveOrder) {
     int size1 = G.size1();
     assert(G.size1() == F.size1());
     assert(G.ntau() == F.ntau());
-    assert(G.nt() >= kt);
-    assert(F.nt() >= kt);
+    assert(G.nt() >= SolveOrder);
+    assert(F.nt() >= SolveOrder);
     assert(G.size1() == Fcc.size1());
     assert(G.ntau() == Fcc.ntau());
-    assert(Fcc.nt() >= kt);
+    assert(Fcc.nt() >= SolveOrder);
 
     switch (size1) {
     case 1:
-        vie2_start_ret<T, herm_matrix<T>, 1>(G, F, Fcc, Q, integration::I<T>(kt), h);
-        vie2_start_tv<T, herm_matrix<T>, 1>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-        vie2_start_les<T, herm_matrix<T>, 1>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_ret<T, herm_matrix<T>, 1>(G, F, Fcc, Q, integration::I<T>(SolveOrder), h);
+        vie2_start_tv<T, herm_matrix<T>, 1>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 1>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
         break;
     case 2:
-        vie2_start_ret<T, herm_matrix<T>, 2>(G, F, Fcc, Q, integration::I<T>(kt), h);
-        vie2_start_tv<T, herm_matrix<T>, 2>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-        vie2_start_les<T, herm_matrix<T>, 2>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_ret<T, herm_matrix<T>, 2>(G, F, Fcc, Q, integration::I<T>(SolveOrder), h);
+        vie2_start_tv<T, herm_matrix<T>, 2>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 2>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
         break;
     case 3:
-        vie2_start_ret<T, herm_matrix<T>, 3>(G, F, Fcc, Q, integration::I<T>(kt), h);
-        vie2_start_tv<T, herm_matrix<T>, 3>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-        vie2_start_les<T, herm_matrix<T>, 3>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_ret<T, herm_matrix<T>, 3>(G, F, Fcc, Q, integration::I<T>(SolveOrder), h);
+        vie2_start_tv<T, herm_matrix<T>, 3>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 3>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
         break;
     case 4:
-        vie2_start_ret<T, herm_matrix<T>, 4>(G, F, Fcc, Q, integration::I<T>(kt), h);
-        vie2_start_tv<T, herm_matrix<T>, 4>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-        vie2_start_les<T, herm_matrix<T>, 4>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_ret<T, herm_matrix<T>, 4>(G, F, Fcc, Q, integration::I<T>(SolveOrder), h);
+        vie2_start_tv<T, herm_matrix<T>, 4>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 4>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
         break;
     case 5:
-        vie2_start_ret<T, herm_matrix<T>, 5>(G, F, Fcc, Q, integration::I<T>(kt), h);
-        vie2_start_tv<T, herm_matrix<T>, 5>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-        vie2_start_les<T, herm_matrix<T>, 5>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_ret<T, herm_matrix<T>, 5>(G, F, Fcc, Q, integration::I<T>(SolveOrder), h);
+        vie2_start_tv<T, herm_matrix<T>, 5>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 5>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
         break;
     case 8:
-        vie2_start_ret<T, herm_matrix<T>, 8>(G, F, Fcc, Q, integration::I<T>(kt), h);
-        vie2_start_tv<T, herm_matrix<T>, 8>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-        vie2_start_les<T, herm_matrix<T>, 8>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_ret<T, herm_matrix<T>, 8>(G, F, Fcc, Q, integration::I<T>(SolveOrder), h);
+        vie2_start_tv<T, herm_matrix<T>, 8>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+        vie2_start_les<T, herm_matrix<T>, 8>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
         break;
     default:
-        vie2_start_ret<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, integration::I<T>(kt), h);
-        vie2_start_tv<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-        vie2_start_les<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+        vie2_start_ret<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, integration::I<T>(SolveOrder), h);
+        vie2_start_tv<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+        vie2_start_les<T, herm_matrix<T>, LARGESIZE>(G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
         break;
     }
 }
@@ -1577,18 +1577,18 @@ void vie2_timestep(int n, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &
 * > [herm_matrix<T>] Complex conjugate of F
 * @param &Q
 * > [herm_matrix<T>] green's function  on right-hand side
-* @param I
-* > [Integrator] integrator class
 * @param beta
 * > [double] inverse temperature
 * @param h
 * > [double] time interval
+* @param SolveOrder
+* > [int] integrator order
 * @param matsubara_method
 * > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
 */
 template <typename T>
-void vie2_timestep(int n, T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
-                   herm_matrix<T> &Q, const int kt,  const int matsubara_method) {
+void vie2_timestep(int n, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
+                   herm_matrix<T> &Q, T beta, T h, const int SolveOrder, const int matsubara_method) {
     int size1 = G.size1();
     assert(G.size1() == F.size1());
     assert(G.size1() == Fcc.size1());
@@ -1599,45 +1599,45 @@ void vie2_timestep(int n, T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, her
     assert(Fcc.nt() >= n);
 
     if (n==-1){
-        vie2_mat(G, F, Fcc, Q, beta, integration::I<T>(kt), matsubara_method);
-    }else if(n<=kt){
+        vie2_mat(G, F, Fcc, Q, beta, integration::I<T>(SolveOrder), matsubara_method);
+    }else if(n<=SolveOrder){
         vie2_start(G,F,Fcc,Q,integration::I<T>(n),beta,h);
     }else{
         switch (size1) {
         case 1:
-            vie2_timestep_ret<T, herm_matrix<T>, 1>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
-            vie2_timestep_tv<T, herm_matrix<T>, 1>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-            vie2_timestep_les<T, herm_matrix<T>, 1>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_ret<T, herm_matrix<T>, 1>(n, G, Fcc, F, Q, integration::I<T>(SolveOrder), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 1>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 1>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
             break;
         case 2:
-            vie2_timestep_ret<T, herm_matrix<T>, 2>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
-            vie2_timestep_tv<T, herm_matrix<T>, 2>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-            vie2_timestep_les<T, herm_matrix<T>, 2>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_ret<T, herm_matrix<T>, 2>(n, G, Fcc, F, Q, integration::I<T>(SolveOrder), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 2>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 2>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
             break;
         case 3:
-            vie2_timestep_ret<T, herm_matrix<T>, 3>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
-            vie2_timestep_tv<T, herm_matrix<T>, 3>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-            vie2_timestep_les<T, herm_matrix<T>, 3>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_ret<T, herm_matrix<T>, 3>(n, G, Fcc, F, Q, integration::I<T>(SolveOrder), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 3>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 3>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
             break;
         case 4:
-            vie2_timestep_ret<T, herm_matrix<T>, 4>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
-            vie2_timestep_tv<T, herm_matrix<T>, 4>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-            vie2_timestep_les<T, herm_matrix<T>, 4>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_ret<T, herm_matrix<T>, 4>(n, G, Fcc, F, Q, integration::I<T>(SolveOrder), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 4>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 4>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
             break;
         case 5:
-            vie2_timestep_ret<T, herm_matrix<T>, 5>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
-            vie2_timestep_tv<T, herm_matrix<T>, 5>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-            vie2_timestep_les<T, herm_matrix<T>, 5>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_ret<T, herm_matrix<T>, 5>(n, G, Fcc, F, Q, integration::I<T>(SolveOrder), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 5>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 5>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
             break;
         case 8:
-            vie2_timestep_ret<T, herm_matrix<T>, 8>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
-            vie2_timestep_tv<T, herm_matrix<T>, 8>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-            vie2_timestep_les<T, herm_matrix<T>, 8>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_ret<T, herm_matrix<T>, 8>(n, G, Fcc, F, Q, integration::I<T>(SolveOrder), h);
+            vie2_timestep_tv<T, herm_matrix<T>, 8>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, 8>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
             break;
         default:
-            vie2_timestep_ret<T, herm_matrix<T>, LARGESIZE>(n, G, Fcc, F, Q, integration::I<T>(kt), h);
-            vie2_timestep_tv<T, herm_matrix<T>, LARGESIZE>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
-            vie2_timestep_les<T, herm_matrix<T>, LARGESIZE>(n, G, F, Fcc, Q, integration::I<T>(kt), beta, h);
+            vie2_timestep_ret<T, herm_matrix<T>, LARGESIZE>(n, G, Fcc, F, Q, integration::I<T>(SolveOrder), h);
+            vie2_timestep_tv<T, herm_matrix<T>, LARGESIZE>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
+            vie2_timestep_les<T, herm_matrix<T>, LARGESIZE>(n, G, F, Fcc, Q, integration::I<T>(SolveOrder), beta, h);
         break;
         }
     }
@@ -1709,24 +1709,24 @@ void vie2(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix
 * > [herm_matrix<T>] Complex conjugate of F
 * @param &Q
 * > [herm_matrix<T>] green's function  on right-hand side
-* @param I
-* > [Integrator] integrator class
 * @param beta
 * > [double] inverse temperature
 * @param h
 * > [double] time interval
+* @param SolveOrder
+* > [int] integrator order
 * @param matsubara_method
-* > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
+* > [int] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
 */
 template <typename T>
-void vie2(T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
-          const int kt, const int matsubara_method) {
+void vie2(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
+          T beta, T h, const int SolveOrder, const int matsubara_method) {
     int tstp;
-    vie2_mat(beta, G, F, Fcc, Q, kt, matsubara_method);
+    vie2_mat(G, F, Fcc, Q, beta, SolveOrder, matsubara_method);
     if (G.nt() >= 0)
-        vie2_start(beta, h, G, F, Fcc, Q, kt);
-    for (tstp = kt + 1; tstp <= G.nt(); tstp++)
-        vie2_timestep(tstp, beta, h, G, F, Fcc, Q, kt);
+        vie2_start(G, F, Fcc, Q, beta, h, SolveOrder);
+    for (tstp = SolveOrder + 1; tstp <= G.nt(); tstp++)
+        vie2_timestep(tstp, G, F, Fcc, Q, beta, h, SolveOrder);
 }
 
 /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for Green's function with instantaneous contributions for given integration order. </b>
@@ -1765,20 +1765,20 @@ void vie2(T beta, T h, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc
 * > [double] inverse temperature
 * @param h
 * > [double] time interval
-* @param kt
-* > [int] integration order, 'I'
+* @param SolveOrder
+* > [int] integration order
 */
 template < typename T>
-void vie2_timestep_sin(int n,herm_matrix<T> &G,function<T> &Gsin,herm_matrix<T> &F,herm_matrix<T> &Fcc, function<T> &Fsin ,herm_matrix<T> &Q,function<T> &Qsin,T beta,T h,int kt){
+void vie2_timestep_sin(int n,herm_matrix<T> &G,function<T> &Gsin,herm_matrix<T> &F,herm_matrix<T> &Fcc, function<T> &Fsin ,herm_matrix<T> &Q,function<T> &Qsin,T beta,T h,int SolveOrder){
 
-    int n1=(n<=kt && n>=0 ? 0 : n);
-    int n2=(n<=kt && n>=0 ? kt : n);
+    int n1=(n<=SolveOrder && n>=0 ? 0 : n);
+    int n2=(n<=SolveOrder && n>=0 ? SolveOrder : n);
     int nt=F.nt(),ntau=F.ntau(),size1=F.size1(),sig=F.sig();
 
     assert(n >= -1);
     assert(ntau > 0);
-    assert(kt > 0 && kt <= 5);
-    assert(kt <= 2 * ntau + 2);
+    assert(SolveOrder > 0 && SolveOrder <= 5);
+    assert(SolveOrder <= 2 * ntau + 2);
     assert(ntau == Fcc.ntau());
     assert(ntau == F.ntau());
     assert(ntau == Q.ntau());
@@ -1833,7 +1833,7 @@ void vie2_timestep_sin(int n,herm_matrix<T> &G,function<T> &Gsin,herm_matrix<T> 
     for(int i=-1;i<=n2;i++){
       tmpQ.incr_timestep(i,tmpF1,-1.0);
     }
-    vie2_timestep(n,G,tmpF,tmpFcc,tmpQ,integration::I<T>(kt),beta,h);
+    vie2_timestep(n,G,tmpF,tmpFcc,tmpQ,integration::I<T>(SolveOrder),beta,h);
   }
 
 
@@ -2075,6 +2075,111 @@ void vie2_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &G, herm_ma
 }
 
 
+
+
+/** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for Green's function for given timestep. OpenMP parallelized </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > OpenMP version of 'vie2_timestep'.
+* > One solvs the linear equation \f$(1+F)*G=Q\f$ for \f$G(t, t^\prime)\f$
+* > with the given input kernel \f$F(t, t^\prime)\f$, its hermitian conjugate \f$F^\ddagger(t, t^\prime)\f$, the source term \f$Q(t, t^\prime)\f$, and
+* > the integrator class 'I'.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param omp_num_threads
+* > [int] number of threads for omp parallelization
+* @param tstp
+* > [int] time step
+* @param &G
+* > [herm_matrix<T>] solution
+* @param &F
+* > [herm_matrix<T>] green's function  on left-hand side
+* @param &Fcc
+* > [herm_matrix<T>] Complex conjugate of F
+* @param &Q
+* > [herm_matrix<T>] green's function  on right-hand side
+* @param beta
+* > [double] inverse temperature
+* @param h
+* > [double] time interval
+* @param SolveOrder
+* > [int] integrator order
+* @param matsubara_method
+* > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
+*/
+template <typename T>
+void vie2_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &G, herm_matrix<T> &F,
+                       herm_matrix<T> &Fcc, herm_matrix<T> &Q,
+                       T beta, T h, const int SolveOrder, const int matsubara_method) {
+    int ntau = G.ntau();
+    int size1 = G.size1();
+    int n1 = (tstp >= SolveOrder ? tstp : SolveOrder);
+
+    assert(tstp >= 0);
+    assert(ntau > 0);
+    assert(SolveOrder > 0 && SolveOrder <= 5);
+    assert(SolveOrder <= 2 * ntau + 2);
+    assert(ntau == Fcc.ntau());
+    assert(ntau == F.ntau());
+    assert(ntau == Q.ntau());
+    assert(F.sig()== G.sig());
+    assert(Fcc.sig()== G.sig());
+    assert(Q.sig()== G.sig());
+    assert(F.size1()== size1);
+    assert(F.size2()== size1);
+    assert(Fcc.size1()== size1);
+    assert(Fcc.size2()== size1);
+    assert(Q.size1()== size1);
+    assert(Q.size2()== size1);
+    assert(n1 <= F.nt());
+    assert(n1 <= Fcc.nt());
+    assert(n1 <= G.nt());
+    assert(n1 <= Q.nt());
+
+    if (tstp==-1){
+        vie2_mat(G, F, Fcc, Q, beta, integration::I<T>(SolveOrder), matsubara_method);
+    }else if(tstp<=SolveOrder){
+        cntr::vie2_start(G,F,Fcc,Q,integration::I<T>(tstp),beta,h);
+    }else{
+        switch (size1){
+        case 1:
+            vie2_timestep_omp_dispatch<T, herm_matrix<T>, 1>(
+            omp_num_threads, tstp, G, CPLX(1, 0), F, Fcc, NULL, NULL, Q, integration::I<T>(SolveOrder), beta, h);
+    break;
+        case 2:
+            vie2_timestep_omp_dispatch<T, herm_matrix<T>, 2>(
+            omp_num_threads, tstp, G, CPLX(1, 0), F, Fcc, NULL, NULL, Q, integration::I<T>(SolveOrder), beta, h);
+        break;
+        case 3:
+            vie2_timestep_omp_dispatch<T, herm_matrix<T>, 3>(
+            omp_num_threads, tstp, G, CPLX(1, 0), F, Fcc, NULL, NULL, Q, integration::I<T>(SolveOrder), beta, h);
+        break;
+        case 4:
+            vie2_timestep_omp_dispatch<T, herm_matrix<T>, 4>(
+            omp_num_threads, tstp, G, CPLX(1, 0), F, Fcc, NULL, NULL, Q, integration::I<T>(SolveOrder), beta, h);
+        break;
+        case 5:
+            vie2_timestep_omp_dispatch<T, herm_matrix<T>, 5>(
+            omp_num_threads, tstp, G, CPLX(1, 0), F, Fcc, NULL, NULL, Q, integration::I<T>(SolveOrder), beta, h);
+        break;
+        case 8:
+            vie2_timestep_omp_dispatch<T, herm_matrix<T>, 8>(
+            omp_num_threads, tstp, G, CPLX(1, 0), F, Fcc, NULL, NULL, Q, integration::I<T>(SolveOrder), beta, h);
+        break;
+        }
+
+    }
+}
+
+
+
 /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for Green's function with instantaneous contributions for given integration order. OpenMP parallelized </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2190,6 +2295,124 @@ void vie2_timestep_sin_omp(int omp_num_threads, int tstp,herm_matrix<T> &G,funct
     vie2_timestep_omp(omp_num_threads,tstp,G,tmpF,tmpFcc,tmpQ,I,beta,h);
   }
 
+
+
+/** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for Green's function with instantaneous contributions for given integration order. OpenMP parallelized </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > OpenMP version of 'vie2_timestep_sin'.
+* > One solves the linear equation \f$(1+F)*G=Q\f$ for a hermitian matrix \f$G(t, t^\prime)\f$.
+* > Here, are given: input kernel \f$F(t, t^\prime)\f$, its hermitian conjugate \f$F^\ddagger(t, t^\prime)\f$, the source term \f$Q(t, t^\prime)\f$,
+* > and the integrator class 'I'.
+* > The Green's functions \f$G(t, t^\prime)\f$ and \f$Q(t, t^\prime)\f$ have instantaneous contributions.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param omp_num_threads
+* > [int] number of threads for omp parallelization
+* @param tstp
+* > [int] time step
+* @param &G
+* > [herm_matrix<T>] solution
+* @param &Gsin
+* > [function<T>] singular component fo G
+* @param &F
+* > [herm_matrix<T>] green's function  on left-hand side
+* @param &Fcc
+* > [herm_matrix<T>] Complex conjugate of F
+* @param &Fsin
+* > [function<T>] singular component fo F
+* @param &Q
+* > [herm_matrix<T>] green's function  on right-hand side
+* @param &Qsin
+* > [function<T>] singular component of Q
+* @param beta
+* > [double] inverse temperature
+* @param h
+* > [double] time interval
+* @param SolveOrder
+* > [int] integrator order
+*/
+
+template < typename T>
+void vie2_timestep_sin_omp(int omp_num_threads, int tstp,herm_matrix<T> &G,function<T> &Gsin,
+                            herm_matrix<T> &F,herm_matrix<T> &Fcc, function<T> &Fsin ,
+                            herm_matrix<T> &Q,function<T> &Qsin,T beta,T h, const int SolveOrder){
+
+    int n1=(tstp<=SolveOrder && tstp>=0 ? 0 : tstp);
+    int n2=(tstp<=SolveOrder && tstp>=0 ? SolveOrder : tstp);
+    int nt=F.nt(),ntau=F.ntau(),size1=F.size1(),sig=F.sig();
+
+    assert(tstp >= 0);
+    assert(ntau > 0);
+    assert(SolveOrder > 0 && SolveOrder <= 5);
+    assert(SolveOrder <= 2 * ntau + 2);
+    assert(ntau == Fcc.ntau());
+    assert(ntau == F.ntau());
+    assert(ntau == Q.ntau());
+    assert(F.sig()== G.sig());
+    assert(Fcc.sig()== G.sig());
+    assert(Q.sig()== G.sig());
+    assert(F.size1()== size1);
+    assert(F.size2()== size1);
+    assert(Fcc.size1()== size1);
+    assert(Fcc.size2()== size1);
+    assert(Q.size1()== size1);
+    assert(Q.size2()== size1);
+    assert(n1 <= F.nt());
+    assert(n1 <= Fcc.nt());
+    assert(n1 <= G.nt());
+    assert(n1 <= Q.nt());
+
+    function<T> funFinv(n2,size1);
+
+    cntr::herm_matrix<T> tmpF(nt,ntau,size1,sig),tmpFcc(nt,ntau,size1,sig),tmpF1(nt,ntau,size1,sig),tmpQ(nt,ntau,size1,sig);
+    cdmatrix cdF,cdFinv,cdQ,cdG;
+    //Check consistency
+    assert(G.sig()==F.sig());
+    assert(G.nt()==F.nt());
+    assert(G.nt()==Q.nt());
+
+    for(int n=-1;n<=n2;n++){
+      Fsin.get_value(n,cdF);
+      Qsin.get_value(n,cdQ);
+      cdF=cdF+cdmatrix::Identity(size1,size1);
+      cdFinv=cdF.inverse();  //Expected  that these matrices are small
+      cdG=cdFinv*cdQ;
+      funFinv.set_value(n,cdFinv);
+      Gsin.set_value(n,cdG);
+    }
+
+    tmpF=F;
+    tmpFcc=Fcc;
+    tmpQ=Q;
+
+    //Set new F and Q
+    for(int n=-1;n<=n2;n++){
+      tmpF.left_multiply(n,funFinv,1.0);
+      tmpFcc.right_multiply(n,funFinv,1.0);
+      tmpQ.left_multiply(n,funFinv,1.0);
+    }
+    tmpF1=tmpF;
+
+    for(int n=-1;n<=n2;n++){
+      tmpF1.right_multiply(n,Gsin,1.0);
+    }
+    for(int i=-1;i<=n2;i++){
+      tmpQ.incr_timestep(i,tmpF1,-1.0);
+    }
+
+    vie2_timestep_omp(omp_num_threads,tstp,G,tmpF,tmpFcc,tmpQ,beta,h,SolveOrder);
+  }
+
+
+
   /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$. OpenMP parallelized</b>
   *
   * <!-- ====== DOCUMENTATION ====== -->
@@ -2234,6 +2457,54 @@ void vie2_omp(int omp_num_threads, herm_matrix<T> &G, herm_matrix<T> &F, herm_ma
         vie2_start(G, F, Fcc, Q, I, beta, h);
     for (tstp = k + 1; tstp <= G.nt(); tstp++)
         vie2_timestep_omp(omp_num_threads, tstp, G, F, Fcc, Q, I, beta, h);
+}
+
+
+
+
+  /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$. OpenMP parallelized</b>
+  *
+  * <!-- ====== DOCUMENTATION ====== -->
+  *
+  *   \par Purpose
+  * <!-- ========= -->
+  *
+  * > OpenMP version of 'vie2'.
+  * > One solves the linear equation \f$(1+F)*G=Q\f$ for a hermitian matrix \f$G(t, t^\prime)\f$ with given \f$F(t, t^\prime)\f$ and \f$Q(t, t^\prime)\f$.
+  * > Here, one calls the routines 'vie2_mat()', 'vie2_start()', 'vie2_timestep'.
+  *
+  *
+  * <!-- ARGUMENTS
+  *      ========= -->
+  *
+  * @param omp_num_threads
+  * > [int] number of threads for omp parallelization
+  * @param &G
+  * > [herm_matrix<T>] solution
+  * @param &F
+  * > [herm_matrix<T>] green's function  on left-hand side
+  * @param &Fcc
+  * > [herm_matrix<T>] Complex conjugate of F
+  * @param &Q
+  * > [herm_matrix<T>] green's function  on right-hand side
+  * @param beta
+  * > [double] inverse temperature
+  * @param h
+  * > [double] time interval
+  * @param SolveOrder
+  * > [int] integrator order
+  * @param matsubara_method
+  * > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
+  */
+template <typename T>
+void vie2_omp(int omp_num_threads, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
+              herm_matrix<T> &Q, T beta, T h, const int SolveOrder, const int matsubara_method) {
+    int tstp;
+    vie2_mat(G, F, Fcc, Q, beta, SolveOrder, matsubara_method);
+    if (G.nt() >= 0)
+        vie2_start(G, F, Fcc, Q, beta, h, SolveOrder);
+    for (tstp = SolveOrder + 1; tstp <= G.nt(); tstp++)
+        vie2_timestep_omp(omp_num_threads, tstp, G, F, Fcc, Q, beta, h, SolveOrder);
 }
 
 #endif // CNTR_USE_OMP
