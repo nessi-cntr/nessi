@@ -11,14 +11,14 @@ namespace cntr {
   extern template dvector fermi<double>(double beta,dvector &omega);
   extern template dvector fermi_exp<double>(double beta,double tau,dvector &omega);
   extern template cdmatrix diag_prop<double>(double time,dvector &omega);
-  extern template void green_equilibrium_mat_bethe<double>(herm_matrix<double> &G,double beta,int limit=100,int nn=20,double mu=0.0);
-  extern template void green_equilibrium_bethe<double>(herm_matrix<double> &G,double beta,double h,int limit=100,int nn=20,double mu=0.0);
+  extern template void green_equilibrium_mat_bethe<double>(herm_matrix<double> &G,double beta,int limit,int nn,double mu);
+  extern template void green_equilibrium_bethe<double>(herm_matrix<double> &G,double beta,double h,int limit,int nn,double mu);
   extern template void green_from_H<double>(herm_matrix<double> &G,double mu,cdmatrix &eps,double beta,double h);
   extern template void green_from_H<double>(herm_matrix_timestep<double> &G,double mu,cdmatrix &eps,double beta,double h);
   extern template void green_from_H<double>(herm_matrix<double> &G,double mu,cntr::function<double> &eps,
-			     double beta,double h,int kt,int order=4,bool fixHam=false);
+			     double beta,double h,int kt,int order,bool fixHam);
   extern template void green_from_H<double>(herm_matrix_timestep<double> &G,double mu,cntr::function<double> &eps,
-			     double beta,double h,int kt,int order=4,bool fixHam=false);
+			     double beta,double h,int kt,int order,bool fixHam);
   extern template void green_single_pole_XX_timestep(herm_matrix_timestep<double> &D0,
 						     double w, double beta, double h);
   extern template void green_single_pole_XX_timestep(int tstp, herm_matrix<double> &D0,

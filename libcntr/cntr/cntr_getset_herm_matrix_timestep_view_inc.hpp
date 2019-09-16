@@ -64,7 +64,7 @@ void get_mat(const int m, cdmatrix &G_mat, herm_matrix_timestep_view<T> &G,
     std::complex<T> *mat;
 
     mat = G.matptr(m);
-    map_component(size1, size2, mat, G_mat);
+    map_ptr2matrix(size1, size2, mat, G_mat);
 }
 
 
@@ -121,7 +121,7 @@ void get_mat(const int m, cdmatrix &G_mat, herm_matrix_timestep_view<T> &G){
     int size1=G.size1(), size2=G.size2();
 
     mat = G.matptr(m);
-    map_component(size1, size2, mat, G_mat);
+    map_ptr2matrix(size1, size2, mat, G_mat);
 }
 
 
@@ -212,10 +212,10 @@ void get_les(const int i, const int j, cdmatrix &G_les, herm_matrix_timestep_vie
 
     if (G.tstp() == j){
         les = G.lesptr(i);
-        map_component(size1, size2, les, G_les);
+        map_ptr2matrix(size1, size2, les, G_les);
     } else if (G.tstp() == i) {
         les = Gcc.lesptr(j);
-        map_component(size1, size2, les, G_les);
+        map_ptr2matrix(size1, size2, les, G_les);
         G_les.adjointInPlace();
         G_les = -G_les;
     }
@@ -311,10 +311,10 @@ void get_ret(const int i, const int j, cdmatrix &G_ret, herm_matrix_timestep_vie
 
     if (G.tstp() == i){
         ret = G.retptr(j);
-        map_component(size1, size2, ret, G_ret);
+        map_ptr2matrix(size1, size2, ret, G_ret);
     } else if (G.tstp() == j) {
         ret = Gcc.retptr(i);
-        map_component(size1, size2, ret, G_ret);
+        map_ptr2matrix(size1, size2, ret, G_ret);
         G_ret.adjointInPlace();
         G_ret = -G_ret;
     }
@@ -398,7 +398,7 @@ void get_tv(const int i, const int m, cdmatrix &G_tv, herm_matrix_timestep_view<
     std::complex<T> *tv;
 
     tv = G.tvptr(m);
-    map_component(size1, size2, tv, G_tv);
+    map_ptr2matrix(size1, size2, tv, G_tv);
 }
 
 
@@ -484,7 +484,7 @@ void get_vt(const int m, const int i, cdmatrix &G_vt, herm_matrix_timestep_view<
     std::complex<T> *vt;
 
     vt = Gcc.tvptr(G.ntau() - m);
-    map_component(size1, size2, vt, G_vt);
+    map_ptr2matrix(size1, size2, vt, G_vt);
     G_vt.adjointInPlace();
     G_vt = std::complex<T>(-G.sig(),0.0) *  G_vt;
 }

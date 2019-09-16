@@ -67,10 +67,10 @@ namespace cntr {
   void green_from_H(herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h);
   template <typename T>
   void green_from_H(herm_matrix<T> &G,T mu,cntr::function<T> &eps,
-			     T beta,T h,int kt,int order=4,bool fixHam=false);
+			     T beta,T h,int kt=MAX_ORDER,int order=4,bool fixHam=false);
   template <typename T>
   void green_from_H(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,
-			     T beta,T h,int kt,int order=4,bool fixHam=false);
+			     T beta,T h,int kt=MAX_ORDER,int order=4,bool fixHam=false);
 
   // simple bosonic GF
 

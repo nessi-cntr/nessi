@@ -30,7 +30,7 @@ TEST_CASE("read/write (hdf5)","[herm_matrix_read_write_hdf5]"){
   h0(0,1) = I*lam;
   h0(1,0) = -I*lam;
 
-  cntr::green_from_H(G1,mu,h0,beta,h,5,4,true);
+  cntr::green_from_H(G1,mu,h0,beta,h);
 
   SECTION("read/write (group)"){
     double err=0.0;

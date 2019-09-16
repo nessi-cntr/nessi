@@ -729,6 +729,67 @@ T distance_norm2(herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2) {
     return err;
 }
 
+
+/** \brief <b>  Evaluate the Euclidean norm between two herm_matrix_timestep objects </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between two herm_matrix_timestep objects (\f$g_1 \f$) and (\f$ g_2\f$).
+ * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used.
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step (dummy argument in release mode)
+ * @param g1
+ * > object of the class 'herm_matrix_timestep'
+ * @param g2
+ * > object of the class 'herm_matrix_timestep'
+ */
+template <typename T>
+T distance_norm2(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2) {
+    int size1 = g2.size1(), ntau = g2.ntau(), i, s1 = size1 * size1;
+    T err = 0.0;
+    std::complex<T> *temp = new std::complex<T>[size1 * size1];
+    std::complex<T> *x;
+    assert(tstp == g1.tstp_);
+    assert(g1.tstp_ == g2.tstp_ );
+    assert(g1.ntau_ == g2.ntau_ && g1.size1_ == g2.size1_);
+
+    if (tstp == -1) {
+        x = g1.data_;
+        for (i = 0; i <= ntau; i++) {
+            element_set<T, LARGESIZE>(size1, temp, g2.matptr(i));
+            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
+            err += element_norm2<T, LARGESIZE>(size1, temp);
+        }
+    } else {
+        x = g1.data_;
+        for (i = 0; i <= tstp; i++) {
+            element_set<T, LARGESIZE>(size1, temp, g2.retptr(i));
+            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
+            err += element_norm2<T, LARGESIZE>(size1, temp);
+        }
+        x = g1.data_ + (tstp + 1) * s1;
+        for (i = 0; i <= ntau; i++) {
+            element_set<T, LARGESIZE>(size1, temp, g2.tvptr(i));
+            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
+            err += element_norm2<T, LARGESIZE>(size1, temp);
+        }
+        x = g1.data_ + (tstp + 1 + ntau + 1) * s1;
+        for (i = 0; i <= tstp; i++) {
+            element_set<T, LARGESIZE>(size1, temp, g2.lesptr(i));
+            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
+            err += element_norm2<T, LARGESIZE>(size1, temp);
+        }
+    }
+    delete[] temp;
+    return err;
+}
+
 /** \brief <b>  Evaluate the Euclidean norm between herm_matrix_timestep_view and herm_matrix at a given time step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -847,6 +908,69 @@ T distance_norm2(herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2) 
     return err;
 }
 
+
+
+
+/** \brief <b> Evaluate the Euclidean norm between herm_matrix_timestep_view and herm_matrix_timestep at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between herm_matrix_timestep_view (\f$g_1 \f$) and  herm_matrix_timestep(\f$ g_2\f$) at a given time step.
+ * > Here the time step is extracted from herm_matrix_timestep_view.
+ * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used.
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step (dummy argument in release mode)
+ * @param g1
+ * > object of the class 'herm_matrix_timestep_view'
+ * @param g2
+ * > object of the class 'herm_matrix_timestep'
+ */
+template <typename T>
+T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2) {
+    int size1 = g2.size1(), ntau = g2.ntau(), i, s1 = size1 * size1;
+    T err = 0.0;
+    std::complex<T> *temp = new std::complex<T>[size1 * size1];
+    std::complex<T> *x;
+    assert(tstp == g1.tstp_);
+    assert(g1.tstp_ == g2.tstp_ );
+    assert(g1.ntau_ == g2.ntau_ && g1.size1_ == g2.size1_);
+
+    if (tstp == -1) {
+        x = g1.mat_;
+        for (i = 0; i <= ntau; i++) {
+            element_set<T, LARGESIZE>(size1, temp, g2.matptr(i));
+            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
+            err += element_norm2<T, LARGESIZE>(size1, temp);
+        }
+    } else {
+        x = g1.ret_;
+        for (i = 0; i <= tstp; i++) {
+            element_set<T, LARGESIZE>(size1, temp, g2.retptr(i));
+            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
+            err += element_norm2<T, LARGESIZE>(size1, temp);
+        }
+        x = g1.tv_;
+        for (i = 0; i <= ntau; i++) {
+            element_set<T, LARGESIZE>(size1, temp, g2.tvptr(i));
+            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
+            err += element_norm2<T, LARGESIZE>(size1, temp);
+        }
+        x = g1.les_ ;
+        for (i = 0; i <= tstp; i++) {
+            element_set<T, LARGESIZE>(size1, temp, g2.lesptr(i));
+            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
+            err += element_norm2<T, LARGESIZE>(size1, temp);
+        }
+    }
+    delete[] temp;
+    return err;
+}
 
 // template <typename T>
 // T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2) {
@@ -1056,22 +1180,6 @@ void force_matsubara_hermitian(GG &G) {
       Gmat_herm = 0.5*(Gmat + Gmat.adjoint());
       G.set_mat(m,Gmat_herm);
     }
-    // for (m = 0; m <= ntau; m++) {
-    //     // diagonal components:
-    //     for (p1 = 0; p1 < s1; p1++)
-    //         (*(G.matptr(m) + p1 * s1 + p1)).imag(0.0);
-    //     // off-diagonal components:
-    //     for (p1 = 0; p1 < s1; p1++) {
-    //         for (p2 = 0; p2 < p1; p2++) {
-    //             *(G.matptr(m) + p1 * s1 + p2) =
-    //                 0.5 * (*(G.matptr(m) + p1 * s1 + p2) +
-    //                        conj(*(G.matptr(m) + p2 * s1 + p1)));
-    //             *(G.matptr(m) + p2 * s1 + p1) =
-    //                 0.5 * (*(G.matptr(m) + p2 * s1 + p1) +
-    //                        conj(*(G.matptr(m) + p1 * s1 + p2)));
-    //         }
-    //     }
-    // }
 }
 
 } // namespace cntr

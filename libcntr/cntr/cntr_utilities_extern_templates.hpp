@@ -28,6 +28,9 @@ namespace cntr {
   extern template double distance_norm2<double>(int tstp,herm_matrix_timestep<double> &g1,herm_matrix<double> &g2);
   extern template double distance_norm2<double>(int tstp,herm_matrix_timestep_view<double> &g1,herm_matrix<double> &g2);
   extern template double distance_norm2<double>(herm_matrix_timestep_view<double> &g1,herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2<double>(herm_matrix_timestep<double> &g1,herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2<double>(int tstp, herm_matrix_timestep<double> &g1,herm_matrix_timestep<double> &g2);
+
   extern template double distance_norm2_eigen<double>(int tstp,herm_matrix_timestep<double> &g1,herm_matrix<double> &g2);
   extern template size_t mem_herm_matrix<double>(int nt,int ntau,int size);
   extern template size_t mem_herm_matrix_timestep<double>(int tstp,int ntau,int size);

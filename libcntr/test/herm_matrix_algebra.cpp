@@ -35,8 +35,8 @@ TEST_CASE("herm_matrix algebra","[herm_matrix_algebra]"){
   h2(0,1) = I*lam2;
   h2(1,0) = -I*lam2;
 
-  cntr::green_from_H(G1,mu,h1,beta,dt,5,4,true);
-  cntr::green_from_H(G2,mu,h2,beta,dt,5,4,true);
+  cntr::green_from_H(G1,mu,h1,beta,dt);
+  cntr::green_from_H(G2,mu,h2,beta,dt);
 
   SECTION("incr_timestep"){
     double err=0.0;
@@ -71,7 +71,7 @@ TEST_CASE("herm_matrix algebra","[herm_matrix_algebra]"){
       }
     }
 
-    cntr::green_from_H(G4,mu,h1,beta,dt,5,4,true);
+    cntr::green_from_H(G4,mu,h1,beta,dt);
     err = 0.0;
     G4.incr_timestep(G2,wz);
     for(int tstp=-1; tstp<=nt; tstp++){
@@ -79,7 +79,7 @@ TEST_CASE("herm_matrix algebra","[herm_matrix_algebra]"){
     }
     REQUIRE(err<eps);   
     
-    cntr::green_from_H(G4,mu,h1,beta,dt,5,4,true);  
+    cntr::green_from_H(G4,mu,h1,beta,dt);  
     err = 0.0;  
     for(int tstp=-1; tstp<=nt; tstp++){
       GREEN_TSTP A(tstp,ntau,size);
@@ -89,7 +89,7 @@ TEST_CASE("herm_matrix algebra","[herm_matrix_algebra]"){
     }
     REQUIRE(err<eps);
 
-    cntr::green_from_H(G4,mu,h1,beta,dt,5,4,true);  
+    cntr::green_from_H(G4,mu,h1,beta,dt);  
     err = 0.0;  
     for(int tstp=-1; tstp<=nt; tstp++){
       G4.incr_timestep(tstp,G2,wz);
@@ -128,7 +128,7 @@ TEST_CASE("herm_matrix algebra","[herm_matrix_algebra]"){
     }
 
     err = 0.0;
-    cntr::green_from_H(G4,mu,h1,beta,dt,5,4,true);
+    cntr::green_from_H(G4,mu,h1,beta,dt);
     for(int tstp=-1; tstp<=nt; tstp++){
       G4.smul(tstp,wz);
       err += cntr::distance_norm2(tstp,G3,G4);
@@ -165,7 +165,7 @@ TEST_CASE("herm_matrix algebra","[herm_matrix_algebra]"){
     }
 
     err = 0.0;
-    cntr::green_from_H(G4,mu,h1,beta,dt,5,4,true);
+    cntr::green_from_H(G4,mu,h1,beta,dt);
     for(int tstp=-1; tstp<=nt; tstp++){
       G4.smul(tstp,wr);
       err += cntr::distance_norm2(tstp,G3,G4);

@@ -24,7 +24,7 @@ TEST_CASE("set/get timestep","[herm_matrix_set_get_timestep]"){
   h0(0,1) = I*lam;
   h0(1,0) = -I*lam;
 
-  cntr::green_from_H(G1,mu,h0,beta,h,5,4,true);
+  cntr::green_from_H(G1,mu,h0,beta,h);
 
   SECTION("set_get_timestep"){
     double err=0.0;

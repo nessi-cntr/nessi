@@ -1,6 +1,7 @@
 #ifndef CNTR_CONVOLUTION_IMPL_H
 #define CNTR_CONVOLUTION_IMPL_H
 
+#include "eigen_map.hpp"
 #include "cntr_convolution_decl.hpp"
 #include "cntr_elements.hpp"
 //#include "cntr_exception.hpp"
@@ -2795,6 +2796,88 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matr
             n, C, A, Acc, ft.ptr(-1), ft.ptr(0), B, Bcc, I, beta, h);
     }
 }
+
+
+/** \brief <b> Returns convolution of two 'herm_matrix' objects and a contour function at a given time step</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Computes contour convolution \f$C=A*FxB \f$ of the 'herm_matrix' object 'A' and 'B' and a time-dependent contour function \f$F(t)\f$
+* > at a given time step 't=nh'. If 'n=-1', one performs Matsubara convolution with a function \f$F(-1)\f$.
+* > Works for a scalar and square matrices.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param n
+* > [int] number of the time step ('t=nh')
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
+* @param A
+* > [herm_matrix] contour Green's function
+* @param Acc
+* > [herm_matrix] complex conjugate to A
+* @param ft
+* > [function] contour function F(t).
+* @param B
+* > [herm_matrix] contour Green's function
+* @param Bcc
+* > [herm_matrix] complex conjugate to B
+* @param beta
+* > inversed temperature
+* @param h
+* > time interval
+* @param kt
+* > [int] integrator order
+*/
+template <typename T>
+void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
+                          function<T> &ft, herm_matrix<T> &B, herm_matrix<T> &Bcc,
+                          T beta, T h, int kt) {
+    int size1 = C.size1(), ntau = C.ntau(), n1 = (n < kt ? kt : n);
+    assert(ft.size1() == size1 && ft.nt() >= -1);
+    if (n == -1) {
+        convolution_matsubara(C, A, ft.ptr(-1), B, integration::I<T>(kt), beta);
+        return;
+    }
+    assert(n >= 0);
+    assert(A.size1() == size1);
+    assert(Acc.size1() == size1);
+    assert(B.size1() == size1);
+    assert(Bcc.size1() == size1);
+    assert(A.ntau() == ntau);
+    assert(Acc.ntau() == ntau);
+    assert(B.ntau() == ntau);
+    assert(Bcc.ntau() == ntau);
+    assert(A.nt() >= n1);
+    assert(Acc.nt() >= n1);
+    assert(B.nt() >= n1);
+    assert(Bcc.nt() >= n1);
+    assert(ft.nt() >= n1);
+    assert(C.nt() >= n);
+    if (size1 == 1) {
+        convolution_timestep_ret<T, herm_matrix<T>, 1>(n, C, A, Acc, ft.ptr(0), B, Bcc, integration::I<T>(kt),
+                                                       h);
+        convolution_timestep_tv<T, herm_matrix<T>, 1>(n, C, A, Acc, ft.ptr(-1), ft.ptr(0), B,
+                                                      Bcc, integration::I<T>(kt), beta, h);
+        convolution_timestep_les<T, herm_matrix<T>, 1>(n, C, A, Acc, ft.ptr(-1), ft.ptr(0),
+                                                       B, Bcc, integration::I<T>(kt), beta, h);
+    } else {
+        convolution_timestep_ret<T, herm_matrix<T>, LARGESIZE>(n, C, A, Acc, ft.ptr(0), B,
+                                                               Bcc, integration::I<T>(kt), h);
+        convolution_timestep_tv<T, herm_matrix<T>, LARGESIZE>(n, C, A, Acc, ft.ptr(-1),
+                                                              ft.ptr(0), B, Bcc, integration::I<T>(kt), beta, h);
+        convolution_timestep_les<T, herm_matrix<T>, LARGESIZE>(
+            n, C, A, Acc, ft.ptr(-1), ft.ptr(0), B, Bcc, integration::I<T>(kt), beta, h);
+    }
+}
+
+
+
 /** \brief <b> Returns convolution of two hermitian matrices and a contour function at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2832,6 +2915,45 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, function<
                           herm_matrix<T> &B, integration::Integrator<T> &I, T beta, T h) {
     convolution_timestep<T>(n, C, A, A, ft, B, B, I, beta, h);
 }
+
+/** \brief <b> Returns convolution of two hermitian matrices and a contour function at a given time step</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Computes contour convolution C=A*fxB of the hermitian matrices 'A' and 'B' and a time-dependent contour function 'F(t)'
+* > at a given time step 't=nh'. If 'n=-1', one performs Matsubara convolution with a function 'F(-1)', otherwise with 'F(t)'
+* > Works for a scalar and square matrices.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param n
+* > [int] number of the time step ('t=nh')
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
+* @param A
+* > [herm_matrix] contour Green's function (A=Acc)
+* @param ft
+* > [function] the contour function F(t).
+* @param B
+* > [herm_matrix] contour Green's function (B=Bcc)
+* @param beta
+* > inversed temperature
+* @param h
+* > time step interval
+* @param kt
+* > [int] integrator order
+*/
+template <typename T>
+void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, function<T> &ft,
+                          herm_matrix<T> &B, T beta, T h, int kt) {
+    convolution_timestep<T>(n, C, A, A, ft, B, B, beta, h, kt);
+}
+
 /** \brief <b> Returns the result of the contour convolution of two matrices and a function object</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2875,6 +2997,53 @@ void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, func
     convolution_matsubara(C, A, ft.ptr(-1), B, I, beta);
     for (tstp = 0; tstp <= C.nt(); tstp++)
         convolution_timestep<T>(tstp, C, A, Acc, ft, B, Bcc, I, beta, h);
+}
+
+
+/** \brief <b> Returns the result of the contour convolution of two matrices and a function object</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* >  Calls convolution routines to compute contour convolution C=A*fxB.
+* > The objects A,B and C are of the class 'herm_matrix'.
+* > If 'n=-1', one performs Matsubara convolution with a function 'F(-1)', otherwise with 'F(t)'.
+* > Works for a scalar and square matrices.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution is given
+* @param A
+* > [herm_matrix] contour Green's function
+* @param Acc
+* > [herm_matrix] complex conjugate to A
+* @param ft
+* > [std::complex] complex function
+* @param B
+* > [herm_matrix] contour Green's function
+* @param Bcc
+* > [herm_matrix] complex conjugate to B
+* @param beta
+* > inversed temperature
+* @param h
+* > time interval
+* @param kt
+* > [int] integrator order
+
+*/
+template <typename T>
+void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, function<T> &ft,
+                 herm_matrix<T> &B, herm_matrix<T> &Bcc,
+                 T beta, T h, int kt) {
+    int tstp;
+    convolution_matsubara(C, A, ft.ptr(-1), B, integration::I<T>(kt), beta);
+    for (tstp = 0; tstp <= C.nt(); tstp++)
+        convolution_timestep<T>(tstp, C, A, Acc, ft, B, Bcc, beta, h, kt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3396,6 +3565,57 @@ void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, fun
     }
 }
 
+/** \brief <b> Returns the result of the contour convolution and a contour function for a density matrix at a given time-step</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* >  Calls convolution routines to compute contour convolution \f$\rho=-i (A*FxB)^<\f$
+* > of the objects 'A' and 'B' and a time-dependent contour function \f$F(t)\f$ at a given time step 't=nh'.
+* > If 'n=-1', one performs the Matsubara convolution.
+* > The objects 'A' and 'B' are of the class type 'GG'. Works for a scalar and square matrices.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param n
+* > [int] number of the time step ('t=nh')
+* @param rho
+* > [cdmatrix] complex function to which the result of the convolution is given
+* @param A
+* > [GG] contour Green's function
+* @param Acc
+* > [GG] complex conjugate to A
+* @param ft
+* > [function] contour function F(t).
+* @param B
+* > [GG] contour Green's function
+* @param Bcc
+* > [GG] complex conjugate to B
+* @param beta
+* > inversed temperature
+* @param h
+* > time interval
+* @param kt
+* > [int] integrator order
+*/
+template <typename T, class GG>
+void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, function<T> &ft,
+                                GG &B, GG &Bcc, T beta, T h, int kt) {
+    int size1 = A.size1();
+    int element_size = size1;
+    std::complex<T> *rho_ptr;
+    rho_ptr = new std::complex<T>[element_size];
+
+    convolution_density_matrix<T, GG>(n, rho_ptr, A, Acc, ft, B, Bcc, integration::I<T>(kt), beta, h);
+    map_ptr2matrix<T>(size1, size1, rho_ptr, rho);
+
+    delete[] rho_ptr;
+}
+
 /** \brief <b> Returns the result of the contour convolution and a contour function for a density matrix</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -3403,7 +3623,7 @@ void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, fun
 *  \par Purpose
 * <!-- ========= -->
 *
-* >  Calls convolution routine to compute contour convolution \f$\rho=-i (A*FxB)^<\f$
+* >  Calls convolution routine to compute contour convolution \f$\rho=-i (A\ast F\ast B)^<\f$
 * > of the objects 'A' and 'B' and a time-dependent contour function \f$F(t)\f$.
 * > The objects 'A' and 'B' are of the class type 'GG'. Works for a scalar and square matrices.
 *
@@ -3433,6 +3653,55 @@ void convolution_density_matrix(int tstp, std::complex<T> *rho, GG &A, function<
                                 GG &B, integration::Integrator<T> &I, T beta, T h) {
     convolution_density_matrix<T, GG>(tstp, rho, A, A, ft, B, B, I, beta, h);
 }
+
+
+/** \brief <b> Returns the result of the contour convolution and a contour function for a density matrix at a given time-step</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* >  Calls convolution routines to compute contour convolution \f$\rho=-i (A\ast F\ast B)^<\f$
+* > of the objects 'A' and 'B' and a time-dependent contour function \f$F(t)\f$ at a given time step 't=nh'.
+* > If 'n=-1', one performs the Matsubara convolution.
+* > The objects 'A' and 'B' are of the class type 'GG'. Works for a scalar and square matrices.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param n
+* > [int] number of the time step ('t=nh')
+* @param rho
+* > [cdmatrix] complex function to which the result of the convolution is given
+* @param A
+* > [GG] contour Green's function
+* @param ft
+* > [function] contour function F(t).
+* @param B
+* > [GG] contour Green's function
+* @param beta
+* > inversed temperature
+* @param h
+* > time interval
+* @param kt
+* > [int] integrator order
+*/
+template <typename T, class GG>
+void convolution_density_matrix(int n, cdmatrix &rho, GG &A, function<T> &ft,
+                                GG &B, T beta, T h, int kt) {
+    int size1 = A.size1();
+    int element_size = size1;
+    std::complex<T> *rho_ptr;
+    rho_ptr = new std::complex<T>[element_size];
+
+    convolution_density_matrix<T, GG>(n, rho_ptr, A, A, ft, B, B, integration::I<T>(kt), beta, h);
+    map_ptr2matrix<T>(size1, size1, rho_ptr, rho);
+
+    delete[] rho_ptr;
+}
+
 
 /** \brief <b> Returns the result of the contour convolution for a density matrix at a given time-step</b>
 *
@@ -3505,6 +3774,57 @@ void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, GG 
     }
 }
 
+
+/** \brief <b> Returns the result of the contour convolution for a density matrix at a given time-step</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* >  Calls convolution routines to compute contour convolution \f$\rho=-i (A*B)^<\f$ at a given time step 't=nh'.
+* > The objects A and B are of the class type 'GG'. Works for a scalar and square matrices.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param n
+* > [int] number of the time step ('t=nh')
+* @param rho
+* > [std::complex] Matrix to which the result of the convolution is given
+* @param A
+* > [GG] contour Green's function
+* @param Acc
+* > [GG] complex conjugate to A
+* @param B
+* > [GG] contour Green's function
+* @param Bcc
+* > [GG] complex conjugate to B
+* @param beta
+* > inversed temperature
+* @param h
+* > time interval
+* @param kt
+* > [int] integrator order
+*/
+template <typename T, class GG>
+void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, GG &B, GG &Bcc, 
+    T beta, T h, int kt) {
+
+    int size1 = A.size1();
+    int element_size = size1;
+    std::complex<T> *rho_ptr;
+    rho_ptr = new std::complex<T>[element_size];
+
+    convolution_density_matrix<T, GG>(n, rho_ptr, A, Acc, B, Bcc, integration::I<T>(kt), beta, h);
+    map_ptr2matrix<T>(size1, size1, rho_ptr, rho);
+
+    delete[] rho_ptr;
+
+}
+
+
 /** \brief <b> Returns the result of the contour convolution for a density matrix</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -3538,6 +3858,51 @@ template <typename T, class GG>
 void convolution_density_matrix(int tstp, std::complex<T> *rho, GG &A, GG &B,
                                 integration::Integrator<T> &I, T beta, T h) {
     convolution_density_matrix<T, GG>(tstp, rho, A, A, B, B, I, beta, h);
+}
+
+
+
+/** \brief <b> Returns the result of the contour convolution for a density matrix</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* >  Calls convolution routines to compute contour convolution \f$\rho=-i (A*B)^<\f$.
+* > The objects A and B are of the class type 'GG'. Works for a scalar and square matrices.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* [int] given time-step
+* @param rho
+* > [std::complex] Matrix to which the result of the convolution is given
+* @param A
+* > [GG] contour Green's function
+* @param B
+* > [GG] contour Green's function
+* @param beta
+* > inversed temperature
+* @param h
+* > time interval
+* @param kt
+* > [int] integrator ordder
+*/
+template <typename T, class GG>
+void convolution_density_matrix(int tstp, cdmatrix &rho, GG &A, GG &B,
+                                T beta, T h, int kt) {
+    int size1 = A.size1();
+    int element_size = size1;
+    std::complex<T> *rho_ptr;
+    rho_ptr = new std::complex<T>[element_size];
+
+    convolution_density_matrix<T, GG>(tstp, rho_ptr, A, A, B, B, integration::I<T>(kt), beta, h);
+    map_ptr2matrix<T>(size1, size1, rho_ptr, rho);
+
+    delete[] rho_ptr;
 }
 
 /// @private

@@ -187,7 +187,7 @@ TEST_CASE("Herm member timestep","[Herm_member_timestep]"){
 	a(0,1)=sqrt(2.0)*std::complex<double>(0.0,1.0);
 	a(1,0)=sqrt(2.0)*std::complex<double>(0.0,-1.0);
 	a(1,1)=-sqrt(2.0);
-	cntr::green_from_H(A,0.0,a,beta,h,5,4,true);
+	cntr::green_from_H(A,0.0,a,beta,h);
 
 	// Function
 	cfunction funcC(nt,size),unity(nt,size);

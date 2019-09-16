@@ -47,6 +47,34 @@ template <typename T>
 void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, function<T> &ft,
                  herm_matrix<T> &B, herm_matrix<T> &Bcc, integration::Integrator<T> &I,
                  T beta, T h);
+
+// simplified new interfaces 
+
+template <typename T>
+void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
+                          herm_matrix<T> &B, herm_matrix<T> &Bcc,
+                          T beta, T h, int kt=MAX_ORDER);
+template <typename T>
+void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &B,
+                          T beta, T h, int kt=MAX_ORDER);
+template <typename T>
+void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
+                 herm_matrix<T> &B, herm_matrix<T> &Bcc,
+                 T beta, T h, int kt=MAX_ORDER);
+// with f
+template <typename T>
+void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
+                          function<T> &ft, herm_matrix<T> &B, herm_matrix<T> &Bcc,
+                          T beta, T h, int kt=MAX_ORDER);
+template <typename T>
+void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, function<T> &ft,
+                          herm_matrix<T> &B, T beta, T h, int kt=MAX_ORDER);
+template <typename T>
+void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, function<T> &ft,
+                 herm_matrix<T> &B, herm_matrix<T> &Bcc,
+                 T beta, T h, int kt=MAX_ORDER);
+
+
 //
 // only density matrix is computed ... defined in cntr_convolution_with_f.hpp
 // thus this works with for GG=herm_pseudo and GG=herm_matrix
@@ -71,6 +99,22 @@ void convolution_density_matrix(int tstp, cdmatrix &Cles, GG &A, GG &B,
 template <typename T, class GG>
 void convolution_les_timediag(int tstp, cdmatrix &Cles, GG &A, GG &B,
                                 integration::Integrator<T> &I, T beta, T h);
+// simplified new interfaces 
+
+template <typename T, class GG>
+void convolution_density_matrix(int tstp, cdmatrix &rho, GG &A, GG &Acc,
+                                function<T> &ft, GG &B, GG &Bcc,
+                                T beta, T h, int kt=MAX_ORDER);
+template <typename T, class GG>
+void convolution_density_matrix(int tstp, cdmatrix &rho, GG &A, function<T> &ft,
+                                GG &B, T beta, T h, int kt=MAX_ORDER);
+template <typename T, class GG>
+void convolution_density_matrix(int tstp, cdmatrix &rho, GG &A, GG &Acc, GG &B,
+                                GG &Bcc, T beta, T h, int kt=MAX_ORDER);
+template <typename T, class GG>
+void convolution_density_matrix(int tstp, cdmatrix &rho, GG &A, GG &B,
+                                T beta, T h, int kt=MAX_ORDER);
+// raw pointer versions 
 
 template <typename T, class GG>
 void convolution_matsubara(GG &C, GG &A, std::complex<T> *f0, GG &B,

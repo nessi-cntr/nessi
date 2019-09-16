@@ -7,21 +7,31 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${all_h5_files} DESTINATION ${CMAKE_CURREN
 
 if (hdf5)
   add_executable(runtest
-    fkm_bethe_quench.cpp
-    bubble.cpp
     runtest.cpp
-    function.cpp
+    bubble.cpp    
+    convolution.cpp
     downfold.cpp
+    dyson.cpp
     equilibrium.cpp
+    fkm_bethe_quench.cpp
+    function.cpp
+    getset.cpp
+    getset_nonherm.cpp
+    green_single_pole_XX.cpp
+    herm_matrix_algebra.cpp
+    herm_matrix_hdf5.cpp
+    herm_matrix_member.cpp  
+    herm_matrix_readwrite.cpp
+    herm_matrix_hdf5.cpp
+    herm_matrix_readwrite_hdf5.cpp
+    herm_matrix_setget_timestep.cpp
+    herm_matrix_submatrix.cpp
+    herm_member_timestep.cpp
+    herm_member_timestep_view.cpp
     integration.cpp
     linalg.cpp
-    herm_matrix_member.cpp  
-    convolution.cpp
-    utilities.cpp
     matsubara.cpp
-    dyson.cpp
-    test_differentiation.cpp
-    getset.cpp
+    utilities.cpp
   )
 else(hdf5)
   add_executable(runtest
@@ -38,6 +48,7 @@ else(hdf5)
   #matsubara.cpp
   #dyson.cpp
   #test_differentiation.cpp
+  convolution.cpp
   getset.cpp
   getset_nonherm.cpp
 )
