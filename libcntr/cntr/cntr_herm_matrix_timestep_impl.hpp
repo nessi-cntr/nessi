@@ -1094,6 +1094,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_r
          herm_matrix_SET_ELEMENT_MATRIX
       }
 
+
 /** \brief <b> Returns the retarded component into the reserved memory. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1101,13 +1102,14 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_r
 *  \par Purpose
 * <!-- ========= -->
 *
-* > Return the retarded component in `herm_matrix_timestep`
-* > at a given time \f$ t_j\f$ into the reserved memory.
-* > Works for scalar or general-matrix contour objects
+* > Sets \f$G^\mathrm{R}(t_i, t_j)\f$ to given matrix `M`.
+* > Restricted to the domain of `herm_matrix`: \f$i \ge j\f$.
 *
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param i
+* > Index of time \f$ t_i\f$.
 * @param j
 * > Index of time \f$ t_j\f$.
 * @param M
@@ -1462,14 +1464,16 @@ void herm_matrix_timestep<T>::right_multiply(function<T> &ft, T weight) {
 *
 * <!-- ARGUMENTS
 *      ========= -->
-*
+* @param tstp
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* > e(dummy argument in release mode)
 * @param ft
 * > the contour function F(t)
 * @param weight
 * > some number (weight)
 */
 template <typename T>
-void herm_matrix_timestep<T>::right_multiply(const int tstp, function<T> &ft, T weight) {
+void herm_matrix_timestep<T>::right_multiply(int tstp, function<T> &ft, T weight) {
    assert(tstp == tstp_);
    assert(ft.nt() >= tstp_);
 
@@ -1519,6 +1523,9 @@ void herm_matrix_timestep<T>::incr(herm_matrix_timestep<T> &g1, T weight) {
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param tstp
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* > e(dummy argument in release mode)
 * @param g1
 * > The `herm_matrix_timestep` which is added
 * @param weight
@@ -1526,7 +1533,7 @@ void herm_matrix_timestep<T>::incr(herm_matrix_timestep<T> &g1, T weight) {
 *
 */
 template <typename T>
-void herm_matrix_timestep<T>::incr_timestep(const int tstp, herm_matrix_timestep<T> &g1, T weight) {
+void herm_matrix_timestep<T>::incr_timestep(int tstp, herm_matrix_timestep<T> &g1, T weight) {
    assert(tstp == tstp_);
    assert(g1.size1_ == size1_ && g1.ntau_ == ntau_ && g1.tstp_ == tstp_);
    for (int m = 0; m < total_size_; m++)
@@ -1604,6 +1611,9 @@ void herm_matrix_timestep<T>::incr(herm_matrix<T> &g, T alpha) {
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param tstp
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* > e(dummy argument in release mode)
 * @param g
 * > The `herm_matrix` which is added
 * @param alpha
@@ -1611,7 +1621,7 @@ void herm_matrix_timestep<T>::incr(herm_matrix<T> &g, T alpha) {
 *
 */
 template <typename T>
-void herm_matrix_timestep<T>::incr_timestep(const int tstp, herm_matrix<T> &g, T alpha) {
+void herm_matrix_timestep<T>::incr_timestep(int tstp, herm_matrix<T> &g, T alpha) {
    assert(tstp == tstp_);
    assert(tstp_ <= g.nt() && ntau_ == g.ntau() && size1_ == g.size1());
    int i, len;
@@ -1683,6 +1693,9 @@ void herm_matrix_timestep<T>::smul(T weight) {
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param tstp
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* > e(dummy argument in release mode)
 * @param weight
 * > The `template argument` multiplication factor
 */
@@ -1744,6 +1757,57 @@ void herm_matrix_timestep<T>::get_matrixelement(int i1, int i2,
    }
 }
 
+/** \brief <b> Gets matrix elements of all components at time step `tstp` from the components of a given `herm_matrix` of a scaler type. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Gets the (sub-) matrix elements `(i1,i2)` of all components at time step `tstp` from the components of
+* >  a given `herm_matrix` of scaler type.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* @param i1
+* > First index for submatrix.
+* @param i2
+* > Second index for submatrix.
+* @param g
+* > The `herm_matrix` from which the time step is copied.
+*
+*/
+template <typename T>
+void herm_matrix_timestep<T>::get_matrixelement(int tstp, int i1, int i2,
+   herm_matrix<T> &g) {
+   assert(tstp == tstp_);
+   int i, sij = i1 * g.size1() + i2;
+   cplx *x;
+// std::cout << tstp_ << " " << g.nt() << " "  << i1 << " " << i2 << " "
+// << g.size1() << " " << g.size2() <<  std::endl;
+   assert(tstp_ <= g.nt() && 0 <= i1 && i1 < g.size1() && 0 <= i2 &&
+      i2 < g.size1() && size1_ == 1);
+   if (tstp_ == -1) {
+      x = data_;
+      for (i = 0; i <= ntau_; i++)
+         x[i] = *(g.matptr(i) + sij);
+   } else {
+      x = data_;
+      for (i = 0; i <= tstp_; i++)
+         x[i] = *(g.retptr(tstp_, i) + sij);
+      x = data_ + (tstp_ + 1) * element_size_;
+      for (i = 0; i <= ntau_; i++)
+         x[i] = *(g.tvptr(tstp_, i) + sij);
+      x = data_ + (tstp_ + 1 + ntau_ + 1) * element_size_;
+      for (i = 0; i <= tstp_; i++)
+         x[i] = *(g.lesptr(i, tstp_) + sij);
+   }
+}
+
+
 /** \brief <b> Set the matrix element of \f$C_{[i1,i2]}\f$ for each component from  \f$ g_{[i1,i2]} \f$ </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1772,12 +1836,50 @@ void herm_matrix_timestep<T>::get_matrixelement(int i1, int i2,
 */
 template <typename T>
 void herm_matrix_timestep<T>::set_matrixelement(int i1, int i2,
-   herm_matrix_timestep<T> &g,
-   int j1, int j2) {
+   herm_matrix_timestep<T> &g, int j1, int j2) {
    herm_matrix_timestep_view<T> tmp(g);
    herm_matrix_timestep_view<T> tmp1(*this);
    tmp1.set_matrixelement(i1, i2, tmp, j1, j2);
 }
+
+
+/** \brief <b> Set the matrix element of \f$C_{[i1,i2]}\f$ for each component from  \f$ g_{[i1,i2]} \f$ </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Set the matrix element \f$C_{[i1,i2]}\f$ for each component from  \f$ g_{[i1,i2]} \f$.
+* > Use implementation of `herm_matrix_timestep_view`.
+* > Works for scalar or square-matrix contour objects.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* @param i1
+* > Row index of `herm_matrix_timestep`
+* @param i2
+* > Column index of `herm_matrix_timestep`
+* @param g
+* > The `herm_matrix_timestep` from which the matrix element element is given
+* @param j1
+* > Row index of `herm_matrix_timestep`
+* @param j2
+* > Column index of `herm_matrix_timestep`
+*/
+template <typename T>
+void herm_matrix_timestep<T>::set_matrixelement(int tstp, int i1, int i2,
+   herm_matrix_timestep<T> &g, int j1, int j2) {
+   assert(tstp == tstp_);
+   herm_matrix_timestep_view<T> tmp(g);
+   herm_matrix_timestep_view<T> tmp1(*this);
+   tmp1.set_matrixelement(i1, i2, tmp, j1, j2);
+}
+
 
 /** \brief <b> Set the matrix element of \f$C_{[i1,i2]}\f$ for each component from \f$ g_{[i1,i2]} \f$ </b>
 *
@@ -1813,6 +1915,44 @@ void herm_matrix_timestep<T>::set_matrixelement(
    tmp1.set_matrixelement(i1, i2, g, j1, j2);
 }
 
+
+/** \brief <b> Set the matrix element of \f$C_{[i1,i2]}\f$ for each component from \f$ g_{[i1,i2]} \f$ </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Set the matrix element \f$C_{[i1,i2]}\f$ for each component from  \f$ g_{[i1,i2]} \f$,
+* > which is given by `herm_matrix_timestep_view`.
+* > Use implementation of `herm_matrix_timestep_view`.
+* > Works for scalar or square-matrix contour objects.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* @param i1
+* > Row index of `herm_matrix_timestep`
+* @param i2
+* > Column index of `herm_matrix_timestep`
+* @param g
+* > The `herm_matrix_timestep_view` from which the matrix element element is given
+* @param j1
+* > Row index of `herm_matrix_timestep`
+* @param j2
+* > Column index of `herm_matrix_timestep`
+*/
+template <typename T>
+void herm_matrix_timestep<T>::set_matrixelement(int tstp,
+   int i1, int i2, herm_matrix_timestep_view<T> &g, int j1, int j2) {
+   herm_matrix_timestep_view<T> tmp1(*this);
+   tmp1.set_matrixelement(i1, i2, g, j1, j2);
+}
+
+
 /** \brief <b> Set the matrix element of \f$C_{[i1,i2]}\f$ for each component from \f$ g_{[i1,i2]} \f$ </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1844,6 +1984,46 @@ template <typename T>
 void herm_matrix_timestep<T>::set_matrixelement(int i1, int i2,
    herm_matrix<T> &g, int j1,
    int j2) {
+   herm_matrix_timestep_view<T> tmp(tstp_, g);
+   herm_matrix_timestep_view<T> tmp1(*this);
+   tmp1.set_matrixelement(i1, i2, tmp, j1, j2);
+}
+
+
+/** \brief <b> Set the matrix element of \f$C_{[i1,i2]}\f$ for each component from \f$ g_{[i1,i2]} \f$ </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Set the matrix element \f$C_{[i1,i2]}\f$ for each component from \f$ g_{[i1,i2]}\f$,
+* > which is given by `herm_matrix`.
+* > Use implementation of `herm_matrix_timestep_view` at each time step `tstp`.
+* > Works for scalar or square-matrix contour objects.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* @param i1
+* > Row index of `herm_matrix_timestep`
+* @param i2
+* > Column index of `herm_matrix_timestep`
+* @param g
+* > The `herm_matrix` from which the matrix element element is given
+* @param j1
+* > Row index of `herm_matrix_timestep`
+* @param j2
+* > Column index of `herm_matrix_timestep`
+*/
+template <typename T>
+void herm_matrix_timestep<T>::set_matrixelement(int tstp, int i1, int i2,
+   herm_matrix<T> &g, int j1,
+   int j2) {
+   assert(tstp == tstp_);
    herm_matrix_timestep_view<T> tmp(tstp_, g);
    herm_matrix_timestep_view<T> tmp1(*this);
    tmp1.set_matrixelement(i1, i2, tmp, j1, j2);
