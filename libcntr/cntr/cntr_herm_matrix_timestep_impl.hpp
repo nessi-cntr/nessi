@@ -2,7 +2,6 @@
 #define CNTR_HERM_MATRIX_TIMESTEP_IMPL_H
 
 #include "cntr_herm_matrix_timestep_decl.hpp"
-//#include "cntr_exception.hpp"
 #include "cntr_elements.hpp"
 #include "cntr_function_decl.hpp"
 #include "cntr_herm_matrix_decl.hpp"
@@ -306,6 +305,123 @@ void herm_matrix_timestep<T>::clear(void) {
    if (total_size_ > 0)
       memset(data_, 0, sizeof(cplx) * total_size_);
 }
+
+
+/** \brief <b> Sets all components at time step `tstp` to zero. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > Sets all components of the `herm_matrix_timestep` to zero. If
+ * > `tstp = -1`, only the Matsubara component will be set to zero.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > The time step at which the components are set to zero. 
+ * > Dummy argument in release mode.
+ *
+ */
+template <typename T>
+void herm_matrix_timestep<T>::set_timestep_zero(int tstp) {
+    assert(tstp == tstp_);
+    assert(tstp >= -1);
+    if (tstp == -1) {
+        memset(matptr(0), 0, sizeof(cplx) * (ntau_ + 1) * element_size_);
+    } else {
+        memset(retptr(0), 0, sizeof(cplx) * (tstp + 1) * element_size_);
+        memset(tvptr(0), 0, sizeof(cplx) * (ntau_ + 1) * element_size_);
+        memset(lesptr(0), 0, sizeof(cplx) * (tstp + 1) * element_size_);
+    }
+}
+
+
+/** \brief <b> Sets all components of `herm_matrix_timestep`  to the components of
+ *  a given `herm_matrix` at time step `tstp`. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > Sets all components of the `herm_matrix_timestep` at time step `tstp` to
+ * > the components of given `herm_matrix`. If `tstp = -1`, only the
+ * > Matsubara component will be copied.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > The time step at which the components are set.
+ *
+ * @param g1
+ * > The `herm_matrix` from which the time step is copied.
+ *
+ */
+template <typename T>
+void herm_matrix_timestep<T>::set_timestep(int tstp, herm_matrix<T> &g1) {
+    assert(tstp == tstp_);
+    assert(tstp >= -1 && tstp <= g1.nt() && "tstp >= -1 && tstp <= g1.nt()");
+    assert(g1.size1() == size1_ && "g1.size1() == size1_");
+    assert(g1.ntau() == ntau_ && "g1.ntau() == ntau_");
+    if (tstp == -1) {
+        memcpy(matptr(0), g1.matptr(0), sizeof(cplx) * (ntau_ + 1) * element_size_);
+    } else {
+        memcpy(retptr(0), g1.retptr(tstp, 0),
+               sizeof(cplx) * (tstp + 1) * element_size_);
+        memcpy(tvptr(0), g1.tvptr(tstp, 0),
+               sizeof(cplx) * (ntau_ + 1) * element_size_);
+        memcpy(lesptr(0), g1.lesptr(0, tstp),
+               sizeof(cplx) * (tstp + 1) * element_size_);
+    }
+}
+
+/** \brief <b> Sets all components of `herm_matrix_timestep`  to the components of
+ *  a given `herm_matrix_timestep` at time step `tstp`. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > Sets all components of the `herm_matrix_timestep` at time step `tstp` to
+ * > the components of given `herm_matrix_timestep`. If `tstp = -1`, only the
+ * > Matsubara component will be copied.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > The time step at which the components are set.
+ *
+ * @param g1
+ * > The `herm_matrix_timestep` from which the time step is copied.
+ *
+ */
+template <typename T>
+void herm_matrix_timestep<T>::set_timestep(int tstp, herm_matrix_timestep<T> &g1) {
+    assert(tstp == tstp_);
+    assert(tstp == g1.tstp());
+    assert(tstp >= -1 && tstp <= g1.nt() && "tstp >= -1 && tstp <= g1.nt()");
+    assert(g1.size1() == size1_ && "g1.size1() == size1_");
+    assert(g1.ntau() == ntau_ && "g1.ntau() == ntau_");
+    if (tstp == -1) {
+        memcpy(matptr(0), g1.matptr(0), sizeof(cplx) * (ntau_ + 1) * element_size_);
+    } else {
+        memcpy(retptr(0), g1.retptr(0),
+               sizeof(cplx) * (tstp + 1) * element_size_);
+        memcpy(tvptr(0), g1.tvptr(0),
+               sizeof(cplx) * (ntau_ + 1) * element_size_);
+        memcpy(lesptr(0), g1.lesptr(0),
+               sizeof(cplx) * (tstp + 1) * element_size_);
+    }
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // the following routines are not very "efficent" but sometimes simple to
 // implement
@@ -1095,7 +1211,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_r
       }
 
 
-/** \brief <b> Returns the retarded component into the reserved memory. </b>
+/** \brief <b> Sets the retarded component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
 *
@@ -1117,9 +1233,36 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_r
 */
 template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_ret(int i, int j,Matrix &M){
          assert(i == tstp_);
+         assert(j <= i);
          cplx *x=retptr(j);
          herm_matrix_SET_ELEMENT_MATRIX
       }
+
+
+/** \brief <b> Sets the retarded component at given times. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sets \f$G^\mathrm{R}(t_i, t_j)\f$ to given complex scalar `x`.
+* > Restricted to the domain of `herm_matrix`: \f$i \ge j\f$.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of time \f$ t_i\f$.
+* @param j
+* > Index of time \f$ t_j\f$.
+* @param x
+* > Scalar in which the lesser component is given.
+*/
+template<typename T> inline void herm_matrix_timestep<T>::set_ret(int i, int j, cplx &x){
+      assert(i == tstp_ && j <= i);
+      *retptr(j) = x;
+   }
 
 
 /** \brief <b> Returns the lesser component into the reserved memory. </b>
@@ -1146,20 +1289,21 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_l
       herm_matrix_SET_ELEMENT_MATRIX
    }
 
-/** \brief <b> Returns the lesser component into the reserved memory. </b>
+/** \brief <b> Sets the lesser component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
 *
 *  \par Purpose
 * <!-- ========= -->
 *
-* > Return the lesser component in `herm_matrix_timestep`
-* > at a given time \f$ t_j\f$ into the reserved memory.
-* > Works for scalar or general-matrix contour objects
+* > Sets the lesser component \f$G^<(t_i,t_j)\f$ of `herm_matrix_timestep`
+* > to a given complex matrix `M`. Restricted to the domain of `herm_matrix`: \f$j \ge i\f$.
 *
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param i
+* > Index of time \f$ t_i\f$.
 * @param j
 * > Index of time \f$ t_j\f$.
 * @param M
@@ -1167,9 +1311,36 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_l
 */
 template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_les(int i, int j, Matrix &M){
       assert(j == tstp_);
+      assert(i <= j);
       cplx *x=lesptr(i);
       herm_matrix_SET_ELEMENT_MATRIX
    }
+
+/** \brief <b> Sets the lesser component at given times. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sets the lesser component \f$G^<(t_i,t_j)\f$ of `herm_matrix_timestep`
+* > to a given complex scalar. 
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of time \f$ t_i\f$.
+* @param j
+* > Index of time \f$ t_j\f$.
+* @param x
+* > Scalar in which the lesser component is given.
+*/
+template<typename T> inline void herm_matrix_timestep<T>::set_les(int i, int j, cplx &x){
+      assert(j == tstp_ && i <= j);
+      *lesptr(i) = x;
+   }
+
 
 /** \brief <b> Returns the left-mixing component into the reserved memory. </b>
 *
@@ -1196,54 +1367,118 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_t
 }
 
 
-/** \brief <b> Returns the left-mixing component into the reserved memory. </b>
+/** \brief <b> Sets the left-mixing component to a given matrix. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
 *
 *  \par Purpose
 * <!-- ========= -->
 *
-* > Return the left-mixing component in `herm_matrix_timestep`
-* > at a given time \f$ t_j\f$ into the reserved memory.
-* > Works for scalar or general-matrix contour objects
+* > Sets the lesser component \f$G^\rceil(t_i,\tau_j)\f$ of `herm_matrix_timestep`
+* > to a given complex matrix `M`. 
 *
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param i
+* > Index of time \f$ t_i\f$.
 * @param j
-* > Index of time \f$ t_j\f$.
+* > Index of imaginary time \f$ \tau_j\f$.
 * @param M
 * > Matrix in which the left-mixing component is given.
 */
 template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_tv(int i, int j, Matrix &M){
    assert(i == tstp_);
+   assert(j <= ntau_);
    cplx *x=tvptr(j);
    herm_matrix_SET_ELEMENT_MATRIX
 }
 
-/** \brief <b> Returns the Matsubara component into the reserved memory. </b>
+
+/** \brief <b> Sets the left-mixing component to a given scalar. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
 *
 *  \par Purpose
 * <!-- ========= -->
 *
-* > Return the Matsubara component in `herm_matrix_timestep`
-* > at a given time \f$ t_j\f$ into the reserved memory.
-* > Works for scalar or general-matrix contour objects
+* > Sets the left-mixing component \f$G^\rceil(t_i,\tau_j)\f$ of `herm_matrix_timestep`
+* > to a given complex scalar `x`. 
 *
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param i
+* > Index of time \f$ t_i\f$.
 * @param j
-* > Index of time \f$ t_j\f$.
+* > Index of imaginary time \f$ \tau_j\f$.
+* @param M
+* > Matrix in which the left-mixing component is given.
+*/
+template<typename T> inline void herm_matrix_timestep<T>::set_tv(int i, int j, cplx &x){
+   assert(i == tstp_);
+   assert(j <= ntau_);
+   *tvptr(j) = x;
+}
+
+
+/** \brief <b> Sets the Matsubara component to a given matrix. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sets the Matsubara component \f$G^\mathrm{M}(\tau_j)\f$ of `herm_matrix_timestep`
+* > to a given complex matrix `M`. 
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of imaginary time \f$ \tau_i\f$.
 * @param M
 * > Matrix in which the Matsubara component is given.
 */
 template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_mat(int i,Matrix &M){
-cplx *x=matptr(i);
-herm_matrix_SET_ELEMENT_MATRIX
+   assert(i <= ntau_ );
+   cplx *x=matptr(i);
+   herm_matrix_SET_ELEMENT_MATRIX
 }
+
+/** \brief <b> Sets the Matsubara component to a given scalar. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sets the Matsubara component \f$G^\mathrm{M}(\tau_j)\f$ of `herm_matrix_timestep`
+* > to a given complex scalar `x`. 
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of imaginary time \f$ \tau_i\f$.
+* @param x
+* > Scalar in which the Matsubara component is given.
+*/
+template<typename T> inline void herm_matrix_timestep<T>::set_mat(int i,cplx &x){
+   assert(i <= ntau_ );
+   *matptr(i) = x;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1355,12 +1590,90 @@ void herm_matrix_timestep<T>::left_multiply(function<T> &ft, T weight) {
 * > some number (weight)
 */
 template <typename T>
-void herm_matrix_timestep<T>::left_multiply(const int tstp, function<T> &ft, T weight) {
+void herm_matrix_timestep<T>::left_multiply(int tstp, function<T> &ft, T weight) {
    assert(tstp == tstp_);
    assert( ft.nt() >= tstp_);
 
    this->left_multiply(ft.ptr(-1), ft.ptr(0), weight);
 }
+
+
+/** \brief <b> Left-multiplies the `herm_matrix_timestep` with the hermitian conjugate of a contour function. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* Performs the operation \f$C(t,t^\prime) \rightarrow w F^\ddagger(t)C(t,t^\prime)\f$, where \f$C(t,t^\prime)\f$ is the
+* `herm_matrix_timestep`, \f$F(t)\f$ is a contour `function` and \f$w\f$ is a real weight. The operation is performed
+* at given time step `tstp`.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > [int] The time step at which \f$F^\ddagger(t)\f$ and \f$C(t,t^\prime)\f$ are multiplied. 
+* > This is a dummy argument in release mode.
+* @param ft
+* > [function] The contour function.
+* @param weight
+* > [T] The weight as above.
+*/
+template <typename T>
+void herm_matrix_timestep<T>::left_multiply_hermconj(int tstp, function<T> &ft,
+                                            T weight) {
+    assert(tstp == tstp_);
+    int m;
+    cplx *xtemp, *ftemp, *x0, *f0, *fcc;
+    xtemp = new cplx[element_size_];
+    fcc = new cplx[element_size_];
+    assert(tstp >= -1 && ft.nt() >= tstp &&
+           ft.size1() == size1_ && ft.size2() == size2_ &&
+      "tstp >= -1 && ft.nt() >= tstp && ft.size1() == size1_ && ft.size2() == size2_");
+
+    f0 = ft.ptr(-1);
+    element_conj<T, LARGESIZE>(size1_, fcc, f0);
+    if (tstp == -1) {
+        x0 = data_;
+        for (m = 0; m <= ntau_; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, fcc,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+    } else {
+        ftemp = ft.ptr(tstp);
+        element_conj<T, LARGESIZE>(size1_, fcc, ftemp);
+        x0 = data_;
+        for (m = 0; m <= tstp; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, fcc,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+        x0 = data_ + (tstp_ + 1) * element_size_;
+        for (m = 0; m <= ntau_; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, fcc,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+        x0 = data_ + (tstp_ + 1 + ntau_ + 1) * element_size_;
+        for (m = 0; m <= tstp; m++) {
+            element_conj<T, LARGESIZE>(size1_, fcc, ft.ptr(m));
+            element_mult<T, LARGESIZE>(size1_, xtemp, fcc,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+    }
+    delete[] xtemp;
+    delete[] fcc;
+}
+
+
+
 
 
 // G(t,t') ==> G(t,t')F(t')
@@ -1480,6 +1793,82 @@ void herm_matrix_timestep<T>::right_multiply(int tstp, function<T> &ft, T weight
    this->right_multiply(ft.ptr(-1), ft.ptr(0), weight);
 }
 
+
+
+/** \brief <b> Right-multiplies the `herm_matrix_timestep` with the
+*   hermitian conjugate of a contour function. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* Performs the operation \f$C(t,t^\prime) \rightarrow w C(t,t^\prime)F^\ddagger(t^\prime)\f$, where \f$C(t,t^\prime)\f$ is the
+* `herm_matrix_timestep`, \f$F(t)\f$ is a contour `function` and \f$w\f$ is a real weight. The operation is performed
+* at given time step `tstp`.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > The time step at which \f$F^\ddagger(t)\f$ and \f$C(t,t^\prime)\f$ are multiplied.
+* > Dummy argument in release mode.
+* @param ft
+* > The contour function.
+* @param weight
+* > The weight as above.
+*/
+template <typename T>
+void herm_matrix_timestep<T>::right_multiply_hermconj(int tstp, function<T> &ft,
+                                             T weight) {
+    assert(tstp == tstp_);
+    int m;
+    cplx *xtemp, *ftemp, *x0, *f0, *fcc;
+    xtemp = new cplx[element_size_];
+    fcc = new cplx[element_size_];
+    assert(ft.size1() == size1_ && "ft.size1() == size1_");
+    assert(ft.nt() >= tstp && "ft.nt() >= tstp");
+    assert(tstp >= -1&& "ft.nt() >= tstp");
+    f0 = ft.ptr(-1);
+    element_conj<T, LARGESIZE>(size1_, fcc, f0);
+    if (tstp == -1) {
+        x0 = data_;
+        for (m = 0; m <= ntau_; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, x0 + m * element_size_,
+                                       fcc);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+    } else {
+        x0 = data_;
+        for (m = 0; m <= tstp; m++) {
+            element_conj<T, LARGESIZE>(size1_, fcc, ft.ptr(m));
+            element_mult<T, LARGESIZE>(size1_, xtemp, x0 + m * element_size_,
+                                       fcc);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+        x0 = data_ + (tstp_ + 1) * element_size_;
+        element_conj<T, LARGESIZE>(size1_, fcc, f0);
+        for (m = 0; m <= ntau_; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, x0 + m * element_size_,
+                                       fcc);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+        ftemp = ft.ptr(tstp);
+        element_conj<T, LARGESIZE>(size1_, fcc, ftemp);
+        x0 = data_ + (tstp_ + 1 + ntau_ + 1) * element_size_;
+        for (m = 0; m <= tstp; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, x0 + m * element_size_,
+                                       fcc);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+    }
+    delete[] fcc;
+    delete[] xtemp;
+}
 
 
 /** \brief <b> Increase the value of the  `herm_matrix_timestep` by `weight` \f$ * g(t) \f$ </b>
@@ -1710,103 +2099,6 @@ void herm_matrix_timestep<T>::smul(int tstp, T weight) {
 }
 
 
-/** \brief <b> Gets matrix elements of all components at time step `tstp` from the components of a given `herm_matrix` of a scaler type. </b>
-*
-* <!-- ====== DOCUMENTATION ====== -->
-*
-*  \par Purpose
-* <!-- ========= -->
-*
-* > Gets the (sub-) matrix elements `(i1,i2)` of all components at time step `tstp` from the components of
-* >  a given `herm_matrix` of scaler type.
-*
-* <!-- ARGUMENTS
-*      ========= -->
-*
-* @param i1
-* > First index for submatrix.
-* @param i2
-* > Second index for submatrix.
-* @param g
-* > The `herm_matrix` from which the time step is copied.
-*
-*/
-template <typename T>
-void herm_matrix_timestep<T>::get_matrixelement(int i1, int i2,
-   herm_matrix<T> &g) {
-   int i, sij = i1 * g.size1() + i2;
-   cplx *x;
-// std::cout << tstp_ << " " << g.nt() << " "  << i1 << " " << i2 << " "
-// << g.size1() << " " << g.size2() <<  std::endl;
-   assert(tstp_ <= g.nt() && 0 <= i1 && i1 < g.size1() && 0 <= i2 &&
-      i2 < g.size1() && size1_ == 1);
-   if (tstp_ == -1) {
-      x = data_;
-      for (i = 0; i <= ntau_; i++)
-         x[i] = *(g.matptr(i) + sij);
-   } else {
-      x = data_;
-      for (i = 0; i <= tstp_; i++)
-         x[i] = *(g.retptr(tstp_, i) + sij);
-      x = data_ + (tstp_ + 1) * element_size_;
-      for (i = 0; i <= ntau_; i++)
-         x[i] = *(g.tvptr(tstp_, i) + sij);
-      x = data_ + (tstp_ + 1 + ntau_ + 1) * element_size_;
-      for (i = 0; i <= tstp_; i++)
-         x[i] = *(g.lesptr(i, tstp_) + sij);
-   }
-}
-
-/** \brief <b> Gets matrix elements of all components at time step `tstp` from the components of a given `herm_matrix` of a scaler type. </b>
-*
-* <!-- ====== DOCUMENTATION ====== -->
-*
-*  \par Purpose
-* <!-- ========= -->
-*
-* > Gets the (sub-) matrix elements `(i1,i2)` of all components at time step `tstp` from the components of
-* >  a given `herm_matrix` of scaler type.
-*
-* <!-- ARGUMENTS
-*      ========= -->
-*
-* @param tstp
-* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
-* @param i1
-* > First index for submatrix.
-* @param i2
-* > Second index for submatrix.
-* @param g
-* > The `herm_matrix` from which the time step is copied.
-*
-*/
-template <typename T>
-void herm_matrix_timestep<T>::get_matrixelement(int tstp, int i1, int i2,
-   herm_matrix<T> &g) {
-   assert(tstp == tstp_);
-   int i, sij = i1 * g.size1() + i2;
-   cplx *x;
-// std::cout << tstp_ << " " << g.nt() << " "  << i1 << " " << i2 << " "
-// << g.size1() << " " << g.size2() <<  std::endl;
-   assert(tstp_ <= g.nt() && 0 <= i1 && i1 < g.size1() && 0 <= i2 &&
-      i2 < g.size1() && size1_ == 1);
-   if (tstp_ == -1) {
-      x = data_;
-      for (i = 0; i <= ntau_; i++)
-         x[i] = *(g.matptr(i) + sij);
-   } else {
-      x = data_;
-      for (i = 0; i <= tstp_; i++)
-         x[i] = *(g.retptr(tstp_, i) + sij);
-      x = data_ + (tstp_ + 1) * element_size_;
-      for (i = 0; i <= ntau_; i++)
-         x[i] = *(g.tvptr(tstp_, i) + sij);
-      x = data_ + (tstp_ + 1 + ntau_ + 1) * element_size_;
-      for (i = 0; i <= tstp_; i++)
-         x[i] = *(g.lesptr(i, tstp_) + sij);
-   }
-}
-
 
 /** \brief <b> Set the matrix element of \f$C_{[i1,i2]}\f$ for each component from  \f$ g_{[i1,i2]} \f$ </b>
 *
@@ -2029,7 +2321,96 @@ void herm_matrix_timestep<T>::set_matrixelement(int tstp, int i1, int i2,
    tmp1.set_matrixelement(i1, i2, tmp, j1, j2);
 }
 
+/** \brief <b> Sets a (sub-) matrix of this contour object at a given time step
+* to a (sub-) matrix of a given `herm_matrix`. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* Sets the (sub-) matrix of a two-time contour object \f$C(t,t')\f$ the (sub-)
+* of a given `herm_matrix` \f$g\f$ according to
+* \f$ C_{i_1(k) i_2(k)}(t,t') = g_{j_1(k) j_2(k)}(t,t') \f$ with \f$k\f$ denoting
+* an iterator of a subspace (at a given time step).
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > Time step `tstp`.
+* @param i1
+* > Vector of row indices of `C`.
+* @param i2
+* > Vector of column indices of `C`.
+* @param g
+* > The `herm_matrix` from which the (sub-) matrix is copied.
+* @param j1
+* > Vector of row indices of `g`.
+* @param j2
+* > Vector of row indices of `g`.
+*/
+
+template<typename T> void herm_matrix_timestep<T>::set_submatrix(int tstp, std::vector<int> &i1,
+  std::vector<int> &i2,herm_matrix<T> &g,std::vector<int> &j1,std::vector<int> &j2){
+    assert(tstp == tstp_);
+    assert(tstp <= g1.nt());
+    assert(i1.size()==i2.size() && i1.size()==j1.size() && j1.size()==j2.size());
+    assert(size1_*size2_==i1.size());
+    for(int k1=0;k1<i1.size();k1++){
+        this->set_matrixelement(tstp,i1[k1],i2[k1],g,j1[k1],j2[k1]);
+    }
+}
+
+
+/** \brief <b> Sets a (sub-) matrix of this contour object at a given time step
+* to a (sub-) matrix of a given `herm_matrix_timestep`. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* Sets the (sub-) matrix of a two-time contour object \f$C(t,t')\f$ the (sub-)
+* of a given `herm_matrix_timestep` \f$g\f$ according to
+* \f$ C_{i_1(k) i_2(k)}(t,t') = g_{j_1(k) j_2(k)}(t,t') \f$ with \f$k\f$ denoting
+* an iterator of a subspace (at a given time step).
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > Time step `tstp`.
+* @param i1
+* > Vector of row indices of `C`.
+* @param i2
+* > Vector of column indices of `C`.
+* @param g
+* > The `herm_matrix_timestep` from which the (sub-) matrix is copied.
+* @param j1
+* > Vector of row indices of `g`.
+* @param j2
+* > Vector of row indices of `g`.
+*/
+
+template<typename T> void herm_matrix_timestep<T>::set_submatrix(int tstp, std::vector<int> &i1,
+  std::vector<int> &i2,herm_matrix_timestep<T> &g,std::vector<int> &j1,std::vector<int> &j2){
+    assert(tstp == tstp_);
+    assert(tstp == g.tstp());
+    assert(i1.size()==i2.size() && i1.size()==j1.size() && j1.size()==j2.size());
+    assert(size1_*size2_==i1.size());
+    for(int k1=0;k1<i1.size();k1++){
+        this->set_matrixelement(tstp,i1[k1],i2[k1],g,j1[k1],j2[k1]);
+    }
+}
+
+/* #########################################################################
+#
+#   MPI UTILS
+#
+############################################################################ */
+
+
 #if CNTR_USE_MPI == 1
+
 
 /** \brief <b> MPI reduce for the `herm_matrix_timestep` </b>
 *
@@ -2050,15 +2431,15 @@ void herm_matrix_timestep<T>::set_matrixelement(int tstp, int i1, int i2,
 template <typename T>
 void herm_matrix_timestep<T>::MPI_Reduce(int root) {
    int taskid;
-   int len1 = 2 * ((tstp_ + 1) * 2 + (ntau_ + 1)) * size1_ * size1_;
+   int len = 2 * (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
    taskid = MPI::COMM_WORLD.Get_rank();
    if (sizeof(T) == sizeof(double)) {
       if (taskid == root) {
-         MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, (double *)this->data_, len1,
+         MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, (double *)this->data_, len,
             MPI::DOUBLE, MPI::SUM, root);
       } else {
          MPI::COMM_WORLD.Reduce((double *)this->data_,
-            (double *)this->data_, len1, MPI::DOUBLE,
+            (double *)this->data_, len, MPI::DOUBLE,
             MPI::SUM, root);
       }
    } else {
@@ -2067,25 +2448,58 @@ void herm_matrix_timestep<T>::MPI_Reduce(int root) {
       exit(0);
    }
 }
-#endif
-
-/* #########################################################################
-#
-#   MPI UTILS
-#
-############################################################################ */
 
 
-#if CNTR_USE_MPI == 1
-
-/** \brief <b> Broadcasts the `herm_matrix` at a given time step to all tasks. </b>
+/** \brief <b> MPI reduce for the `herm_matrix_timestep` </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
 *
 *  \par Purpose
 * <!-- ========= -->
 *
-* > Broadcasts the `herm_matrix_timestep` at a given time step `tstp` to all tasks.
+* > MPI reduce for the `herm_matrix_timestep` to the `root`
+* > Works for scalar or square-matrix contour objects.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > time step
+* @param root
+* > Index of root
+*/
+template <typename T>
+void herm_matrix_timestep<T>::Reduce_timestep(int tstp, int root) {
+   assert(tstp == tstp_);
+   int taskid;
+   int len = 2 * (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
+   taskid = MPI::COMM_WORLD.Get_rank();
+   if (sizeof(T) == sizeof(double)) {
+      if (taskid == root) {
+         MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, (double *)this->data_, len,
+            MPI::DOUBLE, MPI::SUM, root);
+      } else {
+         MPI::COMM_WORLD.Reduce((double *)this->data_,
+            (double *)this->data_, len, MPI::DOUBLE,
+            MPI::SUM, root);
+      }
+   } else {
+      std::cerr << "herm_matrix_timestep<T>::MPI_Reduce only for double "
+      << std::endl;
+      exit(0);
+   }
+}
+
+
+
+/** \brief <b> Broadcasts the `herm_matrix_timestep` at a given time step to all ranks. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Broadcasts the `herm_matrix_timestep` at a given time step `tstp` to all ranks.
 * > Works for a square matrices.
 *
 *<!-- ARGUMENTS
@@ -2098,7 +2512,7 @@ void herm_matrix_timestep<T>::MPI_Reduce(int root) {
 * @param size1
 * > size of the matrix
 * @param root
-* > The task rank from which the `herm_matrix` should be broadcasted.
+* > The task rank from which the `herm_matrix_timestep` should be broadcasted.
 *
 * \note
 * The green's function is resized before broadcast with respect to number of points on the Matsubara branch `ntau`
@@ -2116,6 +2530,43 @@ void herm_matrix_timestep<T>::Bcast_timestep(int tstp, int ntau, int size1,
    assert(tstp == tstp_);
    assert(ntau == ntau_);
    assert(size1 == size1_);
+   if (sizeof(T) == sizeof(double))
+      MPI::COMM_WORLD.Bcast(data_, len, MPI::DOUBLE_COMPLEX, root);
+   else
+      MPI::COMM_WORLD.Bcast(data_, len, MPI::COMPLEX, root);
+}
+
+/** \brief <b> Broadcasts the `herm_matrix_timestep` at a given time step to all ranks. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Broadcasts the `herm_matrix_timestep` at a given time step `tstp` to all ranks.
+* > Works for a square matrices.
+*
+*<!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > Time step which should be broadcasted.
+* @param root
+* > The rank from which the `herm_matrix_timestep` should be broadcasted.
+*
+* \note
+* The green's function is resized before broadcast with respect to number of points on the Matsubara branch `ntau`
+* and the matrix size `size1` at a given timestep `tstp`.
+*/
+template <typename T>
+void herm_matrix_timestep<T>::Bcast_timestep(int tstp, int root) {
+   int numtasks = MPI::COMM_WORLD.Get_size();
+   int taskid = MPI::COMM_WORLD.Get_rank();
+   if (taskid != root)
+      resize(tstp, ntau_, size1_);
+   int len = (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
+// test effective on root:
+   assert(tstp == tstp_);
    if (sizeof(T) == sizeof(double))
       MPI::COMM_WORLD.Bcast(data_, len, MPI::DOUBLE_COMPLEX, root);
    else
@@ -2170,6 +2621,39 @@ void herm_matrix_timestep<T>::Send_timestep(int tstp, int ntau, int size1,
    }
 }
 
+/** \brief <b> Sends the `herm_matrix_timestep` at a given time step to a specific task. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sends the `herm_matrix_timestep` at a given time step `tstp` to a specific task with rank `dest`.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > Time step which should be send.
+* @param dest
+* > The task rank to which the `herm_matrix` should be send.
+* @param tag
+* > The MPI error flag.
+*/
+template <typename T>
+void herm_matrix_timestep<T>::Send_timestep(int tstp, int dest, int tag) {
+   int taskid = MPI::COMM_WORLD.Get_rank();
+   int len = (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
+   if (!(taskid == dest)) {
+      assert(tstp == tstp_);
+      if (sizeof(T) == sizeof(double))
+         MPI::COMM_WORLD.Send(data_, len, MPI::DOUBLE_COMPLEX, dest, tag);
+      else
+         MPI::COMM_WORLD.Send(data_, len, MPI::COMPLEX, dest, tag);
+   } else {
+   }
+}
+
 /** \brief <b> Recevies the `herm_matrix` at a given time step from a specific task. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2213,6 +2697,41 @@ void herm_matrix_timestep<T>::Recv_timestep(int tstp, int ntau, int size1,
 //" tot= " << total_size_ << " tag " << tag << std::endl;
    }
 }
+
+
+/** \brief <b> Recevies the `herm_matrix` at a given time step from a specific task. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Receives the `herm_matrix_timestep` at a given time step `tstp` from a specific task with rank `root`.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > Time step which should be received.
+* @param root
+* > The task rank from which the `herm_matrix` should be received.
+* @param tag
+* > The MPI error flag.
+*/
+template <typename T>
+void herm_matrix_timestep<T>::Recv_timestep(int tstp, int root, int tag) {
+   int taskid = MPI::COMM_WORLD.Get_rank();
+   if (!(taskid == root)) {
+      resize(tstp, ntau_, size1_);
+      int len = (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
+      if (sizeof(T) == sizeof(double))
+         MPI::COMM_WORLD.Recv(data_, len, MPI::DOUBLE_COMPLEX, root, tag);
+      else
+         MPI::COMM_WORLD.Recv(data_, len, MPI::COMPLEX, root, tag);
+   }
+}
+
+
 #endif
 
 #undef herm_matrix_READ_ELEMENT

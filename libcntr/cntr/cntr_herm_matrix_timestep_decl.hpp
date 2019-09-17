@@ -73,6 +73,11 @@ class herm_matrix_timestep {
     };
     // preferred interfaces
 
+    void set_timestep_zero(int tstp);
+
+    void set_timestep(int tstp, herm_matrix<T> &g1);
+    void set_timestep(int tstp, herm_matrix_timestep<T> &g1);
+
     template <class Matrix> void set_ret(int i, int j, Matrix &M);
     template <class Matrix> void set_les(int i, int j, Matrix &M);
     template <class Matrix> void set_tv(int i, int j, Matrix &M);
@@ -88,6 +93,12 @@ class herm_matrix_timestep {
 
     // reading complex numbers:
     // these will adress only (0,0) element for dim>1:
+
+    inline void set_les(int i, int j, cplx &x);
+    inline void set_ret(int i, int j, cplx &x);
+    inline void set_tv(int i, int j, cplx &x);
+    inline void set_mat(int i, cplx &x);
+
     inline void get_les(int i, int j, cplx &x);
     inline void get_ret(int i, int j, cplx &x);
     inline void get_tv(int i, int j, cplx &x);
@@ -133,6 +144,8 @@ class herm_matrix_timestep {
     void right_multiply(function<T> &ft, T weight = 1.0);
     void left_multiply(int tstp, function<T> &ft, T weight = 1.0);
     void right_multiply(int tstp, function<T> &ft, T weight = 1.0);
+    void left_multiply_hermconj(int tstp, function<T> &ft, T weight = 1.0);
+    void right_multiply_hermconj(int tstp, function<T> &ft, T weight = 1.0);
     void incr(herm_matrix_timestep<T> &g1, T weight);
     void incr(herm_matrix<T> &g, T weight = 1.0);
     void incr_timestep(int tstp, herm_matrix_timestep<T> &g1, T weight);
@@ -141,11 +154,27 @@ class herm_matrix_timestep {
     void smul(T weight);
     void set_matrixelement(int i1, int i2, herm_matrix_timestep_view<T> &g,
                            int j1, int j2);
+    void set_matrixelement(int tstp, int i1, int i2, herm_matrix_timestep_view<T> &g,
+                           int j1, int j2);
     void set_matrixelement(int i1, int i2, herm_matrix_timestep<T> &g, int j1,
                            int j2);
+    void set_matrixelement(int tstp, int i1, int i2, herm_matrix_timestep<T> &g, int j1,
+                           int j2);
     void set_matrixelement(int i1, int i2, herm_matrix<T> &g, int j1, int j2);
+    void set_matrixelement(int tstp, int i1, int i2, herm_matrix<T> &g, int j1, int j2);
+    void set_submatrix(int tstp, std::vector<int> &i1, std::vector<int> &i2,herm_matrix<T> &g,
+        std::vector<int> &j1,std::vector<int> &j2);
+    void set_submatrix(int tstp, std::vector<int> &i1, std::vector<int> &i2,herm_matrix_timestep<T> &g,
+        std::vector<int> &j1,std::vector<int> &j2);
 // MPI UTILS
 #if CNTR_USE_MPI == 1
+    // preferred interfaces
+    void Reduce_timestep(int tstp, int root);
+    void Bcast_timestep(int tstp, int root);
+    void Send_timestep(int tstp, int dest, int tag);
+    void Recv_timestep(int tstp, int root, int tag);
+
+    // legacy interfaces
     void MPI_Reduce(int root);
     void Bcast_timestep(int tstp, int ntau, int size1, int root);
     void Send_timestep(int tstp, int ntau, int size1, int dest, int tag);

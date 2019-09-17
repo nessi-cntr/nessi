@@ -23,6 +23,7 @@ add_library(cntr SHARED
     cntr_distributed_array_extern_templates.cpp
     cntr_distributed_timestep_array_extern_templates.cpp
     cntr_getset_extern_templates.cpp
+    cntr_mpitools_extern_templates.cpp
     )
 set_property(TARGET cntr APPEND_STRING PROPERTY COMPILE_FLAGS " -w")
 

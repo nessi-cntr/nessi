@@ -181,6 +181,8 @@ class herm_matrix {
 
     void set_submatrix(std::vector<int> &i1,std::vector<int> &i2,
       herm_matrix<T> &g,std::vector<int> &j1,std::vector<int> &j2);
+    void set_submatrix(int tstp, std::vector<int> &i1,std::vector<int> &i2,
+      herm_matrix<T> &g,std::vector<int> &j1,std::vector<int> &j2);
 
     // multiplication with function
 
@@ -213,6 +215,7 @@ class herm_matrix {
     void smul(int tstp, cplx weight);
 // MPI UTILS
 #if CNTR_USE_MPI == 1
+    void Reduce_timestep(int tstp, int root);
     void Bcast_timestep(int tstp, int root);
     void Send_timestep(int tstp, int dest, int tag);
     void Recv_timestep(int tstp, int root, int tag);

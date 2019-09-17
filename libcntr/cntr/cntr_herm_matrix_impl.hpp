@@ -2468,6 +2468,46 @@ template<typename T> void herm_matrix<T>::set_submatrix(std::vector<int> &i1,
 	}
 }
 
+/** \brief <b> Sets a (sub-) matrix of this contour object at a given time step
+* to a (sub-) matrix of a given `herm_matrix`. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* Sets the (sub-) matrix of a two-time contour object \f$C(t,t')\f$ \f$C(t,t')\f$ the (sub-)
+* of a given `herm_matrix` \f$g\f$ according to
+* \f$ C_{i_1(k) i_2(k)}(t,t') = g_{j_1(k) j_2(k)}(t,t') \f$ with \f$k\f$ denoting
+* an iterator of a subspace (at a given time step).
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > Time step `tstp`.
+* @param i1
+* > Vector of row indices of `C`.
+* @param i2
+* > Vector of column indices of `C`.
+* @param g
+* > The `herm_matrix` from which the (sub-) matrix is copied.
+* @param j1
+* > Vector of row indices of `g`.
+* @param j2
+* > Vector of row indices of `g`.
+*/
+
+template<typename T> void herm_matrix<T>::set_submatrix(int tstp, std::vector<int> &i1,
+  std::vector<int> &i2,herm_matrix<T> &g,std::vector<int> &j1,std::vector<int> &j2){
+    assert(tstp <= nt_);
+    assert(nt_ == g.nt_);
+    assert(i1.size()==i2.size() && i1.size()==j1.size() && j1.size()==j2.size());
+    assert(size1_*size2_==i1.size());
+    for(int k1=0;k1<i1.size();k1++){
+        this->set_matrixelement(tstp,i1[k1],i2[k1],g,j1[k1],j2[k1]);
+    }
+}
+
 
 #define HERM_MATRIX_INCR_TSTP                                                \
     if (alpha == cplx(1.0, 0.0)) {                                           \
@@ -3224,6 +3264,38 @@ void herm_matrix<T>::smul(int tstp, std::complex<T> weight) {
 #
 ########################################################################################*/
 #if CNTR_USE_MPI == 1
+
+/** \brief <b> MPI reduce for the `herm_matrix` at a given time step. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > MPI reduce for the `herm_matrix` to the `root` at a given time step.
+* > Works for scalar or square-matrix contour objects.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > time step
+* @param root
+* > Index of root
+*/
+template <typename T>
+void herm_matrix<T>::Reduce_timestep(int tstp, int root) {
+    assert(tstp <= nt_);
+
+    herm_matrix_timestep<T> Gtemp;
+    Gtemp.resize(tstp, ntau_, size1_);
+    this->get_timestep(tstp, Gtemp);
+    
+    Gtemp.Reduce_timestep(tstp, root);
+
+    this->set_timestep(tstp, Gtemp);
+}
+
 
 /** \brief <b> Broadcasts the `herm_matrix` at a given time step to all tasks. </b>
 *
