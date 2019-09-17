@@ -34,7 +34,7 @@
 #endif
 
 
-#define MAX_ORDER 5
+#define MAX_SOLVE_ORDER 5
 
 #define CNTR_PI 3.14159265358979323846
 

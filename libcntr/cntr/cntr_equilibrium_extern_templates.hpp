@@ -16,9 +16,9 @@ namespace cntr {
   extern template void green_from_H<double>(herm_matrix<double> &G,double mu,cdmatrix &eps,double beta,double h);
   extern template void green_from_H<double>(herm_matrix_timestep<double> &G,double mu,cdmatrix &eps,double beta,double h);
   extern template void green_from_H<double>(herm_matrix<double> &G,double mu,cntr::function<double> &eps,
-			     double beta,double h,int kt,int order,bool fixHam);
+			     double beta,double h,int SolveOrder,int cf_order,bool fixHam);
   extern template void green_from_H<double>(herm_matrix_timestep<double> &G,double mu,cntr::function<double> &eps,
-			     double beta,double h,int kt,int order,bool fixHam);
+			     double beta,double h,int SolveOrder,int cf_order,bool fixHam);
   extern template void green_single_pole_XX_timestep(herm_matrix_timestep<double> &D0,
 						     double w, double beta, double h);
   extern template void green_single_pole_XX_timestep(int tstp, herm_matrix<double> &D0,

@@ -529,6 +529,38 @@ void dyson_timestep_omp(int omp_num_threads, int n, herm_matrix<T> &G, T lam0,
     }
 }
 
+
+template <typename T>
+void dyson_timestep_omp(int omp_num_threads, int n, herm_matrix<T> &G, T lam0,
+                        function<T> &H, herm_matrix<T> &Sigma,
+                        T beta, T h, int SolveOrder) {
+    int size1 = G.size1();
+    int omp_num_threads1 = (omp_num_threads == -1 ? omp_get_max_threads() : omp_num_threads);
+    assert(SolveOrder + 1<= n);
+    assert(n<= Sigma.nt());
+    assert(n<= G.nt());
+    assert(n<= H.nt());
+    assert(G.sig()== Sigma.sig());
+    assert(G.size1()== Sigma.size1());
+    assert(G.size1()== H.size1());
+    assert(G.ntau()== Sigma.ntau());
+    if (size1 == 1) {
+        dyson_timestep_ret_omp<T, herm_matrix<T>, 1>(omp_num_threads1, n, G, lam0, H.ptr(0),
+                                                     Sigma, integration::I<T>(SolveOrder), h);
+        dyson_timestep_tv_omp<T, herm_matrix<T>, 1>(omp_num_threads1, n, G, lam0, H.ptr(n),
+                                                    Sigma, integration::I<T>(SolveOrder), beta, h);
+        dyson_timestep_les_omp<T, herm_matrix<T>, 1>(omp_num_threads1, n, G, lam0, H.ptr(0),
+                                                     Sigma, integration::I<T>(SolveOrder), beta, h);
+    } else {
+        dyson_timestep_ret_omp<T, herm_matrix<T>, LARGESIZE>(omp_num_threads1, n, G, lam0,
+                                                             H.ptr(0), Sigma, integration::I<T>(SolveOrder), h);
+        dyson_timestep_tv_omp<T, herm_matrix<T>, LARGESIZE>(omp_num_threads1, n, G, lam0,
+                                                            H.ptr(n), Sigma, integration::I<T>(SolveOrder), beta, h);
+        dyson_timestep_les_omp<T, herm_matrix<T>, LARGESIZE>(omp_num_threads1, n, G, lam0,
+                                                             H.ptr(0), Sigma, integration::I<T>(SolveOrder), beta, h);
+    }
+}
+
 #endif // CNTR_USE_OMP
 
 }  // namespace cntr

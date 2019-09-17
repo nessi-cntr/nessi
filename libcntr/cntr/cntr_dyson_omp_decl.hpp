@@ -47,6 +47,11 @@ void dyson_timestep_omp(int omp_num_threads, int n, herm_matrix<T> &G, T lam0,
                         function<T> &H, herm_matrix<T> &Sigma, integration::Integrator<T> &I,
                         T beta, T h);
 
+template <typename T>
+void dyson_timestep_omp(int omp_num_threads, int n, herm_matrix<T> &G, T lam0,
+                        function<T> &H, herm_matrix<T> &Sigma,
+                        T beta, T h, int SolveOrder=MAX_SOLVE_ORDER);
+
 #endif // CNTR_USE_OMP
 
 }  // namespace cntr
