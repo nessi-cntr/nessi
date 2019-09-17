@@ -44,14 +44,8 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 	int len = 2 * (2 * (tstp + 1) + G.ntau() + 1) * G.size1() * G.size2();
 
 	if (sizeof(T) == sizeof(double)) {
-      if (taskid == root) {
-         MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, (double *) Gred.data_, len,
-            MPI::DOUBLE, MPI::SUM, root);
-      } else {
-         MPI::COMM_WORLD.Reduce((double *)G.data_,
-            (double *)Gred.data_, len, MPI::DOUBLE,
-            MPI::SUM, root);
-      }
+		MPI::COMM_WORLD.Reduce((double *)G.data_, (double *)Gred.data_, len, MPI::DOUBLE,
+			MPI::SUM, root);
    } else {
       std::cerr << "herm_matrix_timestep<T>::MPI_Reduce only for double "
       << std::endl;
@@ -187,6 +181,7 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &G
 
 	herm_matrix_timestep<T> G_tmp;
 	G_tmp.resize(tstp, G.ntau(), G.size1());
+	G.get_timestep(tstp, G_tmp);
 
 	Reduce_timestep(tstp, root, Gred_tmp, G_tmp);
 

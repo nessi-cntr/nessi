@@ -30,4 +30,8 @@
 
 #include "cntr_getset_decl.hpp"
 
+#if CNTR_USE_MPI == 1
+#include "cntr_mpitools_decl.hpp"
+#endif
+
 #endif  // CNTR_DECL_H

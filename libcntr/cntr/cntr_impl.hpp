@@ -36,5 +36,8 @@
 #include "cntr_distributed_timestep_array_impl.hpp"
 
 #include "cntr_getset_impl.hpp"
+#if CNTR_USE_MPI == 1
+#include "cntr_mpitools_impl.hpp"
+#endif
 
 #endif  // CNTR_IMPL_H

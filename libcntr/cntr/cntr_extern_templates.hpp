@@ -21,5 +21,8 @@
 #include "cntr_dyson_extern_templates.hpp"
 
 #include "cntr_getset_extern_templates.hpp"
+#if CNTR_USE_MPI == 1
+#include "cntr_mpitools_extern_templates.hpp"
+#endif
 
 #endif  // CNTR_EXTERN_TEMPLATES_H

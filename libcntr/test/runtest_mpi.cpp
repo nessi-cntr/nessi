@@ -5,7 +5,7 @@
 #include "herm_matrix_mpi.hpp"
 #include "distributed_array_mpi.hpp"
 #include "distributed_timestep_array_mpi.hpp"
-
+#include "reduce_timestep.hpp"
 
 int main(int argc, char * argv[]) {
     int ierr;
