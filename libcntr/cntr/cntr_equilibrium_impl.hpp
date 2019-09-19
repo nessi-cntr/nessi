@@ -774,10 +774,12 @@ void propagator_exp(int tstp,cntr::function<T> &U,cntr::function<T> &H,double dt
 /// @private
 template<typename T,int SIZE>
 void green_from_H_dispatch(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,T h,int kt,int order,bool fixHam=false){
+  std::complex<T> iu = std::complex<T>(0.0, 1.0);
   int nt=G.nt(),ntau=G.ntau();
   int size=G.size1();
   int sign=G.sig();
   double tau,t,dtau=beta/ntau;
+  double c,s;
   cdmatrix H0(size,size),H1(size,size);
   eps.get_value(-1,H0);
   H1=mu*cdmatrix::Identity(size,size)-H0;
@@ -820,9 +822,9 @@ void green_from_H_dispatch(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,
       for(int n=0;n<=nt;n++){
         Ut.get_value(n,expp);
         if(sign==-1){
-          value=std::complex<T>(0,1.0)*expp*evec0*fermi_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
+          value=iu*expp*evec0*fermi_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
         }else if(sign==1){
-          value=std::complex<T>(0,-1.0)*expp*evec0*bose_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
+          value=-iu*expp*evec0*bose_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
         }
         G.set_tv(n,m,value);
       }
@@ -839,9 +841,11 @@ void green_from_H_dispatch(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,
 	      cdmatrix tmp(size,size);
 	      Ut.get_value(m,exppt1);
 	      Ut.get_value(n,exppt2);
-	      tmp = std::complex<T>(0,-1.0)*exppt1*exppt2.adjoint();
+        c = cos(mu * h * (m-n));
+        s = sin(mu * h * (m-n));
+	      tmp = -iu*exppt1*exppt2.adjoint() * std::complex<T>(c,s);
 	      G.set_ret(m,n,tmp);
-	      tmp=std::complex<T>(0,1.0)*exppt2*value*exppt1.adjoint();
+	      tmp=iu*exppt2*value*exppt1.adjoint()* std::complex<T>(c,-s);
 	      G.set_les(n,m,tmp);
       }
     }
@@ -851,10 +855,12 @@ void green_from_H_dispatch(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,
 /// @private
 template<typename T,int SIZE>
 void green_from_H_const_dispatch(herm_matrix<T> &G,T mu,cdmatrix &H0,T beta,T h){
+  std::complex<T> iu = std::complex<T>(0.0, 1.0);
   int nt=G.nt(),ntau=G.ntau();
   int size=G.size1();
   int sign=G.sig();
   double tau,t,dtau=beta/ntau;
+  double c,s;
   cdmatrix idm(size,size);
   cdmatrix Udt(size,size);
   cdmatrix IHdt(size,size);
@@ -900,9 +906,9 @@ void green_from_H_const_dispatch(herm_matrix<T> &G,T mu,cdmatrix &H0,T beta,T h)
       for(int n=0;n<=nt;n++){
         Ut.get_value(n,expp);
         if(sign==-1){
-          value=std::complex<T>(0,1.0)*expp*evec0*fermi_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
+          value=iu*expp*evec0*fermi_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
         }else if(sign==1){
-          value=std::complex<T>(0,-1.0)*expp*evec0*bose_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
+          value=-iu*expp*evec0*bose_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
         }
         G.set_tv(n,m,value);
       }
@@ -920,9 +926,11 @@ void green_from_H_const_dispatch(herm_matrix<T> &G,T mu,cdmatrix &H0,T beta,T h)
 	      cdmatrix tmp(size,size);
 	      Ut.get_value(m,exppt1);
 	      Ut.get_value(n,exppt2);
-	      tmp = std::complex<T>(0,-1.0)*exppt1*exppt2.adjoint();
+        c = cos(mu * h * (m-n));
+        s = sin(mu * h * (m-n));
+	      tmp = -iu*exppt1*exppt2.adjoint() * std::complex<T>(c,s);
 	      G.set_ret(m,n,tmp);
-	      tmp=std::complex<T>(0,1.0)*exppt2*value*exppt1.adjoint();
+	      tmp = iu*exppt2*value*exppt1.adjoint()* std::complex<T>(c,-s);
 	      G.set_les(n,m,tmp);
       }
     }
@@ -932,9 +940,11 @@ void green_from_H_const_dispatch(herm_matrix<T> &G,T mu,cdmatrix &H0,T beta,T h)
 /// @private
 template<typename T,int SIZE>
 void green_from_H_dispatch(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,T beta,T h,int kt,int order,bool fixHam=false){
+  std::complex<T> iu = std::complex<T>(0.0, 1.0);
   int tstp=G.tstp(),ntau=G.ntau();
   int size=G.size1();
   int sign=G.sig();
+  double c,s;
   cdmatrix H0(size,size),H1(size,size);
   eps.get_value(-1,H0);
   H1=mu*cdmatrix::Identity(size,size)-H0;
@@ -974,9 +984,9 @@ void green_from_H_dispatch(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &ep
         tau=m*dtau;
         Ut.get_value(tstp,expp);
         if(sign==-1){
-          value=std::complex<T>(0,1.0)*expp*evec0*fermi_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
+          value=iu*expp*evec0*fermi_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
         }else if(sign==1){
-          value=std::complex<T>(0,-1.0)*expp*evec0*bose_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
+          value=-iu*expp*evec0*bose_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
         }
         G.set_tv(m,value);
     }
@@ -985,7 +995,9 @@ void green_from_H_dispatch(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &ep
        cdmatrix tmp(size,size);
        Ut.get_value(tstp,exppt1);
        Ut.get_value(n,exppt2);
-       tmp = std::complex<T>(0,-1.0)*exppt1*exppt2.adjoint();
+       c = cos(mu * h * (tstp-n));
+       s = sin(mu * h * (tstp-n));
+       tmp = -iu*exppt1*exppt2.adjoint() * std::complex<T>(c,s);
        G.set_ret(n,tmp);
     }
     // LES
@@ -998,7 +1010,9 @@ void green_from_H_dispatch(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &ep
        cdmatrix tmp(size,size);
        Ut.get_value(tstp,exppt1);
        Ut.get_value(n,exppt2);
-       tmp = std::complex<T>(0,1.0)*exppt2*value*exppt1.adjoint();
+       c = cos(mu * h * (n-tstp));
+       s = sin(mu * h * (n-tstp));
+       tmp = iu*exppt2*value*exppt1.adjoint() * std::complex<T>(c,s); 
        G.set_les(n,tmp);
     }
   }
@@ -1007,9 +1021,11 @@ void green_from_H_dispatch(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &ep
 /// @private
 template<typename T,int SIZE>
 void green_from_H_const_dispatch(herm_matrix_timestep<T> &G,T mu,cdmatrix &H0,T beta,T h){
+  std::complex<T> iu = std::complex<T>(0.0, 1.0);
   int tstp=G.tstp(),ntau=G.ntau();
   int size=G.size1();
   int sign=G.sig();
+  double c,s;
   cdmatrix evec0(size,size),value(size,size);
   dvector eval0(size),eval0m(size);
   cdmatrix H1;
@@ -1038,7 +1054,7 @@ void green_from_H_const_dispatch(herm_matrix_timestep<T> &G,T mu,cdmatrix &H0,T 
     cdmatrix exppt1(size,size);
     cdmatrix exppt2(size,size);
 
-    IHdt = std::complex<T>(0,-1.0) * h * H0;
+    IHdt = -iu * h * H0;
     Udt = IHdt.exp();
 
     cntr::function<T> Ut(tstp,size);
@@ -1058,9 +1074,9 @@ void green_from_H_const_dispatch(herm_matrix_timestep<T> &G,T mu,cdmatrix &H0,T 
         tau=m*dtau;
         Ut.get_value(tstp,expp);
         if(sign==-1){
-          value=std::complex<T>(0,1.0)*expp*evec0*fermi_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
+          value=iu*expp*evec0*fermi_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
         }else if(sign==1){
-          value=std::complex<T>(0,-1.0)*expp*evec0*bose_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
+          value=-iu*expp*evec0*bose_exp(beta,tau,eval0m).asDiagonal()*evec0.adjoint();
         }
         G.set_tv(m,value);
     }
@@ -1069,7 +1085,9 @@ void green_from_H_const_dispatch(herm_matrix_timestep<T> &G,T mu,cdmatrix &H0,T 
        cdmatrix tmp(size,size);
        Ut.get_value(tstp,exppt1);
        Ut.get_value(n,exppt2);
-       tmp = std::complex<T>(0,-1.0)*exppt1*exppt2.adjoint();
+       c = cos(mu * h * (tstp-n));
+       s = sin(mu * h * (tstp-n));
+       tmp = -iu * (exppt1 * exppt2.adjoint()) * std::complex<T>(c, s);
        G.set_ret(n,tmp);
     }
     // LES
@@ -1082,7 +1100,10 @@ void green_from_H_const_dispatch(herm_matrix_timestep<T> &G,T mu,cdmatrix &H0,T 
        cdmatrix tmp(size,size);
        Ut.get_value(tstp,exppt1);
        Ut.get_value(n,exppt2);
-       tmp = std::complex<T>(0,1.0)*exppt2*value*exppt1.adjoint();
+       // c = cos(mu * h * (n-tstp));
+       // s = sin(mu * h * (n-tstp));
+       // tmp = iu * (exppt2 * value * exppt1.adjoint()) * std::complex<T>(c, s);
+       tmp = iu * (exppt2 * value * exppt1.adjoint());
        G.set_les(n,tmp);
     }
   }
@@ -1147,9 +1168,9 @@ void green_from_H(herm_matrix<T> &G,T mu,cdmatrix &eps,T beta,T h){
 * > inverse temperature
 * @param h
 * > timestep
-* @param kt
+* @param SolveOrder
 * > Order of integrator used for extrapolation and interpolation
-* @param order
+* @param cf_order
 * > Order of approximation for commutator-free exponential, currently implemented orders = 2,4
 * @param fixHam
 * > If True Hamiltonian is known for all times and no extrapolation is needed for the predictor/corrector
@@ -1159,6 +1180,8 @@ template<typename T>
 void green_from_H(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,T h,int SolveOrder,int cf_order,bool fixHam){
   assert(G.size1()==eps.size2_);
   assert(eps.size1_==eps.size2_);
+  assert(SolveOrder <= MAX_SOLVE_ORDER);
+  assert(cf_order == 2 || cf_order == 4);
 
   int size=G.size1();
   if(size==1) green_from_H_dispatch<T,1>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
@@ -1229,9 +1252,9 @@ void green_from_H(herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h){
 * > inverse temperature
 * @param h
 * > timestep
-* @param kt
+* @param SolveOrder
 * > Order of integrator used for extrapolation and interpolation
-* @param order
+* @param cf_order
 * > Order of approximation for commutator-free exponential, currently implemented orders = 2,4
 * @param fixHam
 * > If True Hamiltonian is known for all times and no extrapolation is needed for the predictor/corrector
@@ -1240,6 +1263,8 @@ template<typename T>
 void green_from_H(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,T beta,T h,int SolveOrder,int cf_order,bool fixHam){
   assert(G.size1()==eps.size2_);
   assert(eps.size1_==eps.size2_);
+  assert(SolveOrder <= MAX_SOLVE_ORDER);
+  assert(cf_order == 2 || cf_order == 4);
 
   int size=G.size1();
   if(size==1) green_from_H_dispatch<T,1>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
