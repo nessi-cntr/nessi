@@ -51,6 +51,7 @@ public:
   std::vector<int> tid_map(void) const {return tid_map_;}
   int tid(void) const {return tid_;}
   int ntasks(void) const {return ntasks_;}
+  bool rank_owns(int k) const {return tid_map()[k] == tid();}
   
   // MPI UTILS
   // all MPI routines are given "trivial" no MPI versions, which basically assume ntasks=1 and do nothing
