@@ -10,9 +10,6 @@ namespace cntr {
   template <typename T> class herm_matrix_timestep;
   template <typename T> class herm_matrix_timestep_view;
 
-  template <typename T>
-  void map_component(int size1, int size2, std::complex<T> *ptr, cdmatrix &M);
-
   template<typename T> void get_mat(const int m, std::complex<T> &G_mat, herm_matrix<T> &G, herm_matrix<T> &Gcc);
   template<typename T> void get_mat(const int m, cdmatrix &G_mat, herm_matrix<T> &G, herm_matrix<T> &Gcc);
   template<typename T> void get_mat(const int m, std::complex<T> &G_mat, herm_matrix<T> &G);
