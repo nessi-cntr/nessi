@@ -26,7 +26,8 @@ TEST_CASE("Kadanoff-Baym equations (Dyson)","[Kadanoff-Baym equations]"){
   const double eps1 = -1.0;
   const double eps2 = 1.0;
   const double lam = 0.2;
-  const double mu = 0.0;
+  const double mu = -1.1;
+  const double mu_sig = 0.0;
   const double beta = 20.0;
   const int Ntau = 400;
   const int Nt = 200;
@@ -66,7 +67,7 @@ TEST_CASE("Kadanoff-Baym equations (Dyson)","[Kadanoff-Baym equations]"){
   Sigma = GREEN(Nt,Ntau,1,fermion);
   cdmatrix h22(1,1);
   h22(0,0) = eps2;
-  cntr::green_from_H(Sigma,mu,h22,beta,dt);
+  cntr::green_from_H(Sigma,mu_sig,h22,beta,dt);
   for(tstp=-1; tstp<=Nt; tstp++){
     Sigma.smul(tstp,lam*lam);
   }
@@ -74,7 +75,7 @@ TEST_CASE("Kadanoff-Baym equations (Dyson)","[Kadanoff-Baym equations]"){
   G_approx = GREEN(Nt,Ntau,1,fermion);
 
   // solve equilibrium
-  cntr::dyson_mat(G_approx, Sigma, mu, hfunc, integration::I<double>(SolverOrder), beta, CNTR_MAT_CG);
+  cntr::dyson_mat(G_approx, Sigma, mu, hfunc, integration::I<double>(SolverOrder), beta);
 
   SECTION("Integro-differential form"){
     cntr::dyson_start(G_approx,mu,hfunc,Sigma,integration::I<double>(SolverOrder),beta,dt);
@@ -83,9 +84,18 @@ TEST_CASE("Kadanoff-Baym equations (Dyson)","[Kadanoff-Baym equations]"){
       cntr::dyson_timestep(tstp,G_approx,mu,hfunc,Sigma,integration::I<double>(SolverOrder),beta,dt);
     }
 
+    Eigen::SelfAdjointEigenSolver<cdmatrix> eigensolver(h2x2);
+    dvector eval0=eigensolver.eigenvalues();
+
     err=0.0;
     for(tstp=0; tstp<=Nt; tstp++){
       err += cntr::distance_norm2(tstp,G_exact,G_approx);
+      complex<double> gles_x,gles_a;
+      G_exact.get_les(tstp, tstp, gles_x);
+      G_approx.get_les(tstp, tstp, gles_a);
+      double fa = 1.0/(1.0 + exp(beta * (eps1 - mu)));
+      double fx = 1.0/(1.0 + exp(beta * (eval0(0) - mu)));
+      cout << tstp << gles_x << "  " << gles_a << " " << fa << " " << fx <<  endl;
     }
     //cout << "Error [Dyson] : " << err << endl;
     REQUIRE(err/Nt<tol_coarse);
