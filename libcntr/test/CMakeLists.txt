@@ -42,7 +42,6 @@ else(hdf5)
     dyson.cpp
     dyson_new.cpp
     equilibrium.cpp
-    fkm_bethe_quench.cpp
     function.cpp
     getset.cpp
     getset_nonherm.cpp
