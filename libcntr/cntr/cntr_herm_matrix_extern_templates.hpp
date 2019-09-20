@@ -4,6 +4,8 @@
 #include "cntr_herm_matrix_decl.hpp"
 #include <Eigen/Core>
 
+#define GREEN cntr::herm_matrix<double>
+
 namespace cntr {
 
 extern template class herm_matrix<double>;

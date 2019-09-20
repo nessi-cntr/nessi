@@ -6,12 +6,18 @@ namespace cntr {
   ///@private
   template void extrapolate_timestep<double>(int n,herm_matrix<double> &G,integration::Integrator<double> &I);
   ///@private
+  template void extrapolate_timestep<double>(int n,herm_matrix<double> &G,int ExtrapolationOrder);
+  ///@private
   template void extrapolate_timestep<double>(int n,herm_pseudo<double> &G,integration::Integrator<double> &I);
 
   ///@private
   template void extrapolate_timestep(int n, function<double> &f,integration::Integrator<double> &I);
   ///@private
+  template void extrapolate_timestep(int n, function<double> &f,int SolveOrder);
+  ///@private
   template cdmatrix interpolation(int tstp,double tinter,function<double> &f,integration::Integrator<double> &I);
+  ///@private
+  template cdmatrix interpolation(int tstp,double tinter,function<double> &f,int InterpolationOrder);
   
   ///@private
   template void set_t0_from_mat<double>(herm_matrix<double> &G);
@@ -21,10 +27,10 @@ namespace cntr {
   template void set_tk_from_mat<double>(herm_matrix<double> &G,int kt);
 
   // correlation energy from time-diagonal convolution
-  /// @private
+  ///@private
   template
   double correlation_energy(int tstp, herm_matrix<double> &G, herm_matrix<double> &Sigma,
-		       integration::Integrator<double> &I, double beta, double h);
+           double beta, double h, int SolveOrder);
   
   /// @private
   template double distance_norm2<double>(int tstp,herm_matrix<double> &g1,herm_matrix<double> &g2);

@@ -19,15 +19,22 @@ namespace cntr {
 
   template <typename T>
   void extrapolate_timestep(int n,herm_matrix<T> &G,integration::Integrator<T> &I);
+    template <typename T>
+  void extrapolate_timestep(int n, herm_matrix<T> &G, int SolveOrder=MAX_SOLVE_ORDER);
   template <typename T>
   void extrapolate_timestep(int n,herm_pseudo<T> &G,integration::Integrator<T> &I);
 
   template <typename T>
   void extrapolate_timestep(int n, function<T> &f,integration::Integrator<T> &I);
 
+  template <typename T>
+  void extrapolate_timestep(int n, function<T> &f, int ExtrapolationOrder=MAX_SOLVE_ORDER);
 
   template <typename T>
   cdmatrix interpolation(int tstp,double tinter,function<T> &f,integration::Integrator<T> &I);
+
+  template <typename T>
+  cdmatrix interpolation(int tstp,double tinter,function<T> &f,int InterpolationOrder=MAX_SOLVE_ORDER);
 
   template <typename T> void set_t0_from_mat(herm_matrix<T> &G);
   template <typename T> void set_t0_from_mat(herm_pseudo<T> &G);
@@ -39,8 +46,8 @@ namespace cntr {
   ///////////////////////////////////////////////////////////////////////////////////////// */
 
   template <typename T>
-  T correlation_energy(int tstp, herm_matrix<T> &G, herm_matrix<T> &Sigma,
-		       integration::Integrator<T> &I, T beta, T h);
+  T correlation_energy(int tstp, herm_matrix<T> &G, herm_matrix<T> &Sigma, T beta, T h, 
+    int SolveOrder=MAX_SOLVE_ORDER);
 
   /* /////////////////////////////////////////////////////////////////////////////////////////
   // compare to GF's on timestep tstp
