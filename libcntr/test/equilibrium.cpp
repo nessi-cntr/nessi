@@ -270,15 +270,16 @@ TEST_CASE("Non-interacting","[Herm_matrix_noniteracting]"){
     // cntr::green_from_eps(Atest,mu,wa,beta,h);
     // cntr::green_from_H(A2test,mu,waa,beta,h);
     cntr::green_from_H(Atest,mu,a,beta,h);
-    cntr::green_from_H(A2test,mu,epsilon,beta,h,5,4,true);
+    cntr::green_from_H(A2test,mu,epsilon,beta,h,true);
     // timedependent_from_vie(A4test,mu,epsilon,beta,h);
 
-   
     double err=0.0;
     for(int tstp=-1;tstp<nt;tstp++){
       err+=cntr::distance_norm2(tstp,Atest,exact);
     }
     REQUIRE(err<eps);
+
+
     // std::cout << "Eps " <<err <<std::endl;
     err=0.0;
     for(int tstp=-1;tstp<nt;tstp++){
@@ -374,7 +375,7 @@ TEST_CASE("Non-interacting","[Herm_matrix_noniteracting]"){
     // -------------------------------------
     // Test Green - fix Hamiltonian
     // -------------------------------------
-    green_from_H(ACF4,mu,epsT,beta,h,5,4,true);
+    green_from_H(ACF4,mu,epsT,beta,h,true);
     exact_time(beta,h,exact,delta,V,omega);
     // Interesting observation is that for these parameters vie2 solution is more accurate, but much slower
     // Please check if this is a general case
@@ -394,7 +395,7 @@ TEST_CASE("Non-interacting","[Herm_matrix_noniteracting]"){
     err=0.0;
     for(int tstp=-1;tstp<=nt;tstp++){
       GREEN_TSTP CF4tstp(tstp,ntau,size);
-      green_from_H(CF4tstp,mu,epsT,beta,h,5,4,true);
+      green_from_H(CF4tstp,mu,epsT,beta,h,true);
       err+=cntr::distance_norm2(tstp,CF4tstp,exact);
     }
     REQUIRE(err<eps);
@@ -432,7 +433,7 @@ TEST_CASE("Non-interacting","[Herm_matrix_noniteracting]"){
     // -------------------------------------
     // Test Green - fix Hamiltonian
     // -------------------------------------
-    green_from_H(ACF4,mu,epsT,beta,h,5,4,true);
+    green_from_H(ACF4,mu,epsT,beta,h,true);
     exact_time_boson(beta,h,exact,delta,V,omega);
     // Interesting observation is that for these parameters vie2 solution is more accurate, but much slower
     // Please check if this is a general case

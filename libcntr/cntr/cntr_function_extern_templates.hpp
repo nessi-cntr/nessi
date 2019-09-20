@@ -4,6 +4,8 @@
 #include <Eigen/Core>
 #include "cntr_function_decl.hpp"
 
+#define CFUNC cntr::function<double>
+
 namespace cntr {
 
   extern template class function<double>;

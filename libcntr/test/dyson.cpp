@@ -26,9 +26,8 @@ TEST_CASE("Kadanoff-Baym equations (Dyson)","[Kadanoff-Baym equations]"){
   const double eps1 = -1.0;
   const double eps2 = 1.0;
   const double lam = 0.2;
-  const double mu = -1.1;
-  const double mu_sig = 0.0;
-  const double beta = 20.0;
+  const double mu = -0.1;
+  const double beta = 10.0;
   const int Ntau = 400;
   const int Nt = 200;
   const double dt=0.05;
@@ -48,6 +47,7 @@ TEST_CASE("Kadanoff-Baym equations (Dyson)","[Kadanoff-Baym equations]"){
   h2x2(1,1) = eps2;
   h2x2(0,1) = I*lam;
   h2x2(1,0) = -I*lam;
+  cdmatrix hmu = h2x2 - mu *cdmatrix::Identity(2,2);
 
   // free 1x1 Hamiltonian
   h1x1(0,0) = eps1;
@@ -67,7 +67,8 @@ TEST_CASE("Kadanoff-Baym equations (Dyson)","[Kadanoff-Baym equations]"){
   Sigma = GREEN(Nt,Ntau,1,fermion);
   cdmatrix h22(1,1);
   h22(0,0) = eps2;
-  cntr::green_from_H(Sigma,mu_sig,h22,beta,dt);
+  cntr::green_from_H(Sigma,mu,h22,beta,dt);
+
   for(tstp=-1; tstp<=Nt; tstp++){
     Sigma.smul(tstp,lam*lam);
   }
@@ -82,20 +83,13 @@ TEST_CASE("Kadanoff-Baym equations (Dyson)","[Kadanoff-Baym equations]"){
 
     for(tstp=SolverOrder+1;tstp<=Nt;tstp++){
       cntr::dyson_timestep(tstp,G_approx,mu,hfunc,Sigma,integration::I<double>(SolverOrder),beta,dt);
+      complex<double> gles_x,gles_a;
+      G_exact.get_les(tstp, tstp, gles_x);
     }
-
-    Eigen::SelfAdjointEigenSolver<cdmatrix> eigensolver(h2x2);
-    dvector eval0=eigensolver.eigenvalues();
 
     err=0.0;
     for(tstp=0; tstp<=Nt; tstp++){
-      err += cntr::distance_norm2(tstp,G_exact,G_approx);
-      complex<double> gles_x,gles_a;
-      G_exact.get_les(tstp, tstp, gles_x);
-      G_approx.get_les(tstp, tstp, gles_a);
-      double fa = 1.0/(1.0 + exp(beta * (eps1 - mu)));
-      double fx = 1.0/(1.0 + exp(beta * (eval0(0) - mu)));
-      cout << tstp << gles_x << "  " << gles_a << " " << fa << " " << fx <<  endl;
+      err += cntr::distance_norm2(tstp,G_exact,G_approx);   
     }
     //cout << "Error [Dyson] : " << err << endl;
     REQUIRE(err/Nt<tol_coarse);

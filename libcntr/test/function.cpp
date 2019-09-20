@@ -229,7 +229,7 @@ TEST_CASE("function","[function]"){
 		int nt = 1000;
 		double err = 0.0;
 		double eps = 1e-5;
-		std::cout << "test incr and smul" << std::endl;
+		// std::cout << "test incr and smul" << std::endl;
 		{//incr and smul
 			int size1 = 3;
 			int size2 = 5;
@@ -253,7 +253,7 @@ TEST_CASE("function","[function]"){
 			REQUIRE(err < eps);
 		}
 		//std::cout << "testing multiplication" << std::endl;
-		std::cout << "mult" << std::endl;
+		// std::cout << "mult" << std::endl;
 		{//multiply
 			int size = 5;
 			cntr::function<double> f0(nt, size), f1(nt, size);
@@ -285,7 +285,7 @@ TEST_CASE("function","[function]"){
 			REQUIRE(err < eps);
 
 		}
-		std::cout << "test matrixelements" << std::endl;
+		// std::cout << "test matrixelements" << std::endl;
 		{//matrixelements
 			int size1 = 3;
 			int size2 = 5;
@@ -361,7 +361,7 @@ TEST_CASE("function","[function]"){
 			f0.write_to_hdf5("test_func.h5", "data");
 			f1.read_from_hdf5("test_func.h5", "data");
 			double res = func_norm2(f0, f1);
-			std::cout << "error is: " << res << std::endl;
+			// std::cout << "error is: " << res << std::endl;
 			REQUIRE(res <= eps);
 		}
 

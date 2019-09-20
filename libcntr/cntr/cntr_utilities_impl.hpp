@@ -139,6 +139,34 @@ void extrapolate_timestep(int n, herm_matrix<T> &G,
         extrapolate_timestep_dispatch<T, herm_matrix<T>, LARGESIZE>(n, G, I);
 }
 
+
+/** \brief <b>  k-th order polynomial extrapolation to t=n+1 of the retarded, lesser and left-mixing components of herm_matrix. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > k-th order polynomial extrapolation to t=n+1 of the retarded, lesser and left-mixing components of herm_matrix.
+ * > Information at times t=n,n-1,,,,n-k is used.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param n
+ * > t=n+1 data is obtained by the extrapolation.
+ * @param G
+ * > herm_matrix to be extrapolated.
+ * @param SolveOrder
+ * > Extrapolation order
+ */
+template <typename T>
+void extrapolate_timestep(int n, herm_matrix<T> &G, int SolveOrder) {
+    if (G.size1() == 1)
+        extrapolate_timestep_dispatch<T, herm_matrix<T>, 1>(n, G, integration::I<T>(SolveOrder));
+    else
+        extrapolate_timestep_dispatch<T, herm_matrix<T>, LARGESIZE>(n, G, integration::I<T>(SolveOrder));
+}
+
 /// @private
 /// k-th order polynomial extrapolation to t=n+1 of the retarded, lesser and left-mixing components of herm_pseudo. </b>
 template <typename T>
@@ -219,6 +247,33 @@ void extrapolate_timestep(int n, function<T> &f,
         extrapolate_timestep_dispatch<T, LARGESIZE>(n, f, I);
 }
 
+
+/** \brief <b>  k-th order polynomial extrapolation to t=n+1 of the contour function. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > k-th order polynomial extrapolation to t=n+1 of the contour function.
+ * > Information at times t=n,n-1,,,,n-k is used.
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param n
+ * > t=n+1 data is obtained by the extrapolation.
+ * @param f
+ * > the contour function to be extrapolated.
+ * @param SolveOrder
+ * > Order of extrapolation
+ */
+template <typename T>
+void extrapolate_timestep(int n, function<T> &f, int ExtrapolationOrder) {
+    if (f.size1() == 1)
+        extrapolate_timestep_dispatch<T, 1>(n, f, integration::I<T>(ExtrapolationOrder));
+    else
+        extrapolate_timestep_dispatch<T, LARGESIZE>(n, f, integration::I<T>(ExtrapolationOrder));
+}
+
+
 /// @private
 //  k-th order polynomial interpolation of contour function
 //  to arbitrary point on time interval [tstp-kt,tstp],
@@ -290,6 +345,42 @@ cdmatrix interpolation(int tstp,double tinter,function<T> &f,
         return interpolation_dispatch<T, 1>(tstp,tinter, f, I);
     else
         return interpolation_dispatch<T, LARGESIZE>(tstp,tinter, f, I);
+}
+
+/** \brief <b>  k-th order polynomial interpolation of the contour function </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > k-th order polynomial interpolation of the contour function to arbitrary point 'tinter' on time interval [tstp-k,tstp].
+ * > One uses information at times t=(n-j)  [j=0...k]
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > [int] Time step.
+ * @param tinter
+ * > [double] interpolation time point
+ * @param f
+ * > [function] the contour function to be interpolated
+ * @param SolveOrder
+ * > [int] Order of interpolation
+ */
+template <typename T>
+cdmatrix interpolation(int tstp,double tinter,function<T> &f,
+                          int InterpolationOrder) {
+
+    assert(tstp>=InterpolationOrder);
+    assert(tinter<=tstp);
+    assert(tinter>=(tstp-InterpolationOrder));
+
+    if (f.size1() == 1)
+        return interpolation_dispatch<T, 1>(tstp,tinter, f, integration::I<T>(InterpolationOrder));
+    else
+        return interpolation_dispatch<T, LARGESIZE>(tstp,tinter, f, integration::I<T>(InterpolationOrder));
 }
 
 /** \brief <b>  Set t=0 components of the two-time contour object from the Matsubara component. </b>
@@ -410,6 +501,51 @@ T correlation_energy(int tstp, herm_matrix<T> &G, herm_matrix<T> &Sigma,
 
   delete GxSGM;
 }
+
+/** \brief <b> Returns the result of the correlation energy at a given time-step from the time-diagonal convolution</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* >  Calculates the correlation energy given by \f$ -i/2\f$ Tr\f$[G*\Sigma]^<\f$ at a given time step 'tstp'.
+* > The objects 'G' and 'Sigma' are of the class type 'herm_matrix'.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > [int] time step
+* @param G
+* > [herm_matrix] contour Green's function
+* @param Sigma
+* > [herm_matrix] self-energy
+* @param beta
+* > inversed temperature
+* @param h
+* > time interval
+* @param SolveOrder
+* > [int] integration order
+*/
+template <typename T>
+T correlation_energy(int tstp, herm_matrix<T> &G, herm_matrix<T> &Sigma,
+              T beta, T h, int SolveOrder){
+  int size1=G.size1();
+  std::complex<T> trGxSGM;
+  std::complex<T> *GxSGM = new std::complex<T>[size1*size1];
+
+  convolution_density_matrix<T,herm_matrix<T>>(tstp, GxSGM, Sigma, G, integration::I<T>(SolveOrder), beta, h);
+  trGxSGM = (0.0,0.0);
+  for(int i=0; i< size1; i++){
+    trGxSGM += GxSGM[i*size1 + i];
+  }
+  return 0.5*trGxSGM.real();
+
+  delete GxSGM;
+}
+
 
 /// @private
 template <typename T, class GG, int SIZE1>

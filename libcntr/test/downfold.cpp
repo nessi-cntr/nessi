@@ -407,9 +407,9 @@ TEST_CASE("Comparison of downfolded and full solution","[Downfold]"){
 		epsilon11.set_matrixelement(1,0,epsilon,2,1);
 		epsilon11.set_matrixelement(1,1,epsilon,2,2);
 
-		cntr::green_from_H(A,0.0,epsilon,beta,h,5,4,"true");
-		cntr::green_from_H(A011,0.0,zero,beta,h,5,4,"true");
-		cntr::green_from_H(A022,0.0,epsilon11,beta,h,5,4,"true");
+		cntr::green_from_H(A,0.0,epsilon,beta,h,"true");
+		cntr::green_from_H(A011,0.0,zero,beta,h,"true");
+		cntr::green_from_H(A022,0.0,epsilon11,beta,h,"true");
 
 		for(int tstp=-1;tstp<nt;tstp++){
 			downfold(tstp,0,0,A022,eta,epsilon);
@@ -449,9 +449,9 @@ TEST_CASE("Comparison of downfolded and full solution","[Downfold]"){
 		epsilon11.set_matrixelement(1,1,epsilon,2,2);
 
 		
-		cntr::green_from_H(A,0.0,epsilon,beta,h,5,4,"true");
-		cntr::green_from_H(A011,0.0,zero,beta,h,5,4,"true");
-		cntr::green_from_H(A022,0.0,epsilon11,beta,h,5,4,"true");
+		cntr::green_from_H(A,0.0,epsilon,beta,h,"true");
+		cntr::green_from_H(A011,0.0,zero,beta,h,"true");
+		cntr::green_from_H(A022,0.0,epsilon11,beta,h,"true");
 		
 		for(int tstp=-1;tstp<nt;tstp++){
 			downfold(tstp,0,0,A022,eta,epsilon);
@@ -494,7 +494,7 @@ TEST_CASE("Comparison of downfolded and full solution","[Downfold]"){
 	  GREEN GSigma=GREEN(nt,ntau,size-ssize,ssize,-1);
 	  GREEN SigmaG=GREEN(nt,ntau,ssize,size-ssize,-1);
 	  // Define self-energy
-	  cntr::green_from_H(Sigma,0.0,epsilon,beta,h,5,4,"true");
+	  cntr::green_from_H(Sigma,0.0,epsilon,beta,h,"true");
 	  GREEN SigmaRest=GREEN(nt,ntau,size-ssize,-1);
 	  std::vector<int> rest11{0,0,1,1};
 	  std::vector<int> rest12{0,1,0,1};
@@ -507,15 +507,15 @@ TEST_CASE("Comparison of downfolded and full solution","[Downfold]"){
 	  CFUNCTION zero3(nt,size,size);
 	  zero3.set_zero();
 	  GREEN G0eps=GREEN(nt,ntau,size,-1);
-	  cntr::green_from_H(G0eps,0.0,epsilon,beta,h,5,4,"true");
+	  cntr::green_from_H(G0eps,0.0,epsilon,beta,h,"true");
 	  dyson(A,G0eps,Sigma,zero3,kt,beta,h);
-	  cntr::green_from_H(A011,0.0,zero,beta,h,5,4,"true");
+	  cntr::green_from_H(A011,0.0,zero,beta,h,"true");
 	  
 	  GREEN GRest=GREEN(nt,ntau,size-ssize,-1);
 	  CFUNCTION zero2(nt,size-ssize,size-ssize);
 	  zero2.set_zero();
 	  GREEN G0epsRest=GREEN(nt,ntau,size-ssize,-1);
-	  cntr::green_from_H(G0epsRest,0.0,epsilon11,beta,h,5,4,"true");
+	  cntr::green_from_H(G0epsRest,0.0,epsilon11,beta,h,"true");
 	  dyson(GRest,G0epsRest,SigmaRest,zero2,kt,beta,h);
 	  
 	  for(int tstp=-1;tstp<=nt;tstp++){

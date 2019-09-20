@@ -4,6 +4,8 @@
 #include <Eigen/Core>
 #include "cntr_herm_matrix_timestep_decl.hpp"
 
+#define GREEN_TSTP cntr::herm_matrix_timestep<double>
+
 namespace cntr {
 
   // preferred interfaces
