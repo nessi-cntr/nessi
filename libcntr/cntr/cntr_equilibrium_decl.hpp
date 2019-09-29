@@ -97,13 +97,20 @@ namespace cntr {
   //void green_single_pole_bose(herm_matrix<T> &G, T *w, T beta, T h);
   // G(t,t') = - ii * <TC X(t) X(t') > *in equilibrium*
   template <typename T>
-  void green_single_pole_XX_timestep(herm_matrix_timestep<T> &D0, T w, T beta,
+  void green_single_pole_XX_timestep(int tstp, herm_matrix_timestep<T> &D0, T w, T beta,
 				     T h);
+  /// @private
   template <typename T>
   void green_single_pole_XX_timestep(int tstp, herm_matrix<T> &D0, T w, T beta,
     T h);
+  /// @private
   template <typename T>
   void green_single_pole_XX(herm_matrix<T> &D0, T w, T beta, T h);
+
+  /// @private
+  template <typename T>
+  void green_single_pole_XX_timestep(herm_matrix_timestep<T> &D0, T w, T beta,
+             T h);
 
 } // namespace cntr
 

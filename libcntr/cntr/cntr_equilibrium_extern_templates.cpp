@@ -49,6 +49,9 @@ namespace cntr {
 
   // template void green_single_pole_bose(herm_matrix<double> &G, double *w, double beta, double h);
   /// @private
+  template void green_single_pole_XX_timestep(int tstp, herm_matrix_timestep<double> &D0,
+                double w, double beta, double h);
+  /// @private
   template void green_single_pole_XX_timestep(herm_matrix_timestep<double> &D0,
 					      double w, double beta, double h);
   /// @private

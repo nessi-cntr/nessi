@@ -1493,6 +1493,13 @@ void green_single_pole_XX_timestep(herm_matrix_timestep<T> &D0,T w,T beta,T h) {
 }
 /// @private
 template<typename T>
+void green_single_pole_XX_timestep(int tstp, herm_matrix_timestep<T> &D0,T w,T beta,T h) {
+  assert(tstp == D0.tstp());
+  if(tstp==-1) green_single_pole_XX_mat(D0.ntau(),D0.size1(),D0.matptr(0),w,beta);
+  else green_single_pole_XX_timestep(tstp,D0.ntau(),D0.size1(),D0.retptr(0),D0.tvptr(0),D0.lesptr(0),w,beta,h);
+}
+/// @private
+template<typename T>
 void green_single_pole_XX_timestep(int tstp,herm_matrix<T> &D0,T w,T beta,T h) {
 	if(tstp==-1) green_single_pole_XX_mat(D0.ntau(),D0.size1(),D0.matptr(0),w,beta);
 	else green_single_pole_XX_timestep(tstp,D0.ntau(),D0.size1(),D0.retptr(tstp,0),D0.tvptr(tstp,0),D0.lesptr(0,tstp),w,beta,h);
