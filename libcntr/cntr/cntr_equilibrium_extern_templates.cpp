@@ -16,21 +16,33 @@ namespace cntr {
   /// @private
   template cdmatrix diag_prop<double>(double time,dvector &omega);
 
+  // prefered interfaces
   /// @private
-  template void green_equilibrium_mat_bethe<double>(herm_matrix<double> &G,double beta,int limit,int nn,double mu);
+  template void green_from_H<double>(herm_matrix<double> &G,double mu,cdmatrix &eps,double beta,double h);
   /// @private
-  template void green_equilibrium_bethe<double>(herm_matrix<double> &G,double beta,double h,int limit,int nn,double mu);
+  template void green_from_H<double>(int tstp, herm_matrix_timestep<double> &G,double mu,cdmatrix &eps,double beta,double h);
+  /// @private
+  template void green_from_H<double>(int tstp, herm_matrix<double> &G,double mu,cdmatrix &eps,double beta,double h);
+  /// @private
+  template void green_from_H<double>(herm_matrix<double> &G,double mu,cntr::function<double> &eps,
+    double beta,double h,int SolveOrder,int cf_order);
+  /// @private
+  template void green_from_H<double>(int tstp, herm_matrix_timestep<double> &G,double mu,cntr::function<double> &eps,
+           double beta,double h,bool fixHam,int SolveOrder,int cf_order);
+  /// @private
+  template void green_from_H<double>(int tstp, herm_matrix<double> &G,double mu,cntr::function<double> &eps,
+           double beta,double h,bool fixHam,int SolveOrder,int cf_order);
 
+  // legacy interfaces 
   /// @private
-  template void green_from_H(herm_matrix<double> &G,double mu,cdmatrix &eps,double beta,double h);
+  template void green_from_H<double>(herm_matrix<double> &G,double mu,cntr::function<double> &eps,
+    double beta,double h,bool fixHam,int SolveOrder,int cf_order);
   /// @private
-  template void green_from_H(herm_matrix_timestep<double> &G,double mu,cdmatrix &eps,double beta,double h);
-  /// @private
-  template void green_from_H(herm_matrix<double> &G,double mu,cntr::function<double> &eps,
-			     double beta,double h,bool fixHam,int SolveOrder,int cf_order);
-  /// @private
-  template void green_from_H(herm_matrix_timestep<double> &G,double mu,cntr::function<double> &eps,
-			     double beta,double h,bool fixHam,int SolveOrder,int cf_order);
+  template void green_from_H<double>(herm_matrix_timestep<double> &G,double mu,cntr::function<double> &eps,
+           double beta,double h,bool fixHam,int SolveOrder,int cf_order);
+
+
+
 
   // template void green_single_pole_bose(herm_matrix<double> &G, double *w, double beta, double h);
   /// @private

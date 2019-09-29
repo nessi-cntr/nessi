@@ -64,10 +64,27 @@ namespace cntr {
   template <typename T>
   void green_from_H(herm_matrix<T> &G,T mu,cdmatrix &eps,T beta,T h);
   template <typename T>
+  void green_from_H(int tstp, herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h);
+  template <typename T>
+  void green_from_H(int tstp, herm_matrix<T> &G,T mu,cdmatrix &eps,T beta,T h);
+  template <typename T>
+  void green_from_H(herm_matrix<T> &G,T mu,cntr::function<T> &eps,
+           T beta,T h,int SolveOrder=MAX_SOLVE_ORDER,int cf_order=4);
+  template <typename T>
+  void green_from_H(int tstp, herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,
+           T beta,T h,bool fixHam=false,int SolveOrder=MAX_SOLVE_ORDER,int cf_order=4);
+  template <typename T>
+  void green_from_H(int tstp, herm_matrix<T> &G,T mu,cntr::function<T> &eps,
+           T beta,T h,bool fixHam=false,int SolveOrder=MAX_SOLVE_ORDER,int cf_order=4);
+
+  /// @private
+  template <typename T>
   void green_from_H(herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h);
+  /// @private
   template <typename T>
   void green_from_H(herm_matrix<T> &G,T mu,cntr::function<T> &eps,
 			     T beta,T h,bool fixHam=false,int SolveOrder=MAX_SOLVE_ORDER,int cf_order=4);
+  /// @private
   template <typename T>
   void green_from_H(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,
 			     T beta,T h,bool fixHam=false,int SolveOrder=MAX_SOLVE_ORDER,int cf_order=4);

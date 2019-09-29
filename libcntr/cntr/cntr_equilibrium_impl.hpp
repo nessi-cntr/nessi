@@ -1140,6 +1140,20 @@ void green_from_H(herm_matrix<T> &G,T mu,cdmatrix &eps,T beta,T h){
   else green_from_H_const_dispatch<T,LARGESIZE>(G,mu,eps,beta,h);
 }
 
+/// @private
+template<typename T>
+void green_from_H(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,T h,bool fixHam,int SolveOrder,int cf_order){
+  assert(G.size1()==eps.size2_);
+  assert(eps.size1_==eps.size2_);
+  assert(SolveOrder <= MAX_SOLVE_ORDER);
+  assert(cf_order == 2 || cf_order == 4);
+
+  int size=G.size1();
+  if(size==1) green_from_H_dispatch<T,1>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
+  else green_from_H_dispatch<T,LARGESIZE>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
+}
+
+
 /** \brief <b> Propagator for time-dependent free Hamiltonian  </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1168,20 +1182,31 @@ void green_from_H(herm_matrix<T> &G,T mu,cdmatrix &eps,T beta,T h){
 * > Order of integrator used for extrapolation and interpolation
 * @param cf_order
 * > Order of approximation for commutator-free exponential, currently implemented orders = 2,4
-* @param fixHam
-* > If True Hamiltonian is known for all times and no extrapolation is needed for the predictor/corrector
 */
 
 template<typename T>
-void green_from_H(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,T h,bool fixHam,int SolveOrder,int cf_order){
+void green_from_H(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,T h,int SolveOrder,int cf_order){
   assert(G.size1()==eps.size2_);
   assert(eps.size1_==eps.size2_);
   assert(SolveOrder <= MAX_SOLVE_ORDER);
   assert(cf_order == 2 || cf_order == 4);
 
   int size=G.size1();
-  if(size==1) green_from_H_dispatch<T,1>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
-  else green_from_H_dispatch<T,LARGESIZE>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
+  if(size==1) green_from_H_dispatch<T,1>(G,mu,eps,beta,h,SolveOrder,cf_order,true);
+  else green_from_H_dispatch<T,LARGESIZE>(G,mu,eps,beta,h,SolveOrder,cf_order,true);
+}
+
+
+
+/// @private
+template<typename T>
+void green_from_H(herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h){
+  assert(G.size1()==eps.rows());
+  assert(eps.rows()==eps.cols());
+
+  int size=G.size1();
+  if(size==1) green_from_H_const_dispatch<T,1>(G,mu,eps,beta,h);
+  else green_from_H_const_dispatch<T,LARGESIZE>(G,mu,eps,beta,h);
 }
 
 
@@ -1210,10 +1235,9 @@ void green_from_H(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,T h,bool 
 * @param h
 * > timestep
 */
-
-
 template<typename T>
-void green_from_H(herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h){
+void green_from_H(int tstp, herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h){
+  assert(tstp == G.tstp());
   assert(G.size1()==eps.rows());
   assert(eps.rows()==eps.cols());
 
@@ -1223,6 +1247,59 @@ void green_from_H(herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h){
 }
 
 
+/** \brief <b> Propagator for time-independent free Hamiltonian  </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Calculate the free propagator G from fixed quadratic Hamiltonian using high-order commutator-free exponential time-propagation,
+* >  see https://doi.org/10.1016/j.jcp.2011.04.006 for the description.
+* >  Currently implemented versions are the second order using one exponential CF2:1 (order=2) and fourth order using two exponentials CF4:2 (order=4),
+* >  see also article for more details.
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > the index of the time step
+* @param G
+* > The output: a time step of the Greens function set to time dependent free propagator
+* @param mu
+* > chemical potential
+* @param eps
+* > time-independent representation of quadratical hamiltonian
+* @param beta
+* > inverse temperature
+* @param h
+* > timestep interval
+*/
+template<typename T>
+void green_from_H(int tstp, herm_matrix<T> &G,T mu,cdmatrix &eps,T beta,T h){
+  assert(G.size1()==eps.rows());
+  assert(eps.rows()==eps.cols());
+  herm_matrix_timestep<T> Gstep(tstp,G.ntau(),G.size1(),G.sig());
+
+  int size=G.size1();
+  if(size==1) green_from_H_const_dispatch<T,1>(Gstep,mu,eps,beta,h);
+  else green_from_H_const_dispatch<T,LARGESIZE>(Gstep,mu,eps,beta,h);
+
+  G.set_timestep(tstp, Gstep);
+}
+
+
+/// @private
+template<typename T>
+void green_from_H(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,T beta,T h,bool fixHam,int SolveOrder,int cf_order){
+  assert(G.size1()==eps.size2_);
+  assert(eps.size1_==eps.size2_);
+  assert(SolveOrder <= MAX_SOLVE_ORDER);
+  assert(cf_order == 2 || cf_order == 4);
+
+  int size=G.size1();
+  if(size==1) green_from_H_dispatch<T,1>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
+  else green_from_H_dispatch<T,LARGESIZE>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
+}
 
 /** \brief <b> Propagator for time-dependent free Hamiltonian  </b>
 *
@@ -1238,6 +1315,8 @@ void green_from_H(herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h){
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param tstp
+* > the index of the time step
 * @param G
 * > The output: a timestep of the Greens function set to time dependent free propagator
 * @param mu
@@ -1247,16 +1326,17 @@ void green_from_H(herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h){
 * @param beta
 * > inverse temperature
 * @param h
-* > timestep
+* > time step interval 
+* @param fixHam
+* > If True Hamiltonian is known for all times and no extrapolation is needed for the predictor/corrector
 * @param SolveOrder
 * > Order of integrator used for extrapolation and interpolation
 * @param cf_order
 * > Order of approximation for commutator-free exponential, currently implemented orders = 2,4
-* @param fixHam
-* > If True Hamiltonian is known for all times and no extrapolation is needed for the predictor/corrector
 */
 template<typename T>
-void green_from_H(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,T beta,T h,bool fixHam,int SolveOrder,int cf_order){
+void green_from_H(int tstp, herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,T beta,T h,bool fixHam,int SolveOrder,int cf_order){
+  assert(tstp == G.tstp());
   assert(G.size1()==eps.size2_);
   assert(eps.size1_==eps.size2_);
   assert(SolveOrder <= MAX_SOLVE_ORDER);
@@ -1265,6 +1345,55 @@ void green_from_H(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,T beta,
   int size=G.size1();
   if(size==1) green_from_H_dispatch<T,1>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
   else green_from_H_dispatch<T,LARGESIZE>(G,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
+}
+
+/** \brief <b> Propagator for time-dependent free Hamiltonian  </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Calculate the free propagator G from time dependent quadratic Hamiltonian using high-order commutator-free exponential time-propagation,
+* >  see https://doi.org/10.1016/j.jcp.2011.04.006 for the description.
+* >  Currently implemented versions are the second order using one exponential CF2:1 (order=2) and fourth order using two exponentials CF4:2 (order=4),
+* >  see also article for more details.
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > the index of the time step
+* @param G
+* > The output: a timestep of the Greens function set to time dependent free propagator
+* @param mu
+* > chemical potential
+* @param eps
+* > time dependent representation of quadratical hamiltonian
+* @param beta
+* > inverse temperature
+* @param h
+* > time step interval 
+* @param fixHam
+* > If True Hamiltonian is known for all times and no extrapolation is needed for the predictor/corrector
+* @param SolveOrder
+* > Order of integrator used for extrapolation and interpolation
+* @param cf_order
+* > Order of approximation for commutator-free exponential, currently implemented orders = 2,4
+*/
+template<typename T>
+void green_from_H(int tstp, herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,T h,bool fixHam,int SolveOrder,int cf_order){
+  assert(tstp == G.tstp());
+  assert(G.size1()==eps.size2_);
+  assert(eps.size1_==eps.size2_);
+  assert(SolveOrder <= MAX_SOLVE_ORDER);
+  assert(cf_order == 2 || cf_order == 4);
+  herm_matrix_timestep<T> Gstep(tstp,G.ntau(),G.size1(),G.sig());
+
+  int size=G.size1();
+  if(size==1) green_from_H_dispatch<T,1>(Gstep,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
+  else green_from_H_dispatch<T,LARGESIZE>(Gstep,mu,eps,beta,h,SolveOrder,cf_order,fixHam);
+
+  G.set_timestep(tstp, Gstep);
 }
 
 
