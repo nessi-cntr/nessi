@@ -84,7 +84,7 @@ class herm_matrix_timestep_view {
     void get_data(herm_matrix_timestep_view<T> &g);
     template <class GG>
     void get_data(GG &g);
-  void get_timestep(int tstp,herm_matrix_timestep<T> &timestep);
+    void get_timestep(int tstp,herm_matrix_timestep<T> &timestep);
     // ** SET MATRIX_ELEMENT:  this(i1,i2) <= g(j1,j2)
     void set_matrixelement(int i1, int i2, herm_matrix_timestep_view<T> &g,
                            int j1, int j2);
