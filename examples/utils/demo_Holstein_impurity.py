@@ -60,7 +60,7 @@ def GenExciteParams(Excite_ElPh_g,Excite_Hop,Excite_Freq,Tend,Nt,dt,runpath='./'
 #----------------------------------------------------------------------
 def GenSolverParams(Nt,Ntau,dt,SaveGreen=False,MatsMaxIter=800,
                         MatsMaxErr= 1.0e-7,BootstrapMaxIter= 20,
-                        BootstrapMaxErr=1.0e-7,CorrectorSteps=4,SolverOrder=5):
+                        BootstrapMaxErr=1.0e-7,CorrectorSteps=4):
 
     savegf = 0
     if SaveGreen:
@@ -74,7 +74,6 @@ def GenSolverParams(Nt,Ntau,dt,SaveGreen=False,MatsMaxIter=800,
                     'BootstrapMaxIter': BootstrapMaxIter,
                     'BootstrapMaxErr': BootstrapMaxErr,
                     'CorrectorSteps': CorrectorSteps,
-                    'SolverOrder': SolverOrder,
                     'SaveGreen': savegf
                         }
     return solverparams
