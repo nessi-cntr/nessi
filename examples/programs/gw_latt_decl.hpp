@@ -55,14 +55,14 @@ public:
 	CFUNC   U_,V_,Apulse_;
 
 	lattice_1d_1b(void);
-	lattice_1d_1b(int nk,int nt,CFUNC &tt,CFUNC &Ut,CFUNC &Vt,std::vector<double> &Epulse,double mu,int Norb,int kt,double h);
+	lattice_1d_1b(int nk,int nt,CFUNC &tt,CFUNC &Ut,CFUNC &Vt,std::vector<double> &Epulse,double mu,int Norb,int SolverOrder,double h);
 	int representative_kk(int kbz);
 	int add_kpoints(int k1,int s1,int k2,int s2);
 	void init_kk(int nk);
 	// the dispersion (particle-hole symmetric for A=0)
 	void hk(cdmatrix &hkmatrix,int tstp,double kk,int iter);
 	void hkfree(cdmatrix &hkmatrix,int tstp,double kk);
-	void efield_to_afield(int nt,double h,std::vector<double> &efield,int kt);
+	void efield_to_afield(int nt,double h,std::vector<double> &efield,int SolverOrder);
 	//Velocity is still 1d vector
 	void vk(cdmatrix &vkmatrix,int tstp,double kk);
 	void V(int tstp,double qq,cdmatrix &V);

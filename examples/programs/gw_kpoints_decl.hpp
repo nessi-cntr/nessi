@@ -35,7 +35,7 @@ namespace gw{
     ~kpoint();
     kpoint(int nt,int ntau,int size,double beta,double h,double kk,lattice_1d_1b &latt,double mu);
     void init(int nt,int ntau,int size,double beta,double h,double kk,lattice_1d_1b &latt,double mu);
-    void init_G_mat_nointeraction(lattice_1d_1b &latt,int kt);
+    void init_G_mat_nointeraction(lattice_1d_1b &latt,int SolverOrder);
     void set_hk(int tstp,int iter,lattice_1d_1b &latt);
     void set_vertex(int tstp,lattice_1d_1b &latt);    
     void write_to_hdf5(hid_t group_id);
@@ -43,12 +43,12 @@ namespace gw{
     void write_to_hdf5_slices(hid_t group_id,int dt,int tid);
     void write_to_hdf5_slices(const char *filename,int dt,int tid);
     void get_Density_matrix(int tstp);
-    void step_W(int tstp,int kt,lattice_1d_1b &latt);
-    void step_W2b(int tstp,int kt,lattice_1d_1b &latt);
-    void step_D(int tstp,int kt,lattice_1d_1b &latt);
-    void step_dyson(int tstp,int iter,int kt,lattice_1d_1b &latt);
-    double step_dyson_with_error(int tstp,int iter,int kt,lattice_1d_1b &latt);
-    double step_W_with_error(int tstp,int kt,lattice_1d_1b &latt);
+    void step_W(int tstp,int SolverOrder,lattice_1d_1b &latt);
+    void step_W2b(int tstp,int SolverOrder,lattice_1d_1b &latt);
+    void step_D(int tstp,int SolverOrder,lattice_1d_1b &latt);
+    void step_dyson(int tstp,int iter,int SolverOrder,lattice_1d_1b &latt);
+    double step_dyson_with_error(int tstp,int iter,int SolverOrder,lattice_1d_1b &latt);
+    double step_W_with_error(int tstp,int iter, int n,int SolverOrder,lattice_1d_1b &latt);
 
     double beta_;
     double h_;

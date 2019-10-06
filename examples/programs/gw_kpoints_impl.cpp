@@ -66,20 +66,18 @@ namespace gw{
     for(int tstp=-1;tstp<=nt_;tstp++) set_vertex(tstp,latt);
 
     //Set up propagators
-    Sigma_=GREEN(nt_,ntau_,nrpa_,-1);
-    G_=GREEN(nt_,ntau_,nrpa_,-1);
-    G0_=GREEN(nt_,ntau_,nrpa_,-1);
+    Sigma_=GREEN(nt_,ntau_,nrpa_,FERMION);
+    G_=GREEN(nt_,ntau_,nrpa_,FERMION);
 
-    G0Sigma_=GREEN(nt_,ntau_,nrpa_,-1);
-    SigmaG0_=GREEN(nt_,ntau_,nrpa_,-1);
-    P_=GREEN(nt_,ntau_,nrpa_,+1);
-    PV_=GREEN(nt_,ntau_,nrpa_,+1);
-    VP_=GREEN(nt_,ntau_,nrpa_,+1);
-    W_=GREEN(nt_,ntau_,nrpa_,+1);
+    G0Sigma_=GREEN(nt_,ntau_,nrpa_,FERMION);
+    SigmaG0_=GREEN(nt_,ntau_,nrpa_,FERMION);
+    P_=GREEN(nt_,ntau_,nrpa_,BOSON);
+    PV_=GREEN(nt_,ntau_,nrpa_,BOSON);
+    VP_=GREEN(nt_,ntau_,nrpa_,BOSON);
+    W_=GREEN(nt_,ntau_,nrpa_,BOSON);
 
     cdmatrix tmp(nrpa_,nrpa_);
     tmp.setZero();
-    cntr::green_from_H(G0_,mu_,tmp,beta_,h_);
   }
 
   
@@ -104,22 +102,21 @@ namespace gw{
     rho_.set_value(tstp,tmp);
   }
 
-  void kpoint::init_G_mat_nointeraction(lattice_1d_1b &latt,int kt){
+  void kpoint::init_G_mat_nointeraction(lattice_1d_1b &latt,int SolverOrder){
     // set G = (idt + mu - hk(U=V=0=A=V01) )^{-1}
     int tstp=-1;
-    cdmatrix hktmp;
-    // latt.hkfree(hktmp,tstp,kk_);
+    cdmatrix hk0;
     hkeff_=hk_;
-    cdmatrix tmp;
-    cntr::green_from_H(G_,mu_,hkeff_,beta_,h_,5,4,false);
+    hkeff_.get_value(-1,hk0);
+    cntr::green_from_H(G_, mu_, hk0, beta_, h_);
     
   }
 
-  void kpoint::step_W(int tstp,int kt,lattice_1d_1b &latt){
+  void kpoint::step_W(int tstp,int SolverOrder,lattice_1d_1b &latt){
     // solve W = V + V*Pi*W, assuming P is set on all relevant timesteps
     int n;
-    int n1=(tstp==-1 || tstp>kt ? tstp : 0);
-    int n2=(tstp==-1 || tstp>kt ? tstp : kt);   
+    int n1=(tstp==-1 || tstp>SolverOrder ? tstp : 0);
+    int n2=(tstp==-1 || tstp>SolverOrder ? tstp : SolverOrder);   
     //for(n=n1;n<=n2;n++) chi_.set_timestep(n,P_);
     //return;
     // set PV=-P*V etc.
@@ -134,63 +131,57 @@ namespace gw{
     // solve [1-UP]*W=U
     CFUNC tmpFsin(nt_,nrpa_);
     tmpFsin.set_zero();
-    GREEN Q(nt_,ntau_,nrpa_,1);
+    GREEN Q(nt_,ntau_,nrpa_,BOSON);
 
-    cntr::vie2_timestep_sin(tstp,W_,vertex_,VP_,PV_,tmpFsin,Q,vertex_,beta_,h_,kt);
+    cntr::vie2_timestep_sin(tstp,W_,vertex_,VP_,PV_,tmpFsin,Q,vertex_,beta_,h_,SolverOrder);
   }
 
-  void kpoint::step_dyson(int tstp,int iter,int kt,lattice_1d_1b &latt){
+  void kpoint::step_dyson(int tstp,int iter,int SolverOrder,lattice_1d_1b &latt){
     // solve G=(-idt+mu-hk-Hartree-Fock-Sigma)^{-1}, assuming Sigma is set
     int n;
-    int n1=(tstp==-1 || tstp>kt ? tstp : 0);
-    int n2=(tstp==-1 || tstp>kt ? tstp : kt);   
+    int n1=(tstp==-1 || tstp>SolverOrder ? tstp : 0);
+    int n2=(tstp==-1 || tstp>SolverOrder ? tstp : SolverOrder);   
     // set hkeff=hk+Hartree+Fock+Symmetry breaking
     for(n=n1;n<=n2;n++){
       cdmatrix tmp,tmp1,tmp2,rtmp(nrpa_,nrpa_);
       set_hk(n,iter,latt);
       SHartree_.get_value(n,tmp);
       SFock_.get_value(n,tmp1);
-      // std::cout <<  "Hartree " <<tstp << " " << iter << " " << kk_ << " " << tmp <<std::endl;
-      // std::cout <<  "Fock " <<tstp << " " << iter << " " << kk_ << " " << tmp1 <<std::endl;
       tmp+=tmp1;
       hk_.get_value(n,tmp2);
       
       tmp+=tmp2;
       hkeff_.set_value(n,tmp);
-      // std::cout <<  "hkeff " << tmp <<std::endl;
     }
     
     // solve Dyson
     if(tstp==-1 && iter==1){
       GREEN_TSTP tmp(-1,ntau_,nrpa_,G_.sig());
-      cntr::green_from_H(tmp,mu_,hkeff_,beta_,h_,kt,4,false);
+      cdmatrix hk0;
+      hkeff_.get_value(-1,hk0);
+      cntr::green_from_H(tmp,mu_,hk0,beta_,h_);
       G_.set_timestep(-1,tmp);
     }else if(tstp==-1){
-      cntr::dyson_mat(G_,Sigma_,mu_,hkeff_,integration::I<double>(kt),beta_,0,true);
-    }else if (tstp==0){
-      // TODO: Add epsilon to the initial condition to check the linear response
-        cntr::set_t0_from_mat(G_);
-    }else if(tstp<=kt){
-      cntr::dyson_start(G_,mu_,hkeff_,Sigma_,integration::I<double>(kt),beta_,h_);
+      cntr::dyson_mat(G_,mu_,hkeff_,Sigma_,beta_,SolverOrder);
+    }else if(tstp<=SolverOrder){
+      cntr::dyson_start(G_,mu_,hkeff_,Sigma_,beta_,h_,SolverOrder);
     }else{
-        cdmatrix rtmp(nrpa_,nrpa_);
-        cdmatrix Xtmp_prev(1,1),Ptmp_prev(1,1);
-        cntr::dyson_timestep(tstp,G_,mu_,hkeff_,Sigma_,integration::I<double>(kt),beta_,h_);      
+        cntr::dyson_timestep(tstp,G_,mu_,hkeff_,Sigma_,beta_,h_,SolverOrder);      
     }
     for(n=n1;n<=n2;n++) get_Density_matrix(n);
   }
   
-  double kpoint::step_dyson_with_error(int tstp,int iter,int kt,lattice_1d_1b &latt){
+  double kpoint::step_dyson_with_error(int tstp,int iter,int SolverOrder,lattice_1d_1b &latt){
     GREEN_TSTP gtmp;
     G_.get_timestep(tstp,gtmp);
-    step_dyson(tstp,iter,kt,latt);
+    step_dyson(tstp,iter,SolverOrder,latt);
     return cntr::distance_norm2(tstp,gtmp,G_);
   }
 
-  double kpoint::step_W_with_error(int tstp,int kt,lattice_1d_1b &latt){
-    GREEN_TSTP gtmp;
+  double kpoint::step_W_with_error(int tstp,int iter, int n,int SolverOrder,lattice_1d_1b &latt){
+    GREEN_TSTP gtmp(tstp,ntau_,nrpa_,nrpa_,BOSON);
     W_.get_timestep(tstp,gtmp);
-    step_W(tstp,kt,latt);
+    step_W(tstp,SolverOrder,latt);
     return cntr::distance_norm2(tstp,gtmp,W_);
   }
 }

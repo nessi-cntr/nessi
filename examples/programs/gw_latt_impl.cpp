@@ -1,4 +1,7 @@
 #include "gw_latt_decl.hpp"
+
+#define CINTEG integration::I<double>
+
 lattice_1d_1b::lattice_1d_1b(void){
 }
 
@@ -19,8 +22,9 @@ lattice_1d_1b::lattice_1d_1b(int nk,int nt,CFUNC &tt,CFUNC &Ut,CFUNC &Vt,std::ve
   init_kk(nk);
 }
 
-void lattice_1d_1b::efield_to_afield(int nt,double h,std::vector<double> &efield,int kt){
-  int kt1=(nt>=kt ? kt : nt),n,n1,tstp;
+// convert electric field to vector potential
+void lattice_1d_1b::efield_to_afield(int nt,double h,std::vector<double> &efield,int SolverOrder){
+  int kt1=(nt>=SolverOrder ? SolverOrder : nt),n,n1,tstp;
   cdmatrix At(1,1);
   At.setZero();
 
@@ -31,15 +35,14 @@ void lattice_1d_1b::efield_to_afield(int nt,double h,std::vector<double> &efield
     At(0,0)=0.0;
     n1=(tstp<kt1 ? kt1 : tstp);
     for(n=0;n<=n1;n++){
-      At(0,0) += integration::I<double>(kt1).gregory_weights(tstp,n)*efield[n+1];
+      At(0,0) += CINTEG(kt1).gregory_weights(tstp,n)*efield[n+1];
     }
     At(0,0)*=(-h);
-    //std::cout << "n: " << efield[tstp+1] << " " << At << std::endl; 
     Apulse_.set_value(tstp,At);
   }
 }
 
-
+//Sum vectors in bz
 int lattice_1d_1b::add_kpoints(int k1,int s1,int k2,int s2){
   int k12=s1*(k1-G_)+s2*(k2-G_)+G_;
   while (k12<0){k12 += nk_;}
@@ -47,6 +50,7 @@ int lattice_1d_1b::add_kpoints(int k1,int s1,int k2,int s2){
   return k12;
 }
 
+//define bz
 void lattice_1d_1b::init_kk(int nk){
   double dk,kw;
   assert(nk>1);
@@ -62,7 +66,7 @@ void lattice_1d_1b::init_kk(int nk){
   for(int i1=0;i1<nk_;i1++) kweight_[i1]=kw;
 }
 
-
+//define single-particle hamiltonian
 void lattice_1d_1b::hk(cdmatrix &hkmatrix,int tstp,double kk,int iter){
   cdmatrix tmpTT,tmpA;
   tt_.get_value(tstp,tmpTT);
@@ -73,13 +77,14 @@ void lattice_1d_1b::hk(cdmatrix &hkmatrix,int tstp,double kk,int iter){
   hkmatrix(0,0)=epsk;
 }
 
+//define velocity
 void lattice_1d_1b::vk(cdmatrix &vkmatrix,int tstp,double kk){
-	cdmatrix tmpTT;
+  cdmatrix tmpTT;
   tt_.get_value(tstp,tmpTT);
   double vk=2.0*std::real(tmpTT(0,0))*sin(kk);
-	vkmatrix.resize(Norb_,Norb_);
-	vkmatrix.setZero();
-	vkmatrix(0,0)=vk;
+  vkmatrix.resize(Norb_,Norb_);
+  vkmatrix.setZero();
+  vkmatrix(0,0)=vk;
 }
 
 // interaction vertex V_{a1;a2}(q) = V_{a1,a2}(q) 
