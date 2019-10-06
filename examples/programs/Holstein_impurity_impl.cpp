@@ -31,8 +31,8 @@ namespace Hols{
         
         GREEN_TSTP gGg(tstp,Ntau,Norb,FERMION);
         G.get_timestep(tstp,gGg);//copy time step from G
-        gGg.right_multiply(g_el_ph);
-        gGg.left_multiply(g_el_ph);
+        gGg.right_multiply(tstp,g_el_ph);
+        gGg.left_multiply(tstp,g_el_ph);
         
         //Get Pi(t,t') = -i2g^2 G(t,t')G(t',t)
         
@@ -180,8 +180,8 @@ namespace Hols{
         
         GREEN_TSTP gGg(tstp,Ntau,Norb,-1);
         G.get_timestep(tstp,gGg);//copy time step from G
-        gGg.right_multiply(g_el_ph);
-        gGg.left_multiply(g_el_ph);
+        gGg.right_multiply(tstp,g_el_ph);
+        gGg.left_multiply(tstp,g_el_ph);
         
         //Get Sig(t,t')=ig^2 D_0(t,t') G(t,t') 
 
@@ -198,8 +198,8 @@ namespace Hols{
         for(int n=0 ; n<=SolverOrder ;n++){
             GREEN_TSTP gGg(n,Ntau,Norb,-1);
             G.get_timestep(n,gGg);//copy time step from G
-            gGg.right_multiply(g_el_ph);
-            gGg.left_multiply(g_el_ph);
+            gGg.right_multiply(n,g_el_ph);
+            gGg.left_multiply(n,g_el_ph);
         
             //Get Sig(t,t')=ig^2 D_0(t,t') G(t,t') 
             Bubble2(n,Sigma,0,0,D0,0,0,gGg,0,0);
@@ -219,8 +219,8 @@ namespace Hols{
         
         GREEN_TSTP gGg(tstp,Ntau,Norb,-1);
         G.get_timestep(tstp,gGg);//copy time step from G
-        gGg.right_multiply(g_el_ph);
-        gGg.left_multiply(g_el_ph);
+        gGg.right_multiply(tstp,g_el_ph);
+        gGg.left_multiply(tstp,g_el_ph);
         
         //Get Sig(t,t')=ig^2 D_0(t,t') sig_3 G(t,t') sig_3
         for(int a_=0;a_<Norb;a_++){
@@ -240,8 +240,8 @@ namespace Hols{
         for(int n=0 ; n<=SolverOrder ; n++){
             GREEN_TSTP gGg(n,Ntau,Norb,-1);
             G.get_timestep(n,gGg);//copy time step from G
-            gGg.right_multiply(g_el_ph);
-            gGg.left_multiply(g_el_ph);
+            gGg.right_multiply(n,g_el_ph);
+            gGg.left_multiply(n,g_el_ph);
         
             //Get Sig(t,t')=ig^2 D_0(t,t') sig_3 G(t,t') sig_3
             for(int a_=0;a_<Norb;a_++){
@@ -259,18 +259,18 @@ namespace Hols{
     void step_D(int tstp,GREEN &D0, GREEN &D, GREEN &Pi, GREEN &D0_Pi, GREEN &Pi_D0,
       double beta, double h, int SolverOrder, int MAT_METHOD){
         //set D0_Pi=-D0*Pi
-        cntr::convolution_timestep(tstp,D0_Pi,D0,Pi,CINTEG(SolverOrder),beta,h);
+        cntr::convolution_timestep(tstp,D0_Pi,D0,Pi,beta,h,SolverOrder);
         D0_Pi.smul(tstp,-1.0);
 
-        cntr::convolution_timestep(tstp,Pi_D0,Pi,D0,CINTEG(SolverOrder),beta,h);
+        cntr::convolution_timestep(tstp,Pi_D0,Pi,D0,beta,h,SolverOrder);
         Pi_D0.smul(tstp,-1.0);
 
 
         //solve [1-D0*Pi]*D=[1+D0_Pi]*D=D0
         if(tstp==-1){
-            cntr::vie2_mat(D,D0_Pi,Pi_D0,D0,beta,CINTEG(SolverOrder),MAT_METHOD);
+            cntr::vie2_mat(D,D0_Pi,Pi_D0,D0,beta,SolverOrder,MAT_METHOD);
         }else {
-            cntr::vie2_timestep(tstp,D,D0_Pi,Pi_D0,D0,CINTEG(SolverOrder),beta,h);
+            cntr::vie2_timestep(tstp,D,D0_Pi,Pi_D0,D0,beta,h,SolverOrder);
         }
 
     }
@@ -279,15 +279,15 @@ namespace Hols{
       double beta, double h, int SolverOrder){
         //set D0_Pi=-D0*Pi
         for(int n=0; n<=SolverOrder; n++){
-          cntr::convolution_timestep(n,D0_Pi,D0,Pi,CINTEG(SolverOrder),beta,h);
+          cntr::convolution_timestep(n,D0_Pi,D0,Pi,beta,h,SolverOrder);
           D0_Pi.smul(n,-1.0);
 
-          cntr::convolution_timestep(n,Pi_D0,Pi,D0,CINTEG(SolverOrder),beta,h);
+          cntr::convolution_timestep(n,Pi_D0,Pi,D0,beta,h,SolverOrder);
           Pi_D0.smul(n,-1.0);
         }
 
         //solve [1-D0*Pi]*D=[1+D0_Pi]*D=D0
-        cntr::vie2_start(D,D0_Pi,Pi_D0,D0,CINTEG(SolverOrder),beta,h);
+        cntr::vie2_start(D,D0_Pi,Pi_D0,D0,beta,h,SolverOrder);
     }
     
     ////////////////////////////
@@ -356,12 +356,13 @@ namespace Hols{
         n_g_el_ph.get_value(-1,n_g_0);
         
         X_ph_0 =-2.0*n_g_0/w0;
+
+        integration::Integrator<double> Integ(SolverOrder); 
     
         for(int n=0 ; n<=SolverOrder ; n++){
             vector<complex<double> > D0_gn;
             D0_gn.assign(SolverOrder+1,0.0);
-            integration::Integrator<double> Integ(SolverOrder); //[Check <<= should this be complex double?]
-            
+
             //\int^tk_0 dt' D^R_0(t_k-t') (gn(t'+tn-tk) -gn(0)) 
             // with gn(t') = gn(0) for t'<0
             for(int it =0 ; it<=SolverOrder ; it++){

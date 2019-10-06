@@ -23,7 +23,6 @@ using namespace std;
 #define CFUNC cntr::function<double>
 #define GREEN cntr::herm_matrix<double>
 #define GREEN_TSTP cntr::herm_matrix_timestep<double>
-#define CINTEG integration::I<double>
 #define CPLX complex<double>
 
 
@@ -235,13 +234,12 @@ int main(int argc,char *argv[]){
 						g_elph_t, beta, dt, SolverOrder, CNTR_MAT_FOURIER);
 				}
                  
-
 				//solve Dyson for impurity G_imp=[(i\partial_t I -eps_MF)delta_c-Hyb-Sigma_imp]^{-1}
 				Hyb_Sig.set_timestep(tstp,Hyb);
 				Hyb_Sig.incr_timestep(tstp,Sigma,1.0);
 
-				if(FIXPOINT) cntr::dyson_mat(G00, Hyb_Sig, 0.0, h00_MF_t, CINTEG(SolverOrder), beta, CNTR_MAT_FIXPOINT);
-				else cntr::dyson_mat(G00, Hyb_Sig,0.0, h00_MF_t,CINTEG(SolverOrder), beta, CNTR_MAT_FOURIER);
+				if(FIXPOINT) cntr::dyson_mat(G00, 0.0, h00_MF_t, Hyb_Sig, beta, SolverOrder, CNTR_MAT_FIXPOINT);
+				else cntr::dyson_mat(G00, 0.0, h00_MF_t, Hyb_Sig, beta, SolverOrder, CNTR_MAT_FOURIER);
 
 				//mixing
 				G00.smul(tstp,0.5);
@@ -352,7 +350,7 @@ int main(int argc,char *argv[]){
 					Hyb_Sig.incr_timestep(tstp,Sigma,1.0);
 				}
 
-				cntr::dyson_start(G00, 0.0, h00_MF_t, Hyb_Sig, CINTEG(SolverOrder), beta,dt);
+				cntr::dyson_start(G00, 0.0, h00_MF_t, Hyb_Sig, beta, dt, SolverOrder);
 
 
 				// self-consistency check
@@ -427,7 +425,7 @@ int main(int argc,char *argv[]){
                     
 					Hyb_Sig.set_timestep(tstp,Hyb);
 					Hyb_Sig.incr_timestep(tstp,Sigma,1.0);
-					cntr::dyson_timestep(tstp, G00, 0.0, h00_MF_t, Hyb_Sig, CINTEG(SolverOrder), beta,dt);
+					cntr::dyson_timestep(tstp, G00, 0.0, h00_MF_t, Hyb_Sig, beta, dt, SolverOrder);
 
 				}
 			}
@@ -450,12 +448,12 @@ int main(int argc,char *argv[]){
             
             //G'00 =[i\partial_t -h00_MF-\Sigma]^{-1}
             //Matsubara
-            cntr::dyson_mat(JG00J, Sigma, 0.0, h00_MF_t,CINTEG(SolverOrder), beta, CNTR_MAT_FIXPOINT);
+            cntr::dyson_mat(JG00J, 0.0, h00_MF_t, Sigma, beta, SolverOrder, CNTR_MAT_FIXPOINT);
             //bootstrap
-            cntr::dyson_start(JG00J, 0.0, h00_MF_t, Sigma, CINTEG(SolverOrder), beta,dt);
+            cntr::dyson_start(JG00J, 0.0, h00_MF_t, Sigma, beta, dt, SolverOrder);
             //timestep
             for(tstp=SolverOrder+1 ; tstp<=Nt ;tstp++){
-                cntr::dyson_timestep(tstp, JG00J, 0.0, h00_MF_t, Sigma, CINTEG(SolverOrder), beta,dt);
+                cntr::dyson_timestep(tstp, JG00J, 0.0, h00_MF_t, Sigma, beta, dt, SolverOrder);
             }
             
             
@@ -463,12 +461,12 @@ int main(int argc,char *argv[]){
             for(tstp=-1 ; tstp<=Nt ;tstp++) JG00J.left_multiply(tstp,J_hop_t,1.0);
             for(tstp=-1 ; tstp<=Nt ;tstp++) JG00J.right_multiply(tstp,J_hop_t,1.0);
             //Matsubara
-            cntr::dyson_mat(G11, JG00J,0.0, h11_t,CINTEG(SolverOrder), beta, CNTR_MAT_FIXPOINT);
+            cntr::dyson_mat(G11, 0.0, h11_t, JG00J, beta, SolverOrder, CNTR_MAT_FIXPOINT);
             //bootstrap
-            cntr::dyson_start(G11, 0.0, h11_t, JG00J, CINTEG(SolverOrder), beta,dt);
+            cntr::dyson_start(G11, 0.0, h11_t, JG00J, beta, dt, SolverOrder);
             //timestep
             for(tstp=SolverOrder+1 ; tstp<=Nt ;tstp++){
-                cntr::dyson_timestep(tstp, G11, 0.0, h11_t, JG00J, CINTEG(SolverOrder), beta,dt);
+                cntr::dyson_timestep(tstp, G11, 0.0, h11_t, JG00J, beta, dt, SolverOrder);
             }
             
             //P(t)
@@ -492,7 +490,7 @@ int main(int argc,char *argv[]){
                 CPLX rho_10_J;
                 cdmatrix n0_tot_tmp(1,1),n1_tot_tmp(1,1);
                 
-                rho_10_J= cntr::correlation_energy(tstp, G00, Hyb, CINTEG(SolverOrder), beta, dt);
+                rho_10_J= cntr::correlation_energy(tstp, G00, Hyb, beta, dt, SolverOrder);
 				Mat_tmp(0,0) = 4.0*(rho_10_J+conj(rho_10_J));
                 
                 n0_tot_t.get_value(tstp,n0_tot_tmp);
@@ -518,7 +516,7 @@ int main(int argc,char *argv[]){
             
 			// Enx_corr
 			for(tstp = -1; tstp <= Nt ; tstp++){
-				Mat_tmp(0,0) = 4.0*cntr::correlation_energy(tstp, G00, Sigma, CINTEG(SolverOrder), beta, dt);
+				Mat_tmp(0,0) = 4.0*cntr::correlation_energy(tstp, G00, Sigma, beta, dt, SolverOrder);
 				Enx_corr_t.set_value(tstp,Mat_tmp);
 			}
 

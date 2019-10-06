@@ -222,8 +222,8 @@ int main(int argc,char *argv[]){
 				Hyb_Sig.set_timestep(tstp,Hyb);
 				Hyb_Sig.incr_timestep(tstp,Sigma,1.0);
 
-				if(FIXPOINT) cntr::dyson_mat(G, Hyb_Sig, 0.0, h0_imp_MF_t, CINTEG(SolverOrder), beta, CNTR_MAT_FIXPOINT);
-				else cntr::dyson_mat(G, Hyb_Sig,0.0, h0_imp_MF_t,CINTEG(SolverOrder), beta, CNTR_MAT_FOURIER);
+				if(FIXPOINT) cntr::dyson_mat(G, 0.0, h0_imp_MF_t, Hyb_Sig, beta, SolverOrder, CNTR_MAT_FIXPOINT);
+				else cntr::dyson_mat(G, 0.0, h0_imp_MF_t, Hyb_Sig, beta, SolverOrder, CNTR_MAT_FOURIER);
 
 				//mixing
 				G.smul(tstp,0.5);
@@ -348,7 +348,7 @@ int main(int argc,char *argv[]){
 					Hyb_Sig.incr_timestep(tstp,Sigma,1.0);
 				}
 
-				cntr::dyson_start(G, 0.0, h0_imp_MF_t, Hyb_Sig, CINTEG(SolverOrder), beta,dt);
+				cntr::dyson_start(G, 0.0, h0_imp_MF_t, Hyb_Sig, beta, dt, SolverOrder);
 
                 ////////////////////////////////////////////
 				//Lattice self-consistency for Bethe lattice
@@ -405,8 +405,8 @@ int main(int argc,char *argv[]){
 				if (tstp%50 ==0) cout<<"tstp:"<<tstp<<endl;
 
 				// Predictor: extrapolation
-				cntr::extrapolate_timestep(tstp-1,G,CINTEG(SolverOrder));
-                cntr::extrapolate_timestep(tstp-1,Hyb,CINTEG(SolverOrder));
+				cntr::extrapolate_timestep(tstp-1,G,SolverOrder);
+                cntr::extrapolate_timestep(tstp-1,Hyb,SolverOrder);
 
 				// Corrector
 				for (int iter=0; iter < CorrectorSteps; iter++){
@@ -437,7 +437,7 @@ int main(int argc,char *argv[]){
 					Hyb_Sig.set_timestep(tstp,Hyb);
 					Hyb_Sig.incr_timestep(tstp,Sigma,1.0);
                     
-					cntr::dyson_timestep(tstp, G, 0.0, h0_imp_MF_t, Hyb_Sig, CINTEG(SolverOrder), beta,dt);
+					cntr::dyson_timestep(tstp, G, 0.0, h0_imp_MF_t, Hyb_Sig, beta, dt, SolverOrder);
                     
                     ////////////////////////////////////////////
 					//Lattice self-consistency for Bethe lattice
@@ -472,7 +472,7 @@ int main(int argc,char *argv[]){
             // Ekin for two spin
 			for(tstp = -1; tstp <= Nt ; tstp++){
                 
-                Mat_tmp(0,0) = 4.0*cntr::correlation_energy(tstp, G, Hyb, CINTEG(SolverOrder), beta, dt);
+                Mat_tmp(0,0) = 4.0*cntr::correlation_energy(tstp, G, Hyb, beta, dt, SolverOrder);
 				Ekin_t.set_value(tstp,Mat_tmp);
 
 			}
@@ -490,7 +490,7 @@ int main(int argc,char *argv[]){
             
 			// Enx_corr
 			for(tstp = -1; tstp <= Nt ; tstp++){
-				Mat_tmp(0,0) = 4.0*cntr::correlation_energy(tstp, G, Sigma, CINTEG(SolverOrder), beta, dt);
+				Mat_tmp(0,0) = 4.0*cntr::correlation_energy(tstp, G, Sigma, beta, dt, SolverOrder);
 				Enx_corr_t.set_value(tstp,Mat_tmp);
 			}
 

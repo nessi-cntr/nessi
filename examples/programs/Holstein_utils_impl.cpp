@@ -12,7 +12,6 @@
 #define CFUNC cntr::function<double>
 #define GREEN cntr::herm_matrix<double>
 #define GREEN_TSTP cntr::herm_matrix_timestep<double>
-#define CINTEG integration::I<double>
 #define CPLX complex<double>
 // -----------------------------------------------------------------------
 namespace Hols{
@@ -50,46 +49,50 @@ namespace Hols{
             double tau = double(itau)*dtau;
             CPLX coeff1 = exp(-tau*w0);
             CPLX coeff2 = exp(tau*w0);
-            
-            D0_d1.matptr(itau)[0] = -(1.0 + fb)*coeff1 + fb*coeff2;
-            D0_d2.matptr(itau)[0] = -D0_d1.matptr(itau)[0];
+            CPLX d0_d1_mat = -(1.0 + fb)*coeff1 + fb*coeff2;
+
+            D0_d1.set_mat(itau, d0_d1_mat);
+            D0_d2.set_mat(itau, -d0_d1_mat);
             
             for(int it=0 ; it<=nt ; it++){
-                D0_d1.tvptr(it,itau)[0] = -fb*expp[it]*coeff2 + (1.0+fb)*conj(expp[it])*coeff1;
-                D0_d2.tvptr(it,itau)[0] = -D0_d1.tvptr(it,itau)[0];
+                CPLX d0_d1_tv = -fb*expp[it]*coeff2 + (1.0+fb)*conj(expp[it])*coeff1;
+                D0_d1.set_tv(it,itau,d0_d1_tv);
+                D0_d2.set_tv(it,itau,-d0_d1_tv);
             }
         }
         
         //retarded and lesser
         for(int it1=0 ; it1<=nt ; it1++){
             for(int it2=0 ; it2<=it1 ; it2++){
-                D0_d1.retptr(it1,it2)[0] = -(expp[it1-it2]+conj(expp[it1-it2]));
-                D0_d2.retptr(it1,it2)[0] = -D0_d1.retptr(it1,it2)[0];
-                D0_d1.lesptr(it2,it1)[0] = -fb*conj(expp[it1-it2]) + (1.0+fb)*expp[it1-it2];
-                D0_d2.lesptr(it2,it1)[0] = -D0_d1.lesptr(it2,it1)[0];
+                CPLX d0_d1_ret = -(expp[it1-it2]+conj(expp[it1-it2]));
+                CPLX d0_d1_les = -fb*conj(expp[it1-it2]) + (1.0+fb)*expp[it1-it2];
+                D0_d1.set_ret(it1,it2,d0_d1_ret);
+                D0_d2.set_ret(it1,it2,-d0_d1_ret);
+                D0_d1.set_les(it2,it1,d0_d1_les);
+                D0_d2.set_les(it2,it1,-d0_d1_les);
             }
         }
         
         //--------------------
         //evaluate D0_d1_Pi
         //--------------------
-        cntr::convolution(D0_d1_Pi, D0_d1, D0_d2, Pi, Pi, CINTEG(SolverOrder), beta, dt);
+        cntr::convolution(D0_d1_Pi, D0_d1, D0_d2, Pi, Pi, beta, dt, SolverOrder);
         
         //--------------------
         //evaluate Pi_D0_d2
         //--------------------
-        cntr::convolution(Pi_D0_d2, Pi, Pi, D0_d2, D0_d1, CINTEG(SolverOrder), beta, dt);
+        cntr::convolution(Pi_D0_d2, Pi, Pi, D0_d2, D0_d1, beta, dt, SolverOrder);
         
         //--------------------
         // evalaute Dd1
         //--------------------
-        cntr::convolution(D_d1, D0_d1_Pi, Pi_D0_d2, D, D, CINTEG(SolverOrder), beta, dt);
+        cntr::convolution(D_d1, D0_d1_Pi, Pi_D0_d2, D, D, beta, dt, SolverOrder);
         for(int tstp=-1; tstp <= nt; tstp++) D_d1.incr_timestep(tstp,D0_d1,1.0);
         
         //--------------------
         // evaluate Dd2
         //--------------------
-        cntr::convolution(D_d2, D, D, Pi_D0_d2, D0_d1_Pi, CINTEG(SolverOrder), beta, dt);
+        cntr::convolution(D_d2, D, D, Pi_D0_d2, D0_d1_Pi, beta, dt, SolverOrder);
         for(int tstp=-1; tstp <= nt; tstp++) D_d2.incr_timestep(tstp,D0_d2,1.0);
         
         for(int tstp=-1; tstp <= nt; tstp++){
@@ -103,11 +106,9 @@ namespace Hols{
                 XX(0,0)*=CPLX(0.0,1.0);
             }
             //PP_int = i*[D0_d1 * Pi * D_d2]^<(t,t)
-            CPLX *PP_ = new CPLX [1*1];
-            cntr::convolution_density_matrix(tstp,PP_,D0_d1_Pi,Pi_D0_d2,D_d2,D_d1, CINTEG(SolverOrder), beta, dt);
-            PP_[0] *= -1.0;
-            PP(0,0) = PP_[0];
-            delete PP_;
+            cdmatrix PP_(1,1);
+            cntr::convolution_density_matrix(tstp,PP,D0_d1_Pi,Pi_D0_d2,D_d2,D_d1, beta, dt, SolverOrder);
+            PP *= -1.0;
             //PP_corr = PP_int + i*[D0_d1d2]^<(t,t)
             PP(0,0) += 1.0 + 2.0*cntr::bose(beta,w0);
             
@@ -165,7 +166,7 @@ namespace Hols{
         for(tstp=0 ; tstp<=SolverOrder ; tstp++){
             vector<complex<double> > D0_d1_gn;
             D0_d1_gn.assign(SolverOrder+1,0.0);
-            integration::Integrator<double> Integ(SolverOrder); //[Check <<= should this be complex double?]
+            integration::Integrator<double> Integ(SolverOrder); 
             
             //\int^tk_0 dt' D^R_0_d1(t_k-t') (gn(t'+tn-tk) -gn(0)) 
             // with gn(t') = gn(0) for t'<0
