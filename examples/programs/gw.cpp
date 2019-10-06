@@ -27,11 +27,13 @@ using namespace std;
 //         main program
 //==============================================================================
 int main(int argc,char *argv[]){
+  // use maximum order
+  int SolverOrder=MAX_SOLVE_ORDER;
   //..................................................
   //                input
   //..................................................
   int SaveGreen,SaveMomentum,output;
-  int Nt,Ntau,MatsMaxIter,CorrectorSteps,SolverOrder,Nk;
+  int Nt,Ntau,MatsMaxIter,CorrectorSteps,Nk;
   int BootstrapMaxIter;
   double HoppingT,HubbardU,V,beta,dt,MuChem,MatsMaxErr,BootstrapMaxErr,TimeMaxErr;
   double RampV0;
@@ -108,11 +110,11 @@ int main(int argc,char *argv[]){
       find_param(flin,"__BootstrapMaxErr=",BootstrapMaxErr);
       find_param(flin,"__TimeMaxErr=",TimeMaxErr);
       find_param(flin,"__CorrectorSteps=",CorrectorSteps);
-      find_param(flin,"__SolverOrder=",SolverOrder);
 
       if(SaveMomentum==1){
         find_param(flin,"__output=",output);
       }
+
       // Pulse 
       find_param_tvector(argv[1],"__Epulse=",Epulse,Nt);
 

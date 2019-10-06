@@ -29,7 +29,8 @@ using namespace std;
 //         main program
 //==============================================================================
 int main(int argc,char *argv[]){
-
+	// use maximum order
+  	int SolverOrder=MAX_SOLVE_ORDER;
 	//..................................................
 	//              Constant
 	//..................................................
@@ -43,7 +44,7 @@ int main(int argc,char *argv[]){
 	//                input
 	//..................................................
 	int SaveGreen;
-	int Nt,Ntau,MatsMaxIter,CorrectorSteps,SolverOrder;
+	int Nt,Ntau,MatsMaxIter,CorrectorSteps;
 	int BootstrapMaxIter;
 	double Hopping,El_Ph_g,Phfreq_w0,beta,dt,MuChem_MF,MatsMaxErr,BootstrapMaxErr;
 	double MuCHem;
@@ -117,7 +118,6 @@ int main(int argc,char *argv[]){
 			find_param(flin,"__BootstrapMaxIter=",BootstrapMaxIter);
 			find_param(flin,"__BootstrapMaxErr=",BootstrapMaxErr);
 			find_param(flin,"__CorrectorSteps=",CorrectorSteps);
-			find_param(flin,"__SolverOrder=",SolverOrder);
 
 			// excitation parameters
 			find_param_tvector(flin, "__dHopping=",dHopping,Nt);// The vector size is set to Nt+2,i.e. [-t,Nt]

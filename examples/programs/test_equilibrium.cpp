@@ -55,9 +55,6 @@ int main(int argc,char *argv[]){
       eps_2x2(1,0) = -I*lam;
 
       // free 1x1 Hamiltonian
-      // cdmatrix h1x1(1,1);
-      // h1x1(0,0) = eps1;
-      // CFUNC h1x1_func(-1,1);
       CFUNC eps_11_func(-1,1);
       eps_11_func.set_constant(eps1*MatrixXcd::Identity(1,1));
 
