@@ -3135,7 +3135,7 @@ void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, func
 * @param Acc
 * > [herm_matrix] complex conjugate to A
 * @param ft
-* > [std::complex] complex function
+* > [function] contour function
 * @param B
 * > [herm_matrix] contour Green's function
 * @param Bcc
@@ -3156,6 +3156,49 @@ void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, func
     convolution_matsubara(C, A, ft.ptr(-1), B, integration::I<T>(SolveOrder), beta);
     for (tstp = 0; tstp <= C.nt(); tstp++)
         convolution_timestep<T>(tstp, C, A, Acc, ft, B, Bcc, beta, h, SolveOrder);
+}
+
+/** \brief <b> Returns the result of the contour convolution of two matrices and a function object</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Calls convolution routines to compute contour convolution C=A*B.
+* > The objects A,B and C are of the class 'herm_matrix'.
+* > Works for a scalar and square matrices.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param C
+* > [herm_matrix] Matrix to which the result of the convolution is given
+* @param A
+* > [herm_matrix] contour Green's function
+* @param Acc
+* > [herm_matrix] complex conjugate to A
+* @param B
+* > [herm_matrix] contour Green's function
+* @param Bcc
+* > [herm_matrix] complex conjugate to B
+* @param beta
+* > inversed temperature
+* @param h
+* > time interval
+* @param SolveOrder
+* > [int] integrator order
+
+*/
+template <typename T>
+void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, 
+                 herm_matrix<T> &B, herm_matrix<T> &Bcc,
+                 T beta, T h, int SolveOrder) {
+    int tstp;
+    convolution_matsubara(C, A, B, integration::I<T>(SolveOrder), beta);
+    for (tstp = 0; tstp <= C.nt(); tstp++)
+        convolution_timestep<T>(tstp, C, A, Acc, B, Bcc, beta, h, SolveOrder);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
