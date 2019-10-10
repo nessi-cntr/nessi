@@ -320,6 +320,680 @@ herm_matrix_timestep_view<T>::herm_matrix_timestep_view(int tstp,
     }
 }
 
+/* #######################################################################################
+#
+#   WRITING ELEMENTS FROM ANY MATRIX TYPE
+#   OR FROM COMPLEX NUMBERS (then only the (0,0) element is addressed for dim>0)
+#
+########################################################################################*/
+#define herm_matrix_SET_ELEMENT_MATRIX                                       \
+      {                                                                        \
+         int r, s;                                                             \
+         for (r = 0; r < size1_; r++)                                            \
+            for (s = 0; s < size2_; s++)                                        \
+               x[r * size2_ + s] = M(r, s);                                    \
+         }
+
+
+/** \brief <b> Sets the retarded component at given times. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sets \f$G^\mathrm{R}(t_i, t_j)\f$ to given matrix `M`.
+* > Restricted to the domain of `herm_matrix`: \f$i \ge j\f$.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of time \f$ t_i\f$.
+* @param j
+* > Index of time \f$ t_j\f$.
+* @param M
+* > Matrix in which the retarded component is given.
+*/
+template<typename T> template <class Matrix> void herm_matrix_timestep_view<T>::set_ret(int i, int j,Matrix &M){
+         assert(i == tstp_);
+         assert(j <= i);
+         cplx *x=retptr(j);
+         herm_matrix_SET_ELEMENT_MATRIX
+      }
+
+
+/** \brief <b> Sets the lesser component at given times. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sets the lesser component \f$G^<(t_i,t_j)\f$ of `herm_matrix_timestep`
+* > to a given complex matrix `M`. Restricted to the domain of `herm_matrix`: \f$j \ge i\f$.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of time \f$ t_i\f$.
+* @param j
+* > Index of time \f$ t_j\f$.
+* @param M
+* > Matrix in which the lesser component is given.
+*/
+template<typename T> template <class Matrix> void herm_matrix_timestep_view<T>::set_les(int i, int j, Matrix &M){
+      assert(j == tstp_);
+      assert(i <= j);
+      cplx *x=lesptr(i);
+      herm_matrix_SET_ELEMENT_MATRIX
+   }
+
+/** \brief <b> Sets the left-mixing component to a given matrix. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sets the lesser component \f$G^\rceil(t_i,\tau_j)\f$ of `herm_matrix_timestep`
+* > to a given complex matrix `M`. 
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of time \f$ t_i\f$.
+* @param j
+* > Index of imaginary time \f$ \tau_j\f$.
+* @param M
+* > Matrix in which the left-mixing component is given.
+*/
+template<typename T> template <class Matrix> void herm_matrix_timestep_view<T>::set_tv(int i, int j, Matrix &M){
+   assert(i == tstp_);
+   assert(j <= ntau_);
+   cplx *x=tvptr(j);
+   herm_matrix_SET_ELEMENT_MATRIX
+}
+
+/** \brief <b> Sets the Matsubara component to a given matrix. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sets the Matsubara component \f$G^\mathrm{M}(\tau_j)\f$ of `herm_matrix_timestep`
+* > to a given complex matrix `M`. 
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of imaginary time \f$ \tau_i\f$.
+* @param M
+* > Matrix in which the Matsubara component is given.
+*/
+template<typename T> template <class Matrix> void herm_matrix_timestep_view<T>::set_mat(int i,Matrix &M){
+   assert(i <= ntau_ );
+   cplx *x=matptr(i);
+   herm_matrix_SET_ELEMENT_MATRIX
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+// the following routines are not very "efficent" but sometimes simple to
+// implement
+#define herm_matrix_READ_ELEMENT                                             \
+{                                                                        \
+   int r, s, dim = size1_;                                              \
+   M.resize(dim, dim);                                                  \
+   for (r = 0; r < dim; r++)                                            \
+      for (s = 0; s < dim; s++)                                        \
+         M(r, s) = x[r * dim + s];                                    \
+   }
+#define herm_matrix_READ_ELEMENT_MINUS_CONJ                                  \
+   {                                                                        \
+      cplx w;                                                              \
+      int r, s, dim = size1_;                                              \
+      M.resize(dim, dim);                                                  \
+      for (r = 0; r < dim; r++)                                            \
+         for (s = 0; s < dim; s++) {                                      \
+            w = x[s * dim + r];                                          \
+            M(r, s) = std::complex<T>(-w.real(), w.imag());              \
+         }                                                                \
+      }
+
+
+/** \brief <b> Returns the lesser component at a given time step. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+*
+* > Returns the lesser component \f$ C^\mathrm{<}(t_j,t_i) \f$
+* > at a given time \f$ t_j\f$ with \f$ j <= tstp\f$ for particular time step `i=tstp`
+* > to a given matrix class.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param j
+* > Index of time \f$ t_j\f$ .
+* @param M
+* > Matrix to which the lesser component is given.
+*/
+template <typename T> template <class Matrix> 
+      void herm_matrix_timestep_view<T>::get_les(int i, int j, Matrix &M){
+         assert(j == tstp_ && i <= tstp_);
+         cplx *x;
+         x = lesptr(i);
+         herm_matrix_READ_ELEMENT
+      }
+
+
+/** \brief <b> Returns the retarded component at a given time step. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+*
+* > Returns the retarded component \f$ C^\mathrm{R}(tstp, t_j) \f$
+* > at a given time \f$ t_j\f$ for particular time step `tstp`
+* > to a given matrix class.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param j
+* > Index of time \f$ t_j\f$ .
+* @param M
+* > Matrix to which the retarded component is given.
+*/
+template <typename T>
+template <class Matrix>
+      void herm_matrix_timestep_view<T>::get_ret(int i, int j, Matrix &M) {
+         assert(i == tstp_ && j <= tstp_);
+         cplx *x;
+         x = retptr(j);
+         herm_matrix_READ_ELEMENT
+      }
+
+
+/** \brief <b> Returns the left-mixing component at a given time step. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+*
+* > Returns the left-mixing component \f$ C^\rceil(tstp,\tau_j) \f$
+* > at a given time \f$ \tau_j\f$ for particular time step `tstp`
+* > to a given matrix class.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param j
+* > Index of time \f$ \tau_j\f$ .
+* @param M
+* > Matrix to which the left-mixing component is given.
+*/
+template <typename T>
+template <class Matrix>
+      void herm_matrix_timestep_view<T>::get_tv(int i, int j, Matrix &M) {
+         assert(i == tstp_);
+         cplx *x = tvptr(j);
+         herm_matrix_READ_ELEMENT
+      }
+
+
+/** \brief <b> Returns the Matsubara component at given imaginary time.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Returns the Matsubara component \f$ C^\mathrm{M}(\tau_i) \f$ at given
+* > imaginary time \f$ \tau_i\f$.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of imaginary time \f$ \tau_i\f$ .
+* @param M
+* > Matrix to which the Matsubara component is given.
+*/
+template <typename T>
+template <class Matrix>
+      void herm_matrix_timestep_view<T>::get_mat(int i, Matrix &M) {
+         cplx *x = matptr(i);
+         herm_matrix_READ_ELEMENT
+      }
+
+
+/** \brief <b> Returns the Matsubara component for the negative of a given imaginary time.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Returns the Matsubara component \f$ C^\mathrm{M}(-\tau_i) \f$ at given
+* > imaginary time \f$ \tau_i\f$ to a given matrix class M. If
+* 'sig' is negative, return M =-M
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of imaginary time \f$ \tau_i\f$ .
+* @param M
+* > Matrix to which the Matsubara component is given.
+* @param sig
+* > Set `sig = -1` for fermions or `sig = +1` for bosons
+*/
+template <typename T>
+template <class Matrix>
+      void herm_matrix_timestep_view<T>::get_matminus(int i, Matrix &M) {
+         cplx *x = matptr(ntau_ - i);
+         herm_matrix_READ_ELEMENT if (sig_ == -1) M = -M;
+      }
+
+
+
+/** \brief <b> Sets all components at time step `tstp` to zero. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > Sets all components of the `herm_matrix_timestep_view` to zero. If
+ * > `tstp = -1`, only the Matsubara component will be set to zero.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > The time step at which the components are set to zero. 
+ * > Dummy argument in release mode.
+ *
+ */
+template <typename T>
+void herm_matrix_timestep_view<T>::set_timestep_zero(int tstp) {
+    assert(tstp == tstp_);
+    assert(tstp >= -1);
+    if (tstp == -1) {
+        memset(matptr(0), 0, sizeof(cplx) * (ntau_ + 1) * element_size_);
+    } else {
+        memset(retptr(0), 0, sizeof(cplx) * (tstp + 1) * element_size_);
+        memset(tvptr(0), 0, sizeof(cplx) * (ntau_ + 1) * element_size_);
+        memset(lesptr(0), 0, sizeof(cplx) * (tstp + 1) * element_size_);
+    }
+}
+
+
+/** \brief <b> Sets all components of `herm_matrix_timestep_view`  to the components of
+ *  a given `herm_matrix` at time step `tstp`. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > Sets all components of the `herm_matrix_timestep` at time step `tstp` to
+ * > the components of given `herm_matrix`. If `tstp = -1`, only the
+ * > Matsubara component will be copied.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > The time step at which the components are set.
+ *
+ * @param g1
+ * > The `herm_matrix` from which the time step is copied.
+ *
+ */
+template <typename T>
+void herm_matrix_timestep_view<T>::set_timestep(int tstp, herm_matrix<T> &g1) {
+    assert(tstp == tstp_);
+    assert(tstp >= -1 && tstp <= g1.nt() && "tstp >= -1 && tstp <= g1.nt()");
+    assert(g1.size1() == size1_ && "g1.size1() == size1_");
+    assert(g1.ntau() == ntau_ && "g1.ntau() == ntau_");
+    if (tstp == -1) {
+        memcpy(matptr(0), g1.matptr(0), sizeof(cplx) * (ntau_ + 1) * element_size_);
+    } else {
+        memcpy(retptr(0), g1.retptr(tstp, 0),
+               sizeof(cplx) * (tstp + 1) * element_size_);
+        memcpy(tvptr(0), g1.tvptr(tstp, 0),
+               sizeof(cplx) * (ntau_ + 1) * element_size_);
+        memcpy(lesptr(0), g1.lesptr(0, tstp),
+               sizeof(cplx) * (tstp + 1) * element_size_);
+    }
+}
+
+/** \brief <b> Sets all components of `herm_matrix_timestep_view`  to the components of
+ *  a given `herm_matrix_timestep` at time step `tstp`. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > Sets all components of the `herm_matrix_timestep` at time step `tstp` to
+ * > the components of given `herm_matrix_timestep`. If `tstp = -1`, only the
+ * > Matsubara component will be copied.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > The time step at which the components are set.
+ *
+ * @param g1
+ * > The `herm_matrix_timestep` from which the time step is copied.
+ *
+ */
+template <typename T>
+void herm_matrix_timestep_view<T>::set_timestep(int tstp, herm_matrix_timestep<T> &g1) {
+    assert(tstp == tstp_);
+    assert(tstp == g1.tstp());
+    assert(tstp >= -1 && tstp <= g1.nt() && "tstp >= -1 && tstp <= g1.nt()");
+    assert(g1.size1() == size1_ && "g1.size1() == size1_");
+    assert(g1.ntau() == ntau_ && "g1.ntau() == ntau_");
+    if (tstp == -1) {
+        memcpy(matptr(0), g1.matptr(0), sizeof(cplx) * (ntau_ + 1) * element_size_);
+    } else {
+        memcpy(retptr(0), g1.retptr(0),
+               sizeof(cplx) * (tstp + 1) * element_size_);
+        memcpy(tvptr(0), g1.tvptr(0),
+               sizeof(cplx) * (ntau_ + 1) * element_size_);
+        memcpy(lesptr(0), g1.lesptr(0),
+               sizeof(cplx) * (tstp + 1) * element_size_);
+    }
+}
+
+
+
+/** \brief <b> Left-multiplication of the `herm_matrix_timestep_view` with a contour function </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Right-multiplication of the `herm_matrix_timestep` with a time dependent contour function F(t)
+* > i.e. it performs operation \f$G(t,t') \rightarrow w F(t)G(t,t')\f$
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param ft
+* > the contour function F(t)
+* @param weight
+* > some number (weight)
+*/
+template <typename T>
+void herm_matrix_timestep_view<T>::left_multiply(int tstp, function<T> &ft, T weight) {
+   assert(tstp == tstp_);
+   assert( ft.nt() >= tstp_);
+
+   this->left_multiply(ft.ptr(-1), ft.ptr(0), weight);
+}
+
+
+/** \brief <b> Left-multiplies the `herm_matrix` with contour function. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* Performs the operation \f$C(t,t^\prime) \rightarrow w F(t)C(t,t^\prime)\f$, where \f$C(t,t^\prime)\f$ is the
+* `herm_matrix`, \f$F(t)\f$ is a `function` given in pointer format and \f$w\f$ is a real weight. The operation is performed
+* at given time step `tstp`. This is a lower-level routine. The interface where \f$F(t)\f$ is supplied as
+* contour function is preferred.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > [int] The time step at which \f$F(t)\f$ and \f$C(t,t^\prime)\f$ are multiplied.
+* @param *f0
+* > [complex<T>] Pointer to \f$F(-\mathrm{i}\beta)\f$ on the Matsubara axis (this is just a constant matrix).
+* @param *ft
+* > [complex<T>] Pointer to \f$F(t)\f$ on the real axis. It is assumed that ft+t*element_size_ points to \f$ F(t) \f$.
+* @param weight
+* > [T] The weight as above.
+*/
+template <typename T>
+void herm_matrix_timestep_view<T>::left_multiply(int tstp, std::complex<T> *f0,
+                                   std::complex<T> *ft, T weight) {
+    int m;
+    cplx *xtemp, *ftemp, *x0;
+    xtemp = new cplx[element_size_];
+    assert(tstp >= -1 && tstp <= nt_ && "tstp >= -1 && tstp <= nt_");
+    if (tstp == -1) {
+        x0 = matptr(0);
+        for (m = 0; m <= ntau_; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, f0,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+    } else {
+        ftemp = ft + tstp * element_size_;
+        x0 = retptr(tstp, 0);
+        for (m = 0; m <= tstp; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, ftemp,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+        x0 = tvptr(tstp, 0);
+        for (m = 0; m <= ntau_; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, ftemp,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+        x0 = lesptr(0, tstp);
+        for (m = 0; m <= tstp; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, ft + m * element_size_,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+    }
+    delete[] xtemp;
+}
+
+
+/** \brief <b> Right-multiplication of the `herm_matrix_timestep_view` with a contour function </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Right-multiplication of the `herm_matrix_timestep_view` with a time dependent contour function F(t)
+* > i.e. it performs operation \f$G(t,t') \rightarrow w F(t)G(t,t')\f$
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param ft
+* > the contour function F(t)
+* @param weight
+* > some number (weight)
+*/
+template <typename T>
+void herm_matrix_timestep_view<T>::right_multiply(int tstp, function<T> &ft, T weight) {
+   assert(tstp == tstp_);
+   assert( ft.nt() >= tstp_);
+
+   this->right_multiply(ft.ptr(-1), ft.ptr(0), weight);
+}
+
+
+/** \brief <b> Right-multiplies the `herm_matrix` with contour function. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* Performs the operation \f$C(t,t^\prime) \rightarrow w C(t,t^\prime) F(t^\prime)\f$, where \f$C(t,t^\prime)\f$ is the
+* `herm_matrix`, \f$F(t)\f$ is a `function` given in pointer format and \f$w\f$ is a real weight. The operation is performed
+* at given time step `tstp`. This is a lower-level routine. The interface where \f$F(t)\f$ is supplied as
+* contour function is preferred.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > [int] The time step at which \f$F(t)\f$ and \f$C(t,t^\prime)\f$ are multiplied.
+* @param *f0
+* > [complex<T>] Pointer to \f$F(-\mathrm{i}\beta)\f$ on the Matsubara axis (this is just a constant matrix).
+* @param *ft
+* > [complex<T>] Pointer to \f$F(t)\f$ on the real axis. It is assumed that ft+t*element_size_ points to \f$ F(t) \f$.
+* @param weight
+* > [T] The weight as above.
+*/
+template <typename T>
+void herm_matrix_timestep_view<T>::right_multiply(int tstp, std::complex<T> *f0,
+                                    std::complex<T> *ft, T weight) {
+    int m;
+    cplx *xtemp, *ftemp, *x0;
+    xtemp = new cplx[element_size_];
+    assert(tstp >= -1 && tstp <= nt_ && "tstp >= -1 && tstp <= nt_");
+    if (tstp == -1) {
+        x0 = matptr(0);
+        for (m = 0; m <= ntau_; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, x0 + m * element_size_,
+                                       f0);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+    } else {
+        x0 = retptr(tstp, 0);
+        for (m = 0; m <= tstp; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, x0 + m * element_size_,
+                                       ft + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+        x0 = tvptr(tstp, 0);
+        for (m = 0; m <= ntau_; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, x0 + m * element_size_,
+                                       f0);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+        ftemp = ft + tstp * element_size_;
+        x0 = lesptr(0, tstp);
+        for (m = 0; m <= tstp; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, x0 + m * element_size_,
+                                       ftemp);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+    }
+    delete[] xtemp;
+}
+
+
+
+
+
+
+/** \brief <b> Left-multiplies the `herm_matrix_timestep_view` with the hermitian conjugate of a contour function. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* Performs the operation \f$C(t,t^\prime) \rightarrow w F^\ddagger(t)C(t,t^\prime)\f$, where \f$C(t,t^\prime)\f$ is the
+* `herm_matrix`, \f$F(t)\f$ is a contour `function` and \f$w\f$ is a real weight. The operation is performed
+* at given time step `tstp`.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > [int] The time step at which \f$F^\ddagger(t)\f$ and \f$C(t,t^\prime)\f$ are multiplied.
+* @param ft
+* > [function] The contour function.
+* @param weight
+* > [T] The weight as above.
+*/
+template <typename T>
+void herm_matrix_timestep_view<T>::left_multiply_hermconj(int tstp, function<T> &ft,
+                                            T weight) {
+    int m;
+    cplx *xtemp, *ftemp, *x0, *f0, *fcc;
+    xtemp = new cplx[element_size_];
+    fcc = new cplx[element_size_];
+    assert(tstp >= -1 && tstp <= nt_ && ft.nt() >= tstp &&
+           ft.size1() == size1_ && ft.size2() == size2_ &&
+       "tstp >= -1 && tstp <= nt_ && ft.nt() >= tstp && ft.size1() == size1_ && ft.size2() == size2_");
+
+    f0 = ft.ptr(-1);
+    element_conj<T, LARGESIZE>(size1_, fcc, f0);
+    if (tstp == -1) {
+        x0 = matptr(0);
+        for (m = 0; m <= ntau_; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, fcc,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+    } else {
+        ftemp = ft.ptr(tstp);
+        element_conj<T, LARGESIZE>(size1_, fcc, ftemp);
+        x0 = retptr(tstp, 0);
+        for (m = 0; m <= tstp; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, fcc,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+        x0 = tvptr(tstp, 0);
+        for (m = 0; m <= ntau_; m++) {
+            element_mult<T, LARGESIZE>(size1_, xtemp, fcc,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+        x0 = lesptr(0, tstp);
+        for (m = 0; m <= tstp; m++) {
+            element_conj<T, LARGESIZE>(size1_, fcc, ft.ptr(m));
+            element_mult<T, LARGESIZE>(size1_, xtemp, fcc,
+                                       x0 + m * element_size_);
+            element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+            element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+        }
+    }
+    delete[] xtemp;
+    delete[] fcc;
+}
+
+
+
+
+
 
 /** \brief <b> Reset the pointers of `herm_matrix_timestep_view` class to the pointer given by `data`.</b>
 *
@@ -1180,28 +1854,6 @@ void herm_matrix_timestep_view<T>::read_from_hdf5(const char *filename,
 }
 #endif
 
-/* #######################################################################################
-READING MATRIX ELEMENTS
-########################################################################################*/
-#define herm_matrix_READ_ELEMENT                                             \
-    {                                                                        \
-        int r, s, dim = size1_;                                              \
-        M.resize(dim, dim);                                                  \
-        for (r = 0; r < dim; r++)                                            \
-            for (s = 0; s < dim; s++)                                        \
-                M(r, s) = x[r * dim + s];                                    \
-    }
-#define herm_matrix_READ_ELEMENT_MINUS_CONJ                                  \
-    {                                                                        \
-        CPLX w;                                                              \
-        int r, s, dim = size1_;                                              \
-        M.resize(dim, dim);                                                  \
-        for (r = 0; r < dim; r++)                                            \
-            for (s = 0; s < dim; s++) {                                      \
-                w = x[s * dim + r];                                          \
-                M(r, s) = CPLX(-w.real(), w.imag());                         \
-            }                                                                \
-    }
 
 /** \brief <b> Return single particle density matrix from `herm_matrix_timestep_view`.</b>
 *
