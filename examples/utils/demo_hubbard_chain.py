@@ -10,13 +10,12 @@ def merge_two_dicts(x, y):
     z.update(y)    # modifies z with y's keys and values & returns None
     return z
 #----------------------------------------------------------------------
-def GenSysParams(Nsites,HoppingT,HubbardU,MuChem,Beta,FermBos=-1):
+def GenSysParams(Nsites,HoppingT,HubbardU,MuChem,Beta):
     sysparams = {'Nsites': Nsites,
                  'HoppingT': HoppingT,
                  'HubbardU': HubbardU,
                  'MuChem': MuChem,
-                 'beta': Beta,
-                 'FermBos': FermBos
+                 'beta': Beta
         }
     return sysparams
 #----------------------------------------------------------------------
@@ -103,7 +102,8 @@ if __name__ == '__main__':
 
     fig,(ax1,ax2) = plt.subplots(2,1,sharex=True)
 
-    sigma_approx = ['2B','GW','TPP']
+    sigma_approx = ['2B','GW'] # options are: '2B', 'GW', 'TPP'
+    #sigma_approx = ['2B','GW','TPP']
 
     color_palette = ['blue', 'orange', 'green']
 
@@ -123,13 +123,14 @@ if __name__ == '__main__':
         ax1.plot(t,data[:,1],label=approx,c=color_palette[i])
 
         t,Ekin,Epot,Etot = np.loadtxt(output_file + '_energy.dat',unpack=True)
-        ax2.plot(t,Ekin,c=color_palette[i])
-        ax2.plot(t,Etot,c=color_palette[i],linestyle='--')
+        ax2.plot(t,Ekin,c=color_palette[i],label=r'$E_\mathrm{kin}$' + '({})'.format(approx))
+        ax2.plot(t,Etot,c=color_palette[i],linestyle='--',label=r'$E_\mathrm{tot}$'+ '({})'.format(approx))
 
     if showref:
         tr,occr,Ekinr = np.loadtxt(flref,unpack=True)
         ax1.plot(tr,occr,c='k',label='exact',linestyle=':')
         ax2.plot(tr,Ekinr,c='k',linestyle=':')
 
-    ax1.legend(loc='upper right',frameon=False)
+    ax1.legend(loc='best',frameon=False,fontsize=10)
+    ax2.legend(loc='best',frameon=True,ncol=2,fontsize=10)
     plt.show()

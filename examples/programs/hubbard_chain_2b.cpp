@@ -49,7 +49,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
     //..................................................
     //                input
     //..................................................
-    int Nt,Ntau,MatsMaxIter,CorrectorSteps,Nsites,FermBos;
+    int Nt,Ntau,MatsMaxIter,CorrectorSteps,Nsites;
     int BootstrapMaxIter;
     double HoppingT,HubbardU,beta,dt,MuChem,Nparticles,MatsMaxErr,BootstrapMaxErr;
     int RampSite;
@@ -103,7 +103,6 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
         find_param(flin,"__HoppingT=",HoppingT);
         find_param(flin,"__HubbardU=",HubbardU);
         find_param(flin,"__MuChem=",MuChem);
-        find_param(flin,"__FermBos=",FermBos);
         find_param(flin,"__beta=",beta);
 
         // ramp parameters
@@ -156,8 +155,8 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
       //               (IV) INITIALIZE GREEN'S FUNCTIONS
       //============================================================================
       {
-        G = GREEN(Nt,Ntau,Nsites,FermBos);
-        Sigma = GREEN(Nt,Ntau,Nsites,FermBos);
+        G = GREEN(Nt,Ntau,Nsites,FERMION);
+        Sigma = GREEN(Nt,Ntau,Nsites,FERMION);
 
         // --- mean field ---
         eps0.resize(Nsites,Nsites);
@@ -194,7 +193,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
         bool matsubara_converged=false;
         tstp=-1;
 
-        gtemp = GREEN(SolveOrder,Ntau,Nsites,FermBos);
+        gtemp = GREEN(SolveOrder,Ntau,Nsites,FERMION);
         gtemp.set_timestep(tstp,G);
 
         for(int iter=0;iter<=MatsMaxIter;iter++){
