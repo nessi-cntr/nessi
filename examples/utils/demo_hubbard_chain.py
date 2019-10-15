@@ -86,16 +86,16 @@ if __name__ == '__main__':
 
     Nsites=2  # number of sites
     thop=1.0  # hopping amplitude
-    U=2.0     # Hubbard repulsion
+    U=1.0     # Hubbard repulsion
     mu=0.0    # chemical potential
     beta=20.0 # inverse temperature
     sysparams = GenSysParams(Nsites,thop,U,mu,beta)
 
     RampSite=1    # on which site the ramp is applied
-    RampW0 = 1.0  # magnitude of ramp (w0)
+    RampW0 = 5.0  # magnitude of ramp (w0)
     rampparams = GenRampParams(RampSite,RampW0)
 
-    Nt = 200    # number of time steps
+    Nt = 400    # number of time steps
     Ntau = 400  # number of points on Matsubara branch
     dt = 0.025  # time step
     solverparams = GenSolverParams(Nt,Ntau,dt,BootstrapMaxErr=1.0e-10)
@@ -131,6 +131,6 @@ if __name__ == '__main__':
         ax1.plot(tr,occr,c='k',label='exact',linestyle=':')
         ax2.plot(tr,Ekinr,c='k',linestyle=':')
 
-    ax1.legend(loc='best',frameon=False,fontsize=10)
-    ax2.legend(loc='best',frameon=True,ncol=2,fontsize=10)
+    ax1.legend(loc='best',frameon=True,fontsize=10)
+    ax2.legend(loc='upper right',frameon=True,ncol=2,fontsize=10)
     plt.show()
