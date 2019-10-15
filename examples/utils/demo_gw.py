@@ -1,7 +1,8 @@
 import sys
 import os
-import glob
 import numpy as np
+import h5py
+import matplotlib.pyplot as plt
 from ReadCNTR import write_input_file
 #----------------------------------------------------------------------
 def merge_two_dicts(x, y):
@@ -80,7 +81,21 @@ def Run(sysparams,solverparams,file_field,output_file,mpicmd,
         
     os.system(mpicmd + ' ' + prog + ' ' + flin + ' ' + output_file + log_flag)
 #----------------------------------------------------------------------     
+def ReadData(fname):
+	f = h5py.File(fname, 'r')
 
+	Nt = f['parm']['Nt'][0]
+	dt = f['parm']['dt'][0]
+	Epulse = np.array(np.real(f['parm']['Epulse']['data'][1:,0,0]))
+	Ekin = np.array(np.real(f['obs']['Ekin']['data'][1:,0,0]))
+	Epot = np.array(np.real(f['obs']['Epot']['data'][1:,0,0]))
+
+	f.close()
+
+	ts = np.linspace(0.0,Nt*dt,Nt+1)
+
+	return ts, Epulse,Ekin,Epot
+#---------------------------------------------------------------------- 
 if __name__ == '__main__':
 
     Nk=10
@@ -91,13 +106,13 @@ if __name__ == '__main__':
     beta=10.0
     sysparams = GenSysParams(Nk,thop,U,V,mu,beta)
 
-    Nt = 200
+    Nt = 400
     Ntau = 200
-    dt = 0.01
+    dt = 0.02
     solverparams = GenSolverParams(Nt,Ntau,dt,MatsMaxErr= 1.0e-10,BootstrapMaxErr=1.0e-10)
 
     # field 
-    E0 = 0.0
+    E0 = 0.2
     Np = 1
     omega = 1.0
     file_field = 'inp/Epulse_E{}_Np{}_w{}.txt'.format(E0,Np,omega)
@@ -108,4 +123,18 @@ if __name__ == '__main__':
     output_file = 'out/gw_'
     mpicmd = 'mpirun -n 2'
     Run(sysparams,solverparams,file_field,output_file,mpicmd,runpath='./')
+
+    # ---- read from file ----
+    fname = 'out/data_gw.h5'
+    ts, Epulse, Ekin, Epot = ReadData(fname)
+
+    fig, ax = plt.subplots(2,1,sharex=True)
+    ax[0].plot(ts, Epulse, c='blue')
+    ax[1].plot(ts, Ekin - Ekin[0], c='k')
+
+    ax[0].set_ylabel(r'$E(t)$')
+    ax[1].set_ylabel(r'$E_\mathrm{kin}(t) - E_\mathrm{kin}(0) $')
+    ax[1].set_xlabel('time')
+
+    plt.show()
 

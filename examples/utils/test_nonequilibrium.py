@@ -46,20 +46,23 @@ if __name__ == '__main__':
     for Nt in nt_val:
         RunTestEquilibrium(Nt,Tmax,Ntau,SolveOrder,output_file,runpath='./')
         
-    logn,err_dyson,err_vie2 = np.loadtxt(output_file,unpack=True)
+    err_dyson,err_vie2 = np.loadtxt(output_file,unpack=True)
+    log_nt = np.log10(nt_val)
+    log_err_dyson = np.log10(err_dyson)
+    log_err_vie2 = np.log10(err_vie2)
 
-    ax.scatter(logn,err_dyson,marker='o',s=100,edgecolor='k',facecolor='lightgray',\
+    ax.scatter(log_nt,log_err_dyson,marker='o',s=100,edgecolor='k',facecolor='lightgray',\
                    label='dyson (k = {})'.format(SolveOrder))          
-    ax.scatter(logn,err_vie2,marker='s',s=100,edgecolor='r',facecolor='mistyrose',\
+    ax.scatter(log_nt,log_err_vie2,marker='s',s=100,edgecolor='r',facecolor='mistyrose',\
                    label='vie2 (k = {})'.format(SolveOrder))
 
-    slope, intercept, r_value, p_value, std_err = stats.linregress(logn[10:],err_dyson[10:])
+    slope, intercept, r_value, p_value, std_err = stats.linregress(log_nt[10:],log_err_dyson[10:])
     print('order(Dyson) : ' + '%10.2f' % slope)
-    ax.plot(logn,slope*logn+intercept,'k--',label=r'$\sim \mathcal{O}(h^{' + '%10.2f' % -slope + '})$')
+    ax.plot(log_nt,slope*log_nt+intercept,'k--',label=r'$\sim \mathcal{O}(h^{' + '%10.2f' % -slope + '})$')
     
-    slope, intercept, r_value, p_value, std_err = stats.linregress(logn[10:],err_vie2[10:])
+    slope, intercept, r_value, p_value, std_err = stats.linregress(log_nt[10:],log_err_vie2[10:])
     print('order(VIE2) : ' + '%10.2f' % slope)
-    ax.plot(logn,slope*logn+intercept,'r--',label=r'$\sim \mathcal{O}(h^{' + '%10.2f' % -slope + '})$' )
+    ax.plot(log_nt,slope*log_nt+intercept,'r--',label=r'$\sim \mathcal{O}(h^{' + '%10.2f' % -slope + '})$' )
     
     ax.legend(loc='lower left',frameon=False,fontsize=16)
     ax.set_xlabel(r'$\log(N_t)$')
