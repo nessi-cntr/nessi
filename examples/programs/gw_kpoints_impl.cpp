@@ -159,7 +159,7 @@ namespace gw{
       GREEN_TSTP tmp(-1,ntau_,nrpa_,G_.sig());
       cdmatrix hk0;
       hkeff_.get_value(-1,hk0);
-      cntr::green_from_H(tmp,mu_,hk0,beta_,h_);
+      cntr::green_from_H(-1,tmp,mu_,hk0,beta_,h_);
       G_.set_timestep(-1,tmp);
     }else if(tstp==-1){
       cntr::dyson_mat(G_,mu_,hkeff_,Sigma_,beta_,SolverOrder);
