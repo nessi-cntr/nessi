@@ -117,8 +117,6 @@ if __name__ == '__main__':
     omega = 1.0
     file_field = 'inp/Epulse_E{}_Np{}_w{}.txt'.format(E0,Np,omega)
     GenField(E0,omega,Np,Nt,dt,file_field)
-
-    color_palette = ['blue', 'orange', 'green', 'red']
     
     output_file = 'out/gw_'
     mpicmd = 'mpirun -n 2'
