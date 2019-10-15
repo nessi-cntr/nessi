@@ -32,7 +32,6 @@ int main(int argc,char *argv[]){
   //                internal
   //..................................................
   double err_fourier,err_fixpoint;
-  std::complex<double> I(0.0,1.0);
   //.................................................
   try{
     //============================================================================
@@ -51,8 +50,8 @@ int main(int argc,char *argv[]){
       cdmatrix eps_2x2(2,2);
       eps_2x2(0,0) = eps1;
       eps_2x2(1,1) = eps2;
-      eps_2x2(0,1) = I*lam;
-      eps_2x2(1,0) = -I*lam;
+      eps_2x2(0,1) = II*lam;
+      eps_2x2(1,0) = -II*lam;
 
       // free 1x1 Hamiltonian
       CFUNC eps_11_func(-1,1);
@@ -87,9 +86,8 @@ int main(int argc,char *argv[]){
 
     {
       FILE *pErrDysonEq = fopen("out/test_equilibrium.dat","a");
-      fprintf(pErrDysonEq,"%.14g ",log10((double)Ntau));
-      fprintf(pErrDysonEq,"%.14g ", log10(err_fourier));
-      fprintf(pErrDysonEq,"%.14g ", log10(err_fixpoint));
+      fprintf(pErrDysonEq,"%.5g ", err_fourier);
+      fprintf(pErrDysonEq,"%.5g ", err_fixpoint);
       fprintf(pErrDysonEq,"\n");
 
       fclose(pErrDysonEq);

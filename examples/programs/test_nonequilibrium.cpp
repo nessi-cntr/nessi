@@ -171,9 +171,8 @@ int main(int argc,char *argv[]){
     //==============================
     {
       FILE *pErrDysonEq = fopen("out/test_nonequilibrium.dat","a");
-      fprintf(pErrDysonEq, "%.14g ",log10((double)Nt));
-      fprintf(pErrDysonEq,"%.14g ", log10(err_dyson));
-      fprintf(pErrDysonEq,"%.14g ", log10(err_vie2));
+      fprintf(pErrDysonEq,"%.5g ", err_dyson);
+      fprintf(pErrDysonEq,"%.5g ", err_vie2);
       fprintf(pErrDysonEq,"\n");
       fclose(pErrDysonEq);
     }
