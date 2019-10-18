@@ -108,5 +108,3 @@ After completing all test, the message `All tests` passed indicates that the com
 ```
     make test_mpi
 ```
-computationalphysicsunifr/libcntr.git/wiki
-```
