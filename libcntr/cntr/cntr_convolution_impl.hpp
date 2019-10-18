@@ -561,7 +561,7 @@ void convolution_matsubara_dispatch(GG &C, GG &A, GG &B,
         cmat[l] *= dtau;
     return;
 }
-
+/// @private
 /** \brief <b> Returns the result of the Matsubara convolution of two matrices. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -656,7 +656,7 @@ void convolution_matsubara_omp_dispatch(int nomp, GG &C, GG &A, GG &B,
         cmat[l] *= dtau;
     return;
 }
-
+/// @private
 /** \brief <b> Returns the result of the Matsubara convolution of two matrices. Uses OpenMP.</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -701,6 +701,7 @@ void convolution_matsubara_nomp(int nomp, GG &C, GG &A, GG &B, integration::Inte
 
 #endif // CNTR_USE_OMP
 
+/// @private
 /** \brief <b> Retarded convolution at a given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -852,7 +853,7 @@ void convolution_timestep_ret(int n, GG &C, GG &A, GG &Acc, GG &B, GG &Bcc,
     delete[] btemp;
     return;
 }
-
+/// @private
 /** \brief <b> Left-Mixing convolution at given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -971,7 +972,7 @@ void convolution_timestep_tv(int n, std::complex<T> *ctv, GG &C, GG &A,
     }
     delete[] atemp;
 }
-
+/// @private
 /** \brief <b> Left-Mixing convolution at given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -1028,7 +1029,7 @@ void convolution_timestep_tv(int n, GG &C, GG &A, GG &Acc, GG &B, GG &Bcc,
         element_set<T, SIZE1>(size1, C.tvptr(n, m), ctv + m * sc);
     delete[] ctv;
 }
-
+/// @private
 /** \brief <b> Calculation of \f$C = A^{\rceil}*B^{\lceil}\f$ at a given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -1149,6 +1150,7 @@ convolution_timestep_les_tvvt(int n, int j1, int j2, std::complex<T> *cles,
     delete[] btemp;
     return;
 }
+/// @private
 /** \brief <b> Calculation of \f$C = A^{\rceil}*B^{\lceil}\f$ at a given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -1196,6 +1198,7 @@ void convolution_timestep_les_tvvt(int n, std::complex<T> *cles, GG &C, GG &A,
     return convolution_timestep_les_tvvt<T, GG, SIZE1>(
         n, 0, n1, cles, C, A, Acc, B, Bcc, I, beta, h);
 }
+/// @private
 /** \brief <b> Calculation of \f$C = A^{<}*B^{A}\f$ at a given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -1303,6 +1306,7 @@ convolution_timestep_les_lesadv(int n, int j1, int j2, std::complex<T> *cles,
     delete[] badv;
     return;
 }
+/// @private
 /** \brief <b> Calculation of \f$C = A^{<}*B^{A}\f$ at a given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -1350,6 +1354,7 @@ void convolution_timestep_les_lesadv(int n, std::complex<T> *cles, GG &C,
     return convolution_timestep_les_lesadv<T, GG, SIZE1>(
         n, 0, n1, cles, C, A, Acc, B, Bcc, I, beta, h);
 }
+/// @private
 /** \brief <b> Calculation of \f$C = A^{R}*B^{<}\f$ at a given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -1478,6 +1483,7 @@ void convolution_timestep_les_retles(int n, std::complex<T> *cles, GG &C,
     delete[] atemp;
     return;
 }
+/// @private
 /** \brief <b> Lesser convolution at a given time-step of two matrices. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -1538,6 +1544,7 @@ void convolution_timestep_les(int n, GG &C, GG &A, GG &Acc, GG &B, GG &Bcc,
     delete[] cles;
     return;
 }
+/// @private
 /** \brief <b> Returns convolution of two matrices at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1687,7 +1694,7 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A,
     }
 }
 
-
+/// @private
 /** \brief <b> Returns convolution of two hermitian matrices at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1762,7 +1769,7 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A,
                           T beta, T h, int SolveOrder) {
     convolution_timestep<T>(n, C, A, A, B, B, beta, h, SolveOrder);
 }
-
+/// @private
 /** \brief <b> Returns the result of the contour convolution of two 'herm_matrix' objects</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1857,6 +1864,7 @@ void convolution_matsubara_dispatch(GG &C, GG &A, std::complex<T> *f0, GG &B,
         cmat[l] *= dtau;
     return;
 }
+/// @private
 /** \brief <b> Returns the result of the Matsubara convolution of two matrices and a function</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1898,6 +1906,7 @@ void convolution_matsubara(GG &C, GG &A, std::complex<T> *f0, GG &B,
     else
         convolution_matsubara_dispatch<T, GG, LARGESIZE>(C, A, f0, B, I, beta);
 }
+/// @private
 /** \brief <b> Retarded convolution of two matrices and a function at given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -2054,6 +2063,7 @@ void convolution_timestep_ret(int n, GG &C, GG &A, GG &Acc, std::complex<T> *ft,
     delete[] btemp;
     return;
 }
+/// @private
 /** \brief <b> Left-Mixing convolution of two matrix and a function at given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -2181,6 +2191,7 @@ void convolution_timestep_tv(int n, std::complex<T> *ctv, GG &C, GG &A, GG &Acc,
     delete[] atemp1;
     return;
 }
+/// @private
 /** \brief <b> Left-Mixing convolution of two matrices and a function at given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -2241,7 +2252,7 @@ void convolution_timestep_tv(int n, GG &C, GG &A, GG &Acc, std::complex<T> *f0,
         element_set<T, SIZE1>(size1, C.tvptr(n, m), ctv + m * sc);
     delete[] ctv;
 }
-
+/// @private
 /** \brief <b> Calculation of \f$C = A^{\rceil}*f0*B^{\lceil}\f$ at a given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -2360,6 +2371,7 @@ void convolution_timestep_les_tvvt(int n, std::complex<T> *cles, GG &C, GG &A, G
     delete[] btemp;
     return;
 }
+/// @private
 /** \brief <b> Calculation of \f$C = A^{<}*ft*B^{A}\f$ at a given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -2470,6 +2482,7 @@ void convolution_timestep_les_lesadv(int n, std::complex<T> *cles, GG &C, GG &A,
     delete[] btemp;
     return;
 }
+/// @private
 /** \brief <b> Calculation of \f$C = A^{R}*ft*B^{<}\f$ at a given time-step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -2603,6 +2616,7 @@ void convolution_timestep_les_retles(int n, std::complex<T> *cles, GG &C, GG &A,
     delete[] atemp;
     return;
 }
+/// @private
 /** \brief <b> Lesser convolution at a given time-step of two matrices and a function. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -2668,6 +2682,7 @@ void convolution_timestep_les(int n, GG &C, GG &A, GG &Acc, std::complex<T> *f0,
     delete[] cles;
     return;
 }
+/// @private
 /** \brief <b> Returns convolution of two matrices and a function at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2743,6 +2758,7 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matr
                                                                I, beta, h);
     }
 }
+/// @private
 /** \brief <b> Returns convolution of two hermitian matrices and a function at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2784,6 +2800,7 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, std::comp
     convolution_timestep<T>(n, C, A, A, f0, ft, B, B, I, beta, h);
 }
 
+/// @private
 /** \brief <b> Returns the result of the contour convolution of two matrices and a function object</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2831,6 +2848,7 @@ void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
         convolution_timestep<T>(tstp, C, A, Acc, f0, ft, B, Bcc, I, beta, h);
 }
 
+/// @private
 /** \brief <b> Returns convolution of two 'herm_matrix' objects and a contour function at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2989,7 +3007,7 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, herm_matr
 }
 
 
-
+/// @private
 /** \brief <b> Returns convolution of two hermitian matrices and a contour function at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -3065,7 +3083,7 @@ void convolution_timestep(int n, herm_matrix<T> &C, herm_matrix<T> &A, function<
                           herm_matrix<T> &B, T beta, T h, int SolveOrder) {
     convolution_timestep<T>(n, C, A, A, ft, B, B, beta, h, SolveOrder);
 }
-
+/// @private
 /** \brief <b> Returns the result of the contour convolution of two matrices and a function object</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -3261,6 +3279,7 @@ void convolution_matsubara_tau_dispatch(int m1, std::complex<T> *cc, int sizec, 
         cc[l] *= dtau;
     return;
 }
+/// @private
 /** \brief <b> Calculation of \f$C = A^{<}*ft*B^{A}\f$ at one timepoint. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -3360,6 +3379,7 @@ void convolution_timestep_les_jn_lesadv(int j, int n, std::complex<T> *cc, int s
     delete[] btemp;
     return;
 }
+/// @private
 /** \brief <b> Calculation of \f$C = A^{\rceil}*f0*B^{\lceil}\f$ at one timepoint. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -3464,6 +3484,7 @@ void convolution_timestep_les_jn_tvvt(int j, int n, std::complex<T> *cc, int siz
     delete[] btemp;
     return;
 }
+/// @private
 /** \brief <b> Calculation of \f$C = A^{R}*ft*B^{<}\f$ at one timepoint. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -3586,6 +3607,7 @@ void convolution_timestep_les_jn_retles(int j, int n, std::complex<T> *cc, int s
     delete[] atemp;
     return;
 }
+/// @private
 /** \brief <b> Lesser convolution  at one timepoint of two matrices and a function. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -3643,6 +3665,7 @@ void convolution_timestep_les_jn(int j, int n, std::complex<T> *cc, int sizec, G
 // note: !! works for both (GG=herm_matrix and GG=herm_pseudo
 // (because for density matrix, restricted convolution is the same as full convolution)
 
+/// @private
 /** \brief <b> Returns the result of the contour convolution and a contour function for a density matrix at a given time-step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -3770,7 +3793,7 @@ void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, function<T
 
     delete[] rho_ptr;
 }
-
+/// @private
 /** \brief <b> Returns the result of the contour convolution and a contour function for a density matrix</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -3857,7 +3880,7 @@ void convolution_density_matrix(int n, cdmatrix &rho, GG &A, function<T> &ft,
     delete[] rho_ptr;
 }
 
-
+/// @private
 /** \brief <b> Returns the result of the contour convolution for a density matrix at a given time-step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -3979,7 +4002,7 @@ void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, GG &B, GG 
 
 }
 
-
+/// @private
 /** \brief <b> Returns the result of the contour convolution for a density matrix</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -4103,7 +4126,7 @@ void convolution_density_matrix(int tstp, cdmatrix &Cles, GG &A, GG &B,
 /* /////////////////////////////////////////////////////////////////////////////////////////
 // INCREMENETAL
 ///////////////////////////////////////////////////////////////////////////////////////// */
-
+/// @private
 /** \brief <b> Adds a Matsubara convolution of two matrices and a function with a given weight to a matrix </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -4177,6 +4200,7 @@ void incr_convolution_mat(std::vector<bool> &mask, CPLX alpha, GG &C, GG &A, CPL
     // std::endl;
     return;
 }
+/// @private
 /** \brief <b> Adds a retarded convolution of two matrices and a function with a given weight to a matrix at a given time step </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -4325,6 +4349,7 @@ void incr_convolution_ret(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
     }
     return;
 }
+/// @private
 /** \brief <b> Adds a left-mixing convolution of two matrices and a function with a given weight to a matrix at a given time step </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -4467,6 +4492,7 @@ void incr_convolution_tv(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, G
     }
     return;
 }
+/// @private
 /** \brief <b> Adds a lesser convolution of two matrices and a function with a given weight to a matrix at a given time step </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -4717,6 +4743,7 @@ void incr_convolution_les(int tstp, std::vector<bool> &mask, CPLX alpha, GG &C, 
 // SINGLE-PROCESSOR ROUTINES ... function calls like for old version
 // with function object
 
+/// @private
 /** \brief <b> Adds a convolution of two matrices and a function with a given weight to a matrix at a given time step </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -4968,6 +4995,7 @@ void convolution_new(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
 #if CNTR_USE_OMP == 1
 
 #define CPLX std::complex<T>
+/// @private
 /** \brief <b> Adds a convolution of two matrices and a function with a given weight to a matrix at a given time step </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -5048,6 +5076,7 @@ void incr_convolution_omp(int omp_num_threads, int tstp, CPLX alpha, GG &C, GG &
     }
     return;
 }
+/// @private
 /** \brief <b> Returns convolution \f$C = A\ast f\ast B\f$ at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -5272,7 +5301,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
     }
 }
 
-
+/// @private
 /** \brief <b> Returns convolution \f$C = A\ast f\ast B\f$ at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -5356,7 +5385,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
     convolution_timestep_omp<T>(omp_num_threads, tstp, C, A, A, ft, B, B, beta, h, SolveOrder);
 }
 
-
+/// @private
 /** \brief <b> Returns convolution \f$C = A\ast B\f$ for the Matsubara component.</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -5430,6 +5459,7 @@ void convolution_matsubara_omp(int omp_num_threads, herm_matrix<T> &C, herm_matr
                                integration::Integrator<T> &I, T beta) {
     convolution_timestep_omp<T>(omp_num_threads, -1, C, A, A, ft, B, B, I, beta, 0.0);
 }
+/// @private
 /** \brief <b> Returns convolution \f$C = A\ast f \ast B\f$ for all timesteps.</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -5525,7 +5555,7 @@ void convolution_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
 }
 
 
-
+/// @private
 /** \brief <b> Returns convolution \f$C = A\ast B\f$ at a given time step</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
