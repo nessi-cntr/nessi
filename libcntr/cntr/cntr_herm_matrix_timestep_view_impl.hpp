@@ -1642,6 +1642,143 @@ void herm_matrix_timestep_view<T>::MPI_Reduce(int root) {
     }
 }
 
+/** \brief <b> Broadcasts the `herm_matrix_timestep_view` at a given time step to all ranks. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Broadcasts the `herm_matrix_timestep_view` at a given time step `tstp` to all ranks.
+* > Works for a square matrices.
+*
+*<!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > Time step which should be broadcasted.
+* @param root
+* > The rank from which the `herm_matrix_timestep_view` should be broadcasted.
+*
+*/
+template <typename T>
+void herm_matrix_timestep_view<T>::Bcast_timestep(int tstp, int root){
+   int numtasks = MPI::COMM_WORLD.Get_size();
+   int taskid = MPI::COMM_WORLD.Get_rank();
+   // test effective on root:
+   assert(tstp == tstp_);
+   if (sizeof(T) == sizeof(double)){
+      if (tstp_ == -1){
+         MPI::COMM_WORLD.Bcast(mat_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root);
+      } else {
+         MPI::COMM_WORLD.Bcast(les_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root);
+         MPI::COMM_WORLD.Bcast(ret_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root);
+         MPI::COMM_WORLD.Bcast(tv_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root);
+      }
+   } else { // assuming single precision
+      if (tstp_ == -1){
+         MPI::COMM_WORLD.Bcast(mat_, (ntau_ + 1) * element_size_, MPI::COMPLEX, root);
+      } else {
+         MPI::COMM_WORLD.Bcast(les_, (tstp_ + 1) * element_size_, MPI::COMPLEX, root);
+         MPI::COMM_WORLD.Bcast(ret_, (tstp_ + 1) * element_size_, MPI::COMPLEX, root);
+         MPI::COMM_WORLD.Bcast(tv_, (ntau_ + 1) * element_size_, MPI::COMPLEX, root);
+      }
+   }
+
+}
+
+/** \brief <b> Sends the `herm_matrix_timestep_view` at a given time step to a specific task. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sends the `herm_matrix_timestep_view` at a given time step `tstp` to a specific task with rank `dest`.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > Time step which should be send.
+* @param dest
+* > The task rank to which the `herm_matrix_timestep_view` should be send.
+* @param tag
+* > The MPI error flag.
+*/
+template <typename T>
+void herm_matrix_timestep_view<T>::Send_timestep(int tstp, int dest, int tag) {
+   int taskid = MPI::COMM_WORLD.Get_rank();
+   assert(tstp == tstp_);
+   if (!(taskid == dest)) {
+      if (sizeof(T) == sizeof(double)){
+         if (tstp_ == -1){
+            MPI::COMM_WORLD.Send(mat_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, dest, tag);
+         } else {
+            MPI::COMM_WORLD.Send(les_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, dest, tag);
+            MPI::COMM_WORLD.Send(ret_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, dest, tag);
+            MPI::COMM_WORLD.Send(tv_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, dest, tag);
+         }
+      }
+      else {
+         if (tstp_ == -1){
+            MPI::COMM_WORLD.Send(mat_, (ntau_ + 1) * element_size_, MPI::COMPLEX, dest, tag);
+         } else {
+            MPI::COMM_WORLD.Send(les_, (tstp_ + 1) * element_size_, MPI::COMPLEX, dest, tag);
+            MPI::COMM_WORLD.Send(ret_, (tstp_ + 1) * element_size_, MPI::COMPLEX, dest, tag);
+            MPI::COMM_WORLD.Send(tv_, (ntau_ + 1) * element_size_, MPI::COMPLEX, dest, tag);
+         }
+      }
+   } else {
+      // do nothing
+   }
+}
+
+/** \brief <b> Recevies the `herm_matrix_timestep_view` at a given time step from a specific task. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Receives the `herm_matrix_timestep_view` at a given time step `tstp` from a specific task with rank `root`.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > Time step which should be received.
+* @param root
+* > The task rank from which the `herm_matrix` should be received.
+* @param tag
+* > The MPI error flag.
+*/
+template <typename T>
+void herm_matrix_timestep_view<T>::Recv_timestep(int tstp, int root, int tag) {
+   int taskid = MPI::COMM_WORLD.Get_rank();
+   assert(tstp == tstp_);
+   if (!(taskid == root)) {
+      if (sizeof(T) == sizeof(double))
+         if (tstp_ == -1){
+            MPI::COMM_WORLD.Recv(mat_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root, tag);
+         } else {
+            MPI::COMM_WORLD.Recv(les_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root, tag);
+            MPI::COMM_WORLD.Recv(ret_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root, tag);
+            MPI::COMM_WORLD.Recv(tv_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root, tag);
+         }
+      else{
+         if (tstp_ == -1){
+            MPI::COMM_WORLD.Recv(mat_, (ntau_ + 1) * element_size_, MPI::COMPLEX, root, tag);
+         } else {
+            MPI::COMM_WORLD.Recv(les_, (tstp_ + 1) * element_size_, MPI::COMPLEX, root, tag);
+            MPI::COMM_WORLD.Recv(ret_, (tstp_ + 1) * element_size_, MPI::COMPLEX, root, tag);
+            MPI::COMM_WORLD.Recv(tv_, (ntau_ + 1) * element_size_, MPI::COMPLEX, root, tag);
+         }
+      }
+   }
+}
+
+
 #endif
 
 /** \brief <b> Write `herm_matrix_timestep_view` to hdf5 group given by `group_id`.</b>
