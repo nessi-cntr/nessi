@@ -1277,22 +1277,6 @@ void force_matsubara_hermitian(herm_matrix<T> &G) {
       Gmat_herm = 0.5*(Gmat + Gmat.adjoint());
       G.set_mat(m,Gmat_herm);
     }
-  // for (m = 0; m <= ntau; m++) {
-  //   // diagonal components:
-  //   for (p1 = 0; p1 < s1; p1++)
-  //     (*(G.matptr(m) + p1 * s1 + p1)).imag(0.0);
-  //   // off-diagonal components:
-  //   for (p1 = 0; p1 < s1; p1++) {
-  //     for (p2 = 0; p2 < p1; p2++) {
-  // 	*(G.matptr(m) + p1 * s1 + p2) =
-  // 	  0.5 * (*(G.matptr(m) + p1 * s1 + p2) +
-  // 		 conj(*(G.matptr(m) + p2 * s1 + p1)));
-  // 	*(G.matptr(m) + p2 * s1 + p1) =
-  // 	  0.5 * (*(G.matptr(m) + p2 * s1 + p1) +
-  // 		 conj(*(G.matptr(m) + p1 * s1 + p2)));
-  //     }
-  //   }
-  // }
 }
 
 /** \brief <b> Force the Matsubara component of a two-time contour object to be a hermitian matrix at each \f$ \tau \f$. </b>

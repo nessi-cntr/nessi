@@ -334,7 +334,7 @@ herm_matrix_timestep_view<T>::herm_matrix_timestep_view(int tstp,
                x[r * size2_ + s] = M(r, s);                                    \
          }
 
-
+/// @private
 /** \brief <b> Sets the retarded component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -362,7 +362,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep_view<T>::
          herm_matrix_SET_ELEMENT_MATRIX
       }
 
-
+/// @private
 /** \brief <b> Sets the lesser component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -390,6 +390,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep_view<T>::
       herm_matrix_SET_ELEMENT_MATRIX
    }
 
+/// @private
 /** \brief <b> Sets the left-mixing component to a given matrix. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -417,6 +418,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep_view<T>::
    herm_matrix_SET_ELEMENT_MATRIX
 }
 
+/// @private
 /** \brief <b> Sets the Matsubara component to a given matrix. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -466,7 +468,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep_view<T>::
          }                                                                \
       }
 
-
+/// @private
 /** \brief <b> Returns the lesser component at a given time step. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -495,7 +497,7 @@ template <typename T> template <class Matrix>
          herm_matrix_READ_ELEMENT
       }
 
-
+/// @private
 /** \brief <b> Returns the retarded component at a given time step. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -525,7 +527,7 @@ template <class Matrix>
          herm_matrix_READ_ELEMENT
       }
 
-
+/// @private
 /** \brief <b> Returns the left-mixing component at a given time step. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -554,7 +556,7 @@ template <class Matrix>
          herm_matrix_READ_ELEMENT
       }
 
-
+/// @private
 /** \brief <b> Returns the Matsubara component at given imaginary time.</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -580,7 +582,7 @@ template <class Matrix>
          herm_matrix_READ_ELEMENT
       }
 
-
+/// @private
 /** \brief <b> Returns the Matsubara component for the negative of a given imaginary time.</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -608,7 +610,6 @@ template <class Matrix>
          cplx *x = matptr(ntau_ - i);
          herm_matrix_READ_ELEMENT if (sig_ == -1) M = -M;
       }
-
 
 
 /** \brief <b> Sets all components at time step `tstp` to zero. </b>
@@ -752,7 +753,7 @@ void herm_matrix_timestep_view<T>::left_multiply(int tstp, function<T> &ft, T we
    this->left_multiply(ft.ptr(-1), ft.ptr(0), weight);
 }
 
-
+/// @private
 /** \brief <b> Left-multiplies the `herm_matrix` with contour function. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -846,7 +847,7 @@ void herm_matrix_timestep_view<T>::right_multiply(int tstp, function<T> &ft, T w
    this->right_multiply(ft.ptr(-1), ft.ptr(0), weight);
 }
 
-
+/// @private
 /** \brief <b> Right-multiplies the `herm_matrix` with contour function. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1587,7 +1588,7 @@ void herm_matrix_timestep_view<T>::smul(T weight) {
 
 #if CNTR_USE_MPI == 1
 
-
+/// @private
 template <typename T>
 void my_mpi_reduce(std::complex<T> *data, int len, int root) {
     std::cerr << __PRETTY_FUNCTION__ << ", LEN=" << len
@@ -1596,7 +1597,7 @@ void my_mpi_reduce(std::complex<T> *data, int len, int root) {
  }
 
 
-
+/// @private
 template<>
 inline void my_mpi_reduce<double>(std::complex<double> *data, int len, int root) {
     int tid = MPI::COMM_WORLD.Get_rank();
@@ -1612,6 +1613,7 @@ inline void my_mpi_reduce<double>(std::complex<double> *data, int len, int root)
     }
 }
 
+/// @private
 /** \brief <b> MPI reduce for the `herm_matrix_timestep_view`.</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1991,7 +1993,7 @@ void herm_matrix_timestep_view<T>::read_from_hdf5(const char *filename,
 }
 #endif
 
-
+/// @private
 /** \brief <b> Return single particle density matrix from `herm_matrix_timestep_view`.</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2009,7 +2011,6 @@ void herm_matrix_timestep_view<T>::read_from_hdf5(const char *filename,
 * @param tstp
 * > timestep index
 */
-
 template <typename T>
 CPLX herm_matrix_timestep_view<T>::density_matrix(int tstp) {
     assert(tstp==tstp_);
@@ -2023,6 +2024,37 @@ CPLX herm_matrix_timestep_view<T>::density_matrix(int tstp) {
         return CPLX(0.0, sig_) * x1;
     }
 }
+
+
+/** \brief <b> Return single particle density matrix from `herm_matrix_timestep_view`.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Return single particle density matrix (occupation) from `herm_matrix_timestep_view`
+* > Works for scalar.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > timestep index
+* @param M
+* > density matrix, returned as complex number
+*/
+template <typename T>
+void herm_matrix_timestep_view<T>::density_matrix(int tstp, std::complex<T> &M) {
+    assert(tstp==tstp_);
+    if (tstp_ == -1) {
+        M = -(*matptr(ntau_));
+    } else {
+        M = CPLX(0.0, sig_)*(*lesptr(tstp_));
+    }
+}
+
 /** \brief <b> Return single particle density matrix as Eigen matrix from `herm_matrix_timestep_view`.</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->

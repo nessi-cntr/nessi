@@ -50,11 +50,15 @@ class herm_matrix_timestep_view {
     int ntau(void) const { return ntau_; }
     int tstp(void) const { return tstp_; }
     int sig(void) const { return sig_; }
+    /// @private
     inline std::complex<T> *retptr(int i) { return ret_ + i * element_size_; }
+    /// @private
     inline std::complex<T> *tvptr(int i) { return tv_ + i * element_size_; }
+    /// @private
     inline std::complex<T> *lesptr(int i) {
         return les_ + i * element_size_;
     };
+    /// @private
     inline std::complex<T> *matptr(int i) { return mat_ + i * element_size_; }
     ///////////////////////////////////////////
     // the following routines set the ponters:
@@ -86,20 +90,31 @@ class herm_matrix_timestep_view {
     template <class GG>
     void get_data(GG &g);
 
+    /// @private
     template <class Matrix> void set_ret(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void set_les(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void set_tv(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void set_mat(int i, Matrix &M);
 
+    /// @private
     template <class Matrix> void get_les(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void get_ret(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void get_tv(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void get_mat(int i, Matrix &M);
+    /// @private
     template <class Matrix> void get_matminus(int i, Matrix &M);
 
 
+    /// @private
     void left_multiply(int tstp, std::complex<T> *f0, std::complex<T> *ft, T weight = 1.0);
     void left_multiply(int tstp, function<T> &ft, T weight = 1.0);
+    /// @private
     void right_multiply(int tstp, std::complex<T> *f0, std::complex<T> *ft, T weight = 1.0);
     void right_multiply(int tstp, function<T> &ft, T weight = 1.0);
     void left_multiply_hermconj(int tstp, function<T> &ft, T weight = 1.0);
@@ -110,7 +125,10 @@ class herm_matrix_timestep_view {
     void set_timestep(int tstp, herm_matrix<T> &g1);
     void set_timestep(int tstp, herm_matrix_timestep<T> &g1);
 
+    /// @private
     std::complex<T> density_matrix(int tstp);
+
+    void density_matrix(int tstp, std::complex<T> &M);
     template <class Matrix> void density_matrix(int tstp, Matrix &M);
 
 
@@ -131,6 +149,7 @@ class herm_matrix_timestep_view {
     // ** SMUL  this *= alpha
     void smul(T alpha);
 #if CNTR_USE_MPI == 1
+    /// @private
     void MPI_Reduce(int root);
     // void Reduce_timestep(int tstp, int root); 
     void Bcast_timestep(int tstp, int root);
