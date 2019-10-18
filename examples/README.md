@@ -79,3 +79,4 @@ After successful configuration, the programs are compiled by
 make
 ```
 
+The executables are located in `examples/exe`.
