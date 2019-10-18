@@ -108,3 +108,47 @@ After completing all test, the message `All tests` passed indicates that the com
 
     make test_mpi
 
+Example scripts
+===============
+
+On MacOSX and using the GNU compilers, an example configure script with all options would look like the following:
+
+```
+CC=mpicc CXX=mpicxx \
+cmake \
+    -DCMAKE_INSTALL_PREFIX=$HOME/opt \
+    -DCMAKE_INSTALL_NAME_DIR=$HOME/opt/lib \
+    -DCMAKE_MACOSX_RPATH=ON \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_DOC=ON \
+    -Domp=ON \
+    -Dhdf5=ON \
+    -Dmpi=ON \
+    -DCMAKE_INCLUDE_PATH=/opt/local/include \
+    -DCMAKE_LIBRARY_PATH=/opt/local/lib \
+    -DCMAKE_CXX_FLAGS="-std=c++11 -fpermissive" \
+    ..
+```
+
+The dynamic linking scheme under MacOSX requires specifying `-DCMAKE_INSTALL_NAME_DIR=$HOME/opt/lib` as the directory where the library `libcntr.dylib` will be installed. In this example, all libraries (eigen3, hdf5) have been installed under the prefix `opt/local`.
+
+Under Linux, the above job script would look like
+
+```
+CC=mpicc CXX=mpicxx \
+cmake \
+    -DCMAKE_INSTALL_PREFIX=$HOME/opt \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_DOC=ON \
+    -Domp=ON \
+    -Dhdf5=ON \
+    -Dmpi=ON \
+    -DCMAKE_INCLUDE_PATH=/usr/local/include \
+    -DCMAKE_LIBRARY_PATH=/usr/local/lib \
+    -DCMAKE_CXX_FLAGS="-std=c++11 -fpermissive" \
+    ..
+```
+
+Here we have assumed that the dependencies are installed under `/usr/local/`.
+
+
