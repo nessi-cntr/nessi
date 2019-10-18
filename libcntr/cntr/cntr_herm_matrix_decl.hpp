@@ -75,58 +75,92 @@ class herm_matrix {
     // herm_matrix<T> & herm_matrix(const matrix<T> &g1);
     // herm_matrix<T> & herm_matrix(const scalar<T> &g1);
     // raw pointer to elements ... to be used with care
+    /// @private
     inline cplx *lesptr(int i, int j);
+    /// @private
     inline cplx *retptr(int i, int j);
+    /// @private
     inline cplx *tvptr(int i, int j);
+    /// @private
     inline cplx *matptr(int i);
+    /// @private
     inline const cplx *lesptr(int i, int j) const;
+    /// @private
     inline const cplx *retptr(int i, int j) const;
+    /// @private
     inline const cplx *tvptr(int i, int j) const;
+    /// @private
     inline const cplx *matptr(int i) const;
     // reading basic and derived elements to any Matrix type
+    /// @private
     template <class Matrix>
     void get_les(int i, int j, Matrix &M) const;
+    /// @private
     template <class Matrix>
     void get_gtr(int i, int j, Matrix &M) const;
+    /// @private
     template <class Matrix>
     void get_ret(int i, int j, Matrix &M) const;
+    /// @private
     template <class Matrix>
     void get_vt(int i, int j, Matrix &M) const;
+    /// @private
     template <class Matrix>
     void get_tv(int i, int j, Matrix &M) const;
+    /// @private
     template <class Matrix>
     void get_mat(int i, Matrix &M) const;
+    /// @private
     template <class Matrix>
     void get_matminus(int i, Matrix &M) const;
     // reading complex numbers:
     // these will adress only (0,0) element for dim>1:
+    /// @private
     inline void get_les(int i, int j, cplx &x) const;
+    /// @private
     inline void get_gtr(int i, int j, cplx &x) const;
+    /// @private
     inline void get_ret(int i, int j, cplx &x) const;
+    /// @private
     inline void get_vt(int i, int j, cplx &x) const;
+    /// @private
     inline void get_tv(int i, int j, cplx &x) const;
+    /// @private
     inline void get_mat(int i, cplx &x) const;
+    /// @private
     inline void get_matminus(int i, cplx &x) const;
+    /// @private
     cplx density_matrix(int i) const;
     // should work with eigen
     template <class Matrix>
     void density_matrix(int tstp, Matrix &M) const;
 
     // writing basic elements:
+    /// @private
     template <class Matrix>
     void set_les(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix>
     void set_ret(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix>
     void set_tv(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix>
     void set_mat(int i, Matrix &M);
+    /// @private
     template<class Matrix> void set_mat_real(int i,Matrix &M);
+    /// @private
     void set_mat_herm(int i);
+    /// @private
     void set_mat_herm(void);
+    /// @private
     inline void set_les(int i, int j, cplx x);
+    /// @private
     inline void set_ret(int i, int j, cplx x);
+    /// @private
     inline void set_tv(int i, int j, cplx x);
+    /// @private
     inline void set_mat(int i, cplx x);
     // INPUT/OUTPUT
     void print_to_file(const char *file, int precision = 16) const;
@@ -188,9 +222,11 @@ class herm_matrix {
 
     // check if multiplication with pointer can be removed (there might be
     //  internal dependencies)
+    /// @private
     void
     left_multiply(int tstp, cplx *f0, cplx *ft,
                   T weight = 1.0); // version with function object is safer
+    /// @private
     void
     right_multiply(int tstp, cplx *f0, cplx *ft,
                    T weight = 1.0); // version with function object is safer
@@ -198,10 +234,12 @@ class herm_matrix {
     // - check why underscore (private routine?)
     // - check what std::integral_constant is doing
     // - add interface to multiply with a matrix from left/right
+    /// @private
     template <int SIZE>
     void left_multiply_(int tstp, function<T> &ft, T weight,
                         std::integral_constant<int, SIZE>);
     void right_multiply(int tstp, function<T> &ft, T weight = 1.0);
+    /// @private
     template <int SIZE>
     void right_multiply_(int tstp, function<T> &ft, T weight,
                          std::integral_constant<int, SIZE>);

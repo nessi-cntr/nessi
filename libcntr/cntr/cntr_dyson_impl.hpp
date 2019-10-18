@@ -43,6 +43,7 @@ namespace cntr {
 #
 ###########################################################################################*/
 
+/// @private
 /** \brief <b> One step Dyson solver (integral-differential form) for the retarded component of the Green's function \f$G\f$ </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -221,6 +222,7 @@ void dyson_timestep_ret(int n, GG &G, T mu, std::complex<T> *H, GG &Sigma,
     return;
 }
 
+/// @private
 /** \brief <b> Start-up procedure for calculation of the retarded component of the Green's function \f$G\f$ from the Dyson equition (integral-differential form) </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -610,7 +612,7 @@ void dyson_mat_steep_dispatch(GG &G, GG &Sigma, T mu, cdmatrix &H0, cdmatrix &Si
 #   tv-FUNCTION:
 #
 ###########################################################################################*/
-
+/// @private
 /** \brief <b> One step Dyson solver (integral-differential form) for the left-mixing component of the Green's function \f$G\f$ </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -707,7 +709,7 @@ void dyson_timestep_tv(int n, GG &G, T mu, std::complex<T> *Hn, GG &Sigma,
     delete[] one;
     return;
 }
-
+/// @private
 /** \brief <b> Start-up procedure for calculation of the left-mixing component of the Green's function \f$G\f$ from the Dyson equition (integral-differential form) </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -850,7 +852,7 @@ void dyson_start_tv(GG &G, T mu, std::complex<T> *H, GG &Sigma,
 #   for n<k: start routine
 #
 ###########################################################################################*/
-
+/// @private
 /** \brief <b> One step Dyson solver (integral-differential form) for the lesser component of the Green's function \f$G\f$ </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1019,7 +1021,7 @@ void dyson_timestep_les(int n, GG &G, T mu, std::complex<T> *H, GG &Sigma,
     return;
 }
 
-
+/// @private
 /** \brief <b> Start-up procedure for calculation of the lesser component of the Green's function \f$G\f$ from the Dyson equition (integral-differential form) </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1061,7 +1063,7 @@ void dyson_start_les(GG &G, T mu, std::complex<T> *H, GG &Sigma,
         dyson_timestep_les<T, GG, SIZE1>(n, G, mu, H, Sigma, I, beta, h);
     return;
 }
-
+/// @private
 // preferred: H passed as a cntr::function object:
 template <typename T>
 void dyson_mat_fourier(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H, T beta,
@@ -1075,6 +1077,7 @@ void dyson_mat_fourier(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<
       dyson_mat_fourier_dispatch<T, herm_matrix<T>, LARGESIZE>(G, Sigma, mu, H.ptr(-1), beta,
                                                          order);
 }
+/// @private
 template <typename T>
 void dyson_mat_fourier(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
                function<T> &SigmaMF, T beta, int order) {
@@ -1096,7 +1099,7 @@ void dyson_mat_fourier(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<
     }
     delete hmf;
 }
-
+/// @private
 template <typename T>
 void dyson_mat_fixpoint(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
             integration::Integrator<T> &I,T beta, int fixpiter) {
@@ -1112,7 +1115,7 @@ void dyson_mat_fixpoint(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function
       dyson_mat_fixpoint_dispatch<T, herm_matrix<T>, LARGESIZE>(G, Sigma, mu, h0, I, beta,
                                 fixpiter);
 }
-
+/// @private
 template <typename T>
 void dyson_mat_fixpoint(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
             function<T> &SigmaMF, integration::Integrator<T> &I,T beta, int fixpiter) {
@@ -1130,7 +1133,7 @@ void dyson_mat_fixpoint(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function
 }
 
 
-
+/// @private
 template <typename T>
 void dyson_mat_steep(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
              integration::Integrator<T> &I,T beta, int maxiter, T tol) {
@@ -1148,6 +1151,7 @@ void dyson_mat_steep(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T>
                                  maxiter, tol);
 }
 
+/// @private
 template <typename T>
 void dyson_mat_steep(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T> &H,
              function<T> &SigmaMF, integration::Integrator<T> &I,T beta, int maxiter, T tol) {
@@ -1165,7 +1169,7 @@ void dyson_mat_steep(herm_matrix<T> &G, herm_matrix<T> &Sigma, T mu, function<T>
                                  maxiter, tol);
 }
 
-// global interface
+/// @private
 /** \brief <b> Dyson solver (integral-differential form) for a Green's function \f$G\f$. Global interface</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1293,7 +1297,7 @@ void dyson_mat(herm_matrix<T> &G, T mu, function<T> &H,
     force_matsubara_hermitian(G);
   }
 }
-
+/// @private
 /** \brief <b> Dyson solver (integral-differential form) for a Green's function \f$G\f$</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1412,7 +1416,7 @@ void dyson_mat(herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<T> &Sigma,
     force_matsubara_hermitian(G);
   }
 }
-
+/// @private
 /** \brief <b> Start-up procedure for solving the Dyson equation of the integral-differential form for a Green's function \f$G\f$</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1512,7 +1516,7 @@ void dyson_start(herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<T> &Sigma,
         dyson_start_les<T, herm_matrix<T>, LARGESIZE>(G, mu, H.ptr(0), Sigma, integration::I<T>(SolveOrder), beta, h);
     }
 }
-
+/// @private
 /** \brief <b> One step Dyson solver (integral-differential form) for a Green's function \f$G\f$</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1631,7 +1635,7 @@ void dyson_timestep(int n, herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<
                                                          h);
     }
 }
-
+/// @private
 /** \brief <b> Solver of the Dyson equation in the integral-differential form for a Green's function \f$G\f$</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->

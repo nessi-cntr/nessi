@@ -16,20 +16,23 @@ namespace cntr {
   // poly extrapolation/interpolation to tstp n+1, using n,...,n-k, with k = integration order
   ///////////////////////////////////////////////////////////////////////////////////////// */
 
-
+  /// @private
   template <typename T>
   void extrapolate_timestep(int n,herm_matrix<T> &G,integration::Integrator<T> &I);
     template <typename T>
   void extrapolate_timestep(int n, herm_matrix<T> &G, int SolveOrder=MAX_SOLVE_ORDER);
   template <typename T>
+  /// @private
   void extrapolate_timestep(int n,herm_pseudo<T> &G,integration::Integrator<T> &I);
 
+  /// @private
   template <typename T>
   void extrapolate_timestep(int n, function<T> &f,integration::Integrator<T> &I);
 
   template <typename T>
   void extrapolate_timestep(int n, function<T> &f, int ExtrapolationOrder=MAX_SOLVE_ORDER);
 
+  /// @private
   template <typename T>
   cdmatrix interpolation(int tstp,double tinter,function<T> &f,integration::Integrator<T> &I);
 
@@ -37,9 +40,10 @@ namespace cntr {
   cdmatrix interpolation(int tstp,double tinter,function<T> &f,int InterpolationOrder=MAX_SOLVE_ORDER);
 
   template <typename T> void set_t0_from_mat(herm_matrix<T> &G);
+  /// @private
   template <typename T> void set_t0_from_mat(herm_pseudo<T> &G);
 
-  template <typename T> void set_tk_from_mat(herm_matrix<T> &G,int kt);
+  template <typename T> void set_tk_from_mat(herm_matrix<T> &G,int SolveOrder);
 
   /* /////////////////////////////////////////////////////////////////////////////////////////
   // correlation energy from time-diagonal convolution

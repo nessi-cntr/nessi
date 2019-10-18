@@ -32,6 +32,7 @@ namespace cntr {
   template<typename T>
   dvector fermi_exp(T beta,T tau,dvector &omega);
 
+  /// @private
   template<typename T>
   cdmatrix diag_prop(T time,dvector &omega);
 

@@ -32,6 +32,7 @@ namespace cntr {
 /*###########################################################################################
 #   RETARDED FUNCTION: (GG = herm_matrix or herm_pseudo)
 ###########################################################################################*/
+/// @private
 template <typename T, class GG, int SIZE1>
 void dyson_timestep_ret_omp(int omp_num_threads, int n, GG &G, T mu, std::complex<T> *H,
                             GG &Sigma, integration::Integrator<T> &I, T h) {
@@ -173,6 +174,7 @@ void dyson_timestep_ret_omp(int omp_num_threads, int n, GG &G, T mu, std::comple
 #   TV FUNCTION:
 ###########################################################################################*/
 // GG = herm_matrix
+/// @private
 template <typename T, class GG, int SIZE1>
 void dyson_timestep_tv_omp(int omp_num_threads, int n, GG &G, T mu, std::complex<T> *Hn,
                            GG &Sigma, integration::Integrator<T> &I, T beta, T h) {
@@ -291,6 +293,7 @@ void pseudodyson_timestep_tv_omp(int omp_num_threads, int n, GG &G, T mu,
 /*###########################################################################################
 #   LESSER FUNCTION: (GG = herm_matrix or herm_pseudo)
 ###########################################################################################*/
+/// @private
 template <typename T, class GG, int SIZE1>
 void dyson_timestep_les_omp(int omp_num_threads, int n, GG &G, T mu, std::complex<T> *H,
                             GG &Sigma, integration::Integrator<T> &I, T beta, T h) {
@@ -498,6 +501,7 @@ void pseudodyson_timestep_omp(int omp_num_threads, int n, herm_pseudo<T> &G, T l
     delete[] hh;
 }
 
+/// @private
 template <typename T>
 void dyson_timestep_omp(int omp_num_threads, int n, herm_matrix<T> &G, T lam0,
                         function<T> &H, herm_matrix<T> &Sigma, integration::Integrator<T> &I,

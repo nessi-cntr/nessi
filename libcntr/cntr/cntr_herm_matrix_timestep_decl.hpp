@@ -78,15 +78,24 @@ class herm_matrix_timestep {
     void set_timestep(int tstp, herm_matrix<T> &g1);
     void set_timestep(int tstp, herm_matrix_timestep<T> &g1);
 
+    /// @private
     template <class Matrix> void set_ret(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void set_les(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void set_tv(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void set_mat(int i, Matrix &M);
 
+    /// @private
     template <class Matrix> void get_les(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void get_ret(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void get_tv(int i, int j, Matrix &M);
+    /// @private
     template <class Matrix> void get_mat(int i, Matrix &M);
+    /// @private
     template <class Matrix> void get_matminus(int i, Matrix &M);
 
     template <class Matrix> void density_matrix(int tstp, Matrix &M);
@@ -94,51 +103,70 @@ class herm_matrix_timestep {
     // reading complex numbers:
     // these will adress only (0,0) element for dim>1:
 
+    /// @private
     inline void set_les(int i, int j, cplx &x);
+    /// @private
     inline void set_ret(int i, int j, cplx &x);
+    /// @private
     inline void set_tv(int i, int j, cplx &x);
+    /// @private
     inline void set_mat(int i, cplx &x);
 
+    /// @private
     inline void get_les(int i, int j, cplx &x);
+    /// @private
     inline void get_ret(int i, int j, cplx &x);
+    /// @private
     inline void get_tv(int i, int j, cplx &x);
+    /// @private
     inline void get_mat(int i, cplx &x);
+    /// @private
     inline void get_matminus(int i, cplx &x);
 
     inline void density_matrix(int tstp, cplx &rho);
 
     // legacy interfaces
 
+    /// @private
     template <class Matrix> void set_ret(int j, Matrix &M);
+    /// @private
     template <class Matrix> void set_les(int j, Matrix &M);
+    /// @private
     template <class Matrix> void set_tv(int j, Matrix &M);
 
     ///// get_les_t_tstp(int i,Matrix &M) M = Gles(i*h,tstp) etc.
+    /// @private
     template <class Matrix> void get_les_t_tstp(int i, Matrix &M);
+    /// @private
     template <class Matrix> void get_les_tstp_t(int i, Matrix &M);
-
+    /// @private
     template <class Matrix> void get_ret_tstp_t(int j, Matrix &M);
+    /// @private
     template <class Matrix> void get_ret_t_tstp(int i, Matrix &M);
-
+    /// @private
     template <class Matrix> void get_tv(int j, Matrix &M);
-
+    /// @private
     template <class Matrix> void get_vt(int i, Matrix &M, int sig);
-
+    /// @private
     template <class Matrix> void get_matminus(int i, Matrix &M, int sig);
-
+    /// @private
     template <class Matrix> void get_gtr_tstp_t(int i, Matrix &M);
-
+    /// @private
     template <class Matrix> void get_gtr_t_tstp(int i, Matrix &M);
-
+    /// @private
     inline void get_vt(int i, int j, cplx &x);
 
+    /// @private
     cplx density_matrix(int tstp);
+    /// @private
     template <class Matrix> void density_matrix(Matrix &M);
 
     /////
     inline cplx *matptr(int i) { return data_ + i * element_size_; }
     // multiplication with function
+    /// @private
     void left_multiply(cplx *f0, cplx *ft, T weight = 1.0);
+    /// @private
     void right_multiply(cplx *f0, cplx *ft, T weight = 1.0);
     void left_multiply(function<T> &ft, T weight = 1.0);
     void right_multiply(function<T> &ft, T weight = 1.0);
@@ -175,9 +203,13 @@ class herm_matrix_timestep {
     void Recv_timestep(int tstp, int root, int tag);
 
     // legacy interfaces
+    /// @private
     void MPI_Reduce(int root);
+    /// @private
     void Bcast_timestep(int tstp, int ntau, int size1, int root);
+    /// @private
     void Send_timestep(int tstp, int ntau, int size1, int dest, int tag);
+    /// @private
     void Recv_timestep(int tstp, int ntau, int size1, int root, int tag);
 #endif
 // HDF5 I/O

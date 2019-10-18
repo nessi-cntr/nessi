@@ -17,7 +17,7 @@ template <typename F, typename I> F get_tau(const I tau_idx, const F beta, const
 template <typename F, typename I> F get_omega(const I m, const F beta, const I sig);
 
 // ----------------------------------------------------------------------
-
+/// @private
 template <typename T, int SIZE1>
 void set_first_order_tail(std::complex<T> *xmat, std::complex<T> *coeff, T beta, int sg,
                           int ntau, int sig, int size1);

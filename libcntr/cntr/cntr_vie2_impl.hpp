@@ -23,7 +23,7 @@ namespace cntr {
 #   RETARDED FUNCTION:
 #
 ###########################################################################################*/
-
+/// @private
 /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for the retarded component of the Green's function \f$G\f$ at a given timestep</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -179,6 +179,7 @@ void vie2_timestep_ret(int n, GG &G, GG &F, GG &Fcc, GG &Q, integration::Integra
     delete[] one;
     return;
 }
+/// @private
 /** \brief <b> VIE solver \f$(1+F)*G=Q\f$ for a left-mixing component of the Green's function \f$G\f$ for the first k timesteps</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -605,6 +606,7 @@ void vie2_mat_steep_dispatch(GG &G, GG &F, GG &Fcc, GG &Q, T beta,
 #   tv-FUNCTION:
 #
 ###########################################################################################*/
+/// @private
 /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for a left-mixing component of the Green's function \f$G\f$ at a given timestep</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -687,7 +689,7 @@ void vie2_timestep_tv(int n, GG &G, GG &F, GG &Fcc, GG &Q, integration::Integrat
     delete[] one;
     return;
 }
-
+/// @private
 /** \brief <b> VIE solver \f$(1+F)*G=Q\f$ for a left-mixing component of the Green's function \f$G\f$ for the first k timesteps</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -805,6 +807,7 @@ void vie2_start_tv(GG &G, GG &F, GG &Fcc, GG &Q, integration::Integrator<T> &I, 
 #   for n<k: start routine
 #
 ###########################################################################################*/
+/// @private
 /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for a lesser component of the Green's function \f$G\f$ at a given timestep</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -952,6 +955,7 @@ void vie2_timestep_les(int n, GG &G, GG &F, GG &Fcc, GG &Q, integration::Integra
     delete[] one;
     return;
 }
+/// @private
 /** \brief <b> VIE solver \f$(1+F)*G=Q\f$ for a lesser component of the Green's function \f$G\f$ for the first k timesteps</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -993,6 +997,7 @@ void vie2_start_les(GG &G, GG &F, GG &Fcc, GG &Q, integration::Integrator<T> &I,
         vie2_timestep_les<T, GG, SIZE1>(n, G, F, Fcc, Q, I, beta, h);
     return;
 }
+/// @private
 /** \brief <b> VIE solver \f$(1+F)*G=Q\f$ using Fourier method on matsubara axis</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1051,6 +1056,7 @@ void vie2_mat_fourier(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
         break;
     }
 }
+/// @private
 /** \brief <b> VIE solver \f$(1+F)*G=Q\f$ using fixpoint iteration method on matsubara axis</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1118,6 +1124,7 @@ void vie2_mat_fixpoint(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc
         break;
     }
 }
+/// @private
 /** \brief <b> VIE solver \f$(1+F)*G=Q\f$ using steepest descent minimization on matsubara axis</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1187,7 +1194,7 @@ void vie2_mat_steep(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
         break;
     }
 }
-
+/// @private
 /** \brief <b> VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$ on the Matsubara axis</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1295,7 +1302,7 @@ void vie2_mat(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
   }
 
 }
-
+/// @private
 /** \brief <b> VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$ for the first k timesteps</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1459,7 +1466,7 @@ void vie2_start(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_
         break;
     }
 }
-
+/// @private
 /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$ at a given timestep</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1642,7 +1649,7 @@ void vie2_timestep(int n, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &
         }
     }
 }
-
+/// @private
 /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$</b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1973,6 +1980,7 @@ void vie2_timestep_omp_dispatch(int omp_num_threads, int tstp, GG &B, CPLX alpha
     }
 }
 // same function call as above: anyway, only for  timestep
+/// @private
 /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for Green's function for given timestep. OpenMP parallelized </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2179,7 +2187,7 @@ void vie2_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &G, herm_ma
 }
 
 
-
+/// @private
 /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for Green's function with instantaneous contributions for given integration order. OpenMP parallelized </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2412,7 +2420,7 @@ void vie2_timestep_sin_omp(int omp_num_threads, int tstp,herm_matrix<T> &G,funct
   }
 
 
-
+  /// @private
   /** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$. OpenMP parallelized</b>
   *
   * <!-- ====== DOCUMENTATION ====== -->

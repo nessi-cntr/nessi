@@ -66,7 +66,7 @@ void response_integrate(int n, T dt, CPLX &res, CPLX *f, int sf, int idxf, CPLX 
 // USING THE ASSUMPTION THAT W IS HERMITIAN
 template <typename T>
 void response_convolution(int tstp, CPLX &cc, GREEN_TSTP &W, int a1, int a2, function<T> &f,
-                          int b1, int b2, int kt, T beta, T h) {
+                          int b1, int b2, int SolveOrder, T beta, T h) {
     int ntau = W.ntau();
     T dtau = beta / ntau;
     int sizew = W.size1(), idxw = a1 * sizew + a2, sw = sizew * sizew;
@@ -74,66 +74,66 @@ void response_convolution(int tstp, CPLX &cc, GREEN_TSTP &W, int a1, int a2, fun
     CPLX res;
 
     assert(W.tstp_ == tstp);
-    assert(tstp == -1 || tstp >= kt);
-    assert(kt <= ntau);
+    assert(tstp == -1 || tstp >= SolveOrder);
+    assert(SolveOrder <= ntau);
     assert(b1 >= 0 && b1 <= sizef-1);
     assert(b2 >= 0 && b2 <= sizef-1);
     assert(a1 >= 0 && a1 <= sizew-1);
     assert(a2 >= 0 && a2 <= sizew-1);
 
     if (tstp == -1) {
-        response_integrate<T>(ntau, dtau, res, W.matptr(0), sw, idxw, integration::I<T>(kt));
+        response_integrate<T>(ntau, dtau, res, W.matptr(0), sw, idxw, integration::I<T>(SolveOrder));
         cc = res * f.ptr(-1)[idxf];
     } else {
-        response_integrate<T>(ntau, dtau, res, W.tvptr(0), sw, idxw, integration::I<T>(kt));
+        response_integrate<T>(ntau, dtau, res, W.tvptr(0), sw, idxw, integration::I<T>(SolveOrder));
         cc = res * (CPLX(0, -1.0) * f.ptr(-1)[idxf]);
         response_integrate<T>(tstp, h, res, W.retptr(0), sw, idxw, f.ptr(0), sf, idxf,
-                              integration::I<T>(kt));
+                              integration::I<T>(SolveOrder));
         cc += res;
     }
 }
 template <typename T>
 void response_convolution(int tstp, CPLX &cc, GREEN &W, int a1, int a2, function<T> &f,
-                          int b1, int b2, int kt, T beta, T h) {
+                          int b1, int b2, int SolveOrder, T beta, T h) {
     int ntau = W.ntau();
     T dtau = beta / ntau;
     int sizew = W.size1(), idxw = a1 * sizew + a2, sw = sizew * sizew;
     int sizef = f.size1(), idxf = b1 * sizef + b2, sf = sizef * sizef;
-    int n1 = (tstp == -1 || tstp >= kt ? kt : kt);
+    int n1 = (tstp == -1 || tstp >= SolveOrder ? SolveOrder : SolveOrder);
     CPLX res;
 
     assert(W.tstp_ == tstp);
-    assert(tstp == -1 || tstp >= kt);
-    assert(kt <= ntau);
+    assert(tstp == -1 || tstp >= SolveOrder);
+    assert(SolveOrder <= ntau);
     assert(b1 >= 0 && b1 <= sizef-1);
     assert(b2 >= 0 && b2 <= sizef-1);
     assert(a1 >= 0 && a1 <= sizew-1);
     assert(a2 >= 0 && a2 <= sizew-1);
 
     if (tstp == -1) {
-        response_integrate<T>(ntau, dtau, res, W.matptr(0), sw, idxw, integration::I<T>(kt));
+        response_integrate<T>(ntau, dtau, res, W.matptr(0), sw, idxw, integration::I<T>(SolveOrder));
         cc = res * f.ptr(-1)[idxf];
-    } else if (tstp >= kt) {
+    } else if (tstp >= SolveOrder) {
         response_integrate<T>(ntau, dtau, res, W.tvptr(tstp, 0), sw, idxw,
-                              integration::I<T>(kt));
+                              integration::I<T>(SolveOrder));
         cc = res * (CPLX(0, -1.0) * f.ptr(-1)[idxf]);
         response_integrate<T>(tstp, h, res, W.retptr(tstp, 0), sw, idxw, f.ptr(0), sf, idxf,
-                              integration::I<T>(kt));
+                              integration::I<T>(SolveOrder));
         cc += res;
     } else {
         response_integrate<T>(ntau, dtau, res, W.tvptr(tstp, 0), sw, idxw,
-                              integration::I<T>(kt));
+                              integration::I<T>(SolveOrder));
         cc = res * (CPLX(0, -1.0) * f.ptr(-1)[idxf]);
         // need to extrapolate W(t,t') for t'>t
         // ** USING THE ASSUMPTION THAT W IS HERMITIAN**
         // i.e., Wret(t,t') = -Wret(t',t)^*
-        CPLX *wtmp = new CPLX[kt + 1];
+        CPLX *wtmp = new CPLX[SolveOrder + 1];
         for (int i = 0; i <= tstp; i++)
             wtmp[i] = W.retptr(tstp, i)[a1 * sizew + a2];
-        for (int i = tstp + 1; i <= kt; i++)
+        for (int i = tstp + 1; i <= SolveOrder; i++)
             wtmp[i] = -conj(W.retptr(i, tstp)[a2 * sizew + a1]);
         response_integrate<T>(tstp, h, res, wtmp, 1, 0, f.ptr(0), sf, idxf,
-                              integration::I<T>(kt));
+                              integration::I<T>(SolveOrder));
         cc += res;
         delete[] wtmp;
     }

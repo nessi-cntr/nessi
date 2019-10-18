@@ -28,6 +28,7 @@ template <typename F, typename I> F get_omega(const I m, const F beta, const I s
 }
 
 // ----------------------------------------------------------------------
+/// @private
 /** \brief <b> Returns the first-order tail correction term \f$c_0(\tau)\f$, such that
     \f$\tilde{C}^\mathrm{M}(\tau) = C^\mathrm{M}(\tau) + c_0(\tau)\f$ becomes continuous. </b>
 *

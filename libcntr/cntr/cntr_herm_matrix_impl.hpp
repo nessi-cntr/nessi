@@ -452,54 +452,66 @@ void herm_matrix<T>::clear(void) {
 #   RAW POINTERS TO ELEMENTS
 #
 ########################################################################################*/
+/// @private
 template <typename T>
 int herm_matrix<T>::les_offset(int t, int t1) const {
     assert(t >= 0 && t1 >= 0 && t <= t1 && t1 <= nt_);
     return ((t1 * (t1 + 1)) / 2 + t) * element_size_;
 }
+/// @private
 template <typename T>
 int herm_matrix<T>::ret_offset(int t, int t1) const {
     assert(t >= 0 && t1 >= 0 && t <= nt_ && t1 <= t);
     return ((t * (t + 1)) / 2 + t1) * element_size_;
 }
+/// @private
 template <typename T>
 int herm_matrix<T>::tv_offset(int t, int tau) const {
     assert(t >= 0 && tau >= 0 && t <= nt_ && tau <= ntau_);
     return (t * (ntau_ + 1) + tau) * element_size_;
 }
+/// @private
 template <typename T>
 int herm_matrix<T>::mat_offset(int tau) const {
     assert(tau >= 0 && tau <= ntau_);
     return tau * element_size_;
 }
+/// @private
 template <typename T>
 inline std::complex<T> *herm_matrix<T>::lesptr(int t, int t1) {
     return les_ + les_offset(t, t1);
 }
+/// @private
 template <typename T>
 inline std::complex<T> *herm_matrix<T>::retptr(int t, int t1) {
     return ret_ + ret_offset(t, t1);
 }
+/// @private
 template <typename T>
 inline std::complex<T> *herm_matrix<T>::tvptr(int t, int tau) {
     return tv_ + tv_offset(t, tau);
 }
+/// @private
 template <typename T>
 inline std::complex<T> *herm_matrix<T>::matptr(int tau) {
     return mat_ + mat_offset(tau);
 }
+/// @private
 template <typename T>
 inline const std::complex<T> *herm_matrix<T>::lesptr(int t, int t1) const {
     return les_ + les_offset(t, t1);
 }
+/// @private
 template <typename T>
 inline const std::complex<T> *herm_matrix<T>::retptr(int t, int t1) const {
     return ret_ + ret_offset(t, t1);
 }
+/// @private
 template <typename T>
 inline const std::complex<T> *herm_matrix<T>::tvptr(int t, int tau) const {
     return tv_ + tv_offset(t, tau);
 }
+/// @private
 template <typename T>
 inline const std::complex<T> *herm_matrix<T>::matptr(int tau) const {
     return mat_ + mat_offset(tau);
@@ -531,7 +543,7 @@ inline const std::complex<T> *herm_matrix<T>::matptr(int tau) const {
                 M(r, s) = std::complex<T>(-w.real(), w.imag());              \
             }                                                                \
     }
-
+/// @private
 /** \brief <b> Returns the lesser component at given times.  </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -566,6 +578,7 @@ inline const std::complex<T> *herm_matrix<T>::matptr(int tau) const {
       herm_matrix_READ_ELEMENT_MINUS_CONJ
 	}
   }
+/// @private
 /** \brief <b> Returns the retarded component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -602,7 +615,7 @@ void herm_matrix<T>::get_ret(int i, int j, Matrix &M) const {
         herm_matrix_READ_ELEMENT_MINUS_CONJ
     }
 }
-
+/// @private
 /** \brief <b> Returns the left-mixing component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -630,7 +643,7 @@ void herm_matrix<T>::get_tv(int i, int j, Matrix &M) const {
     const cplx *x = tvptr(i, j);
     herm_matrix_READ_ELEMENT
 }
-
+/// @private
 /** \brief <b> Returns the right-mixing component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -659,7 +672,7 @@ void herm_matrix<T>::get_vt(int i, int j, Matrix &M) const {
     const cplx *x = tvptr(j, ntau_ - i);
     herm_matrix_READ_ELEMENT_MINUS_CONJ if (sig_ == -1) M = -M;
 }
-
+/// @private
 /** \brief <b> Returns the Matsubara component at given imaginary time. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -685,6 +698,7 @@ void herm_matrix<T>::get_mat(int i, Matrix &M) const {
     const cplx *x = matptr(i);
     herm_matrix_READ_ELEMENT
 }
+/// @private
 /** \brief <b> Returns the Matsubara component for the negative
 * of a given imaginary time. </b>
 *
@@ -714,6 +728,7 @@ void herm_matrix<T>::get_matminus(int i, Matrix &M) const {
 #undef herm_matrix_READ_ELEMENT
 #undef herm_matrix_READ_ELEMENT_MINUS_CONJ
 
+/// @private
 /** \brief <b> Returns the greater component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -743,7 +758,7 @@ void herm_matrix<T>::get_gtr(int i, int j, Matrix &M) const {
     get_les(i, j, M1);
     M += M1;
 }
-
+/// @private
 /** \brief <b> Returns the retarded component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -777,6 +792,7 @@ inline void herm_matrix<T>::get_ret(int i, int j, cplx &x) const {
         x = -std::conj(x);
     }
 }
+/// @private
 /** \brief <b> Returns the lesser component at given times. </b>
 * <!-- ====== DOCUMENTATION ====== -->
 *
@@ -808,6 +824,7 @@ inline void herm_matrix<T>::get_les(int i, int j, cplx &x) const {
         x = -std::conj(x);
     }
 }
+/// @private
 /** \brief <b> Returns the left-mixing component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -833,6 +850,7 @@ inline void herm_matrix<T>::get_tv(int i, int j, cplx &x) const {
   assert(i <= nt_ && j <= ntau_);
     x = *tvptr(i, j);
 }
+/// @private
 /** \brief <b> Returns the right-mixing component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -863,6 +881,7 @@ inline void herm_matrix<T>::get_vt(int i, int j, cplx &x) const {
     else
         x = -std::conj(x);
 }
+/// @private
 /** \brief <b> Returns the Matsubara component at given imaginary time. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -886,6 +905,7 @@ inline void herm_matrix<T>::get_mat(int i, cplx &x) const {
   assert(i <= ntau_);
     x = *matptr(i);
 }
+/// @private
 /** \brief <b> Returns the Matsubara component for the negative
 * of a given imaginary time. </b>
 *
@@ -912,6 +932,7 @@ inline void herm_matrix<T>::get_matminus(int i, cplx &x) const {
     if (sig_ == -1)
         x = -x;
 }
+/// @private
 /** \brief <b> Returns the greater component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -940,6 +961,7 @@ inline void herm_matrix<T>::get_gtr(int i, int j, cplx &x) const {
     get_les(i, j, x1);
     x += x1;
 }
+/// @private
 /** \brief <b> Returns the density matrix at given time step. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1020,7 +1042,7 @@ dim>0)
                 x[r * size2_ + s] = M(r, s);                                    \
     }
 
-
+/// @private
 /** \brief <b> Copies a given matrix to the retarded component of at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1045,7 +1067,7 @@ void herm_matrix<T>::set_ret(int i, int j, Matrix &M) {
     cplx *x = retptr(i, j);
     herm_matrix_SET_ELEMENT_MATRIX
 }
-
+/// @private
 /** \brief <b> Copies a given matrix to the lesser component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1071,7 +1093,7 @@ void herm_matrix<T>::set_les(int i, int j, Matrix &M) {
     cplx *x = lesptr(i, j);
     herm_matrix_SET_ELEMENT_MATRIX
 }
-
+/// @private
 /** \brief <b> Copies a given matrix to the left-mixing component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1097,7 +1119,7 @@ void herm_matrix<T>::set_tv(int i, int j, Matrix &M) {
     cplx *x = tvptr(i, j);
     herm_matrix_SET_ELEMENT_MATRIX
 }
-
+/// @private
 /** \brief <b> Copies a given matrix to the Matsubara component at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1143,7 +1165,7 @@ void herm_matrix<T>::set_mat_herm(int i){
   tmp=(tmp+tmp.adjoint())/2.0;
   this->set_mat(i,tmp);
 }
-
+/// @private
 /** \brief <b> Hermitianizes the Matsubara component at for all imaginary times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1163,7 +1185,7 @@ void herm_matrix<T>::set_mat_herm(void){
     this->set_mat(i,tmp);
   }
 }
-
+/// @private
 /** \brief <b> Copies a given complex number to the lesser component of at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1187,7 +1209,7 @@ inline void herm_matrix<T>::set_les(int i, int j, cplx x) {
     *lesptr(i, j) = x;
 }
 
-
+/// @private
 /** \brief <b> Copies a given complex number to the retarded component of at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1210,7 +1232,7 @@ inline void herm_matrix<T>::set_ret(int i, int j, cplx x) {
   assert(i <= nt_ && j <= nt_);
     *retptr(i, j) = x;
 }
-
+/// @private
 /** \brief <b> Copies a given complex number to the left-mixing component of at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -1233,7 +1255,7 @@ inline void herm_matrix<T>::set_tv(int i, int j, cplx x) {
   assert(i <= nt_ && j <= ntau_);
     *tvptr(i, j) = x;
 }
-
+/// @private
 /** \brief <b> Copies a given complex number to the Matsubara component of at given times. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -2655,7 +2677,7 @@ void herm_matrix<T>::incr_timestep(herm_matrix<T> &g, std::complex<T> alpha) {
     for (int m = -1; m <= nt_; m++)
         this->incr_timestep(m, g, alpha);
 }
-
+/// @private
 // G(t,t') ==> F(t)G(t,t')   ... ft+t*element_size_ points to F(t)
 
 /** \brief <b> Left-multiplies the `herm_matrix` with contour function. </b>
@@ -2771,7 +2793,7 @@ void herm_matrix<T>::left_multiply(int tstp, function<T> &ft, T weight) {
         break;
     }
 }
-
+/// @private
 /** \brief <b> Left-multiplies the `herm_matrix` with contour function. Internal version, not intended
 *  to be called directly. </b>
 *
@@ -2909,7 +2931,7 @@ void herm_matrix<T>::left_multiply_hermconj(int tstp, function<T> &ft,
     delete[] xtemp;
     delete[] fcc;
 }
-
+/// @private
 /** \brief <b> Right-multiplies the `herm_matrix` with contour function. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -3022,6 +3044,7 @@ void herm_matrix<T>::right_multiply(int tstp, function<T> &ft, T weight) {
         break;
     }
 }
+/// @private
 /** \brief <b> Right-multiplies the `herm_matrix` with contour function.
 * Internal version, not intended to be called directly. </b>
 *

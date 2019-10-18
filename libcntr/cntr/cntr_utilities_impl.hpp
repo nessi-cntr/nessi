@@ -110,7 +110,7 @@ void extrapolate_timestep_dispatch(int n, GG &G,
     delete[] gtemp;
     delete[] gtemp1;
 }
-
+/// @private
 /** \brief <b>  k-th order polynomial extrapolation to t=n+1 of the retarded, lesser and left-mixing components of herm_matrix. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -220,7 +220,7 @@ void extrapolate_timestep_dispatch(int n, cntr::function<T> &f,
         // std::cout << "extra2g " << output  << std::endl;
     }
 }
-
+/// @private
 /** \brief <b>  k-th order polynomial extrapolation to t=n+1 of the contour function. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -309,7 +309,7 @@ cdmatrix interpolation_dispatch(int tstp, double tinter, cntr::function<T> &f,
     }
     return output;
 }
-
+/// @private
 /** \brief <b>  k-th order polynomial interpolation of the contour function </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -443,7 +443,7 @@ void set_tk_from_mat(herm_matrix<T> &G,int kt){
    }
 }
 
-
+/// @private
 template <typename T>
 void set_t0_from_mat(herm_pseudo<T> &G) {
     int m, ntau = G.ntau(), size1 = G.size1();
