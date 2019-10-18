@@ -310,7 +310,7 @@ class bethedos {
         return (arg < 0 ? 0.0 : sqrt(arg) / num);
     }
 };
-
+/// @private
 /** \brief <b> Class 'ohmic` represent a ohmic bath x^2*exp(-x/x_c) density of states </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->

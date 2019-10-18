@@ -54,7 +54,7 @@ namespace cntr {
   void vie2(herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc, herm_matrix<T> &Q,
       integration::Integrator<T> &I, T beta, T h, const int matsubara_method=CNTR_MAT_FIXPOINT);
 
-  template <typename Tå>
+  template <typename T>
   void vie2_timestep_sin(int n,herm_matrix<T> &G,function<T> &Gsin,herm_matrix<T> &F,herm_matrix<T> &Fcc, function<T> &Fsin ,
       herm_matrix<T> &Q,function<T> &Qsin,T beta,T h,int SolveOrder=MAX_SOLVE_ORDER);
 
