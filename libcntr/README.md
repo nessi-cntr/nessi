@@ -84,7 +84,7 @@ To turn on OpenMP and/or MPI parallelization define the options `omp` and/or `mp
 
 
 doxygen
-==============
+=======
 
 The **libcntr** is fully documented using the automated documentation tool [doxygen](http://www.doxygen.nl). To build the documentation,
 add the cmake variable
