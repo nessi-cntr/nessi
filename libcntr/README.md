@@ -1,7 +1,51 @@
+libcntr library
+===============
+
+This is the **libcntr** library, the core part of the **NESSi** software package. The full documentation and detailed build instructions
+can be found at the [official webpage](http://www.nessi.tuxfamily.org).
+
 Build instructions
 ==================
 
-To build the tests eigen must be installed in the include path (under ./eigen3/). The include and library paths can be specified when running cmake as
+### Prerequisites
+* [cmake](https://cmake.org)
+* [eigen3](http://eigen.tuxfamily.org/index.php?title=Main_Page) 
+* [hdf5](https://www.hdfgroup.org/solutions/hdf5/) - optional, but recommended
+
+### Configuration and installation
+
+We use the [cmake](https://cmake.org) build system to generate Makefiles. We recommend creating a configuration script 
+with all options:
+
+```
+    # From the root directory .../libcntr/
+    # Create configure script
+    vim configure.sh
+```
+
+The basic configure script has the following structure:
+
+```
+CC=[C compiler] CXX=[C++ compiler]
+cmake \
+ -DCMAKE_INSTALL_PREFIX=[install directory] \
+ -DCMAKE_BUILD_TYPE=[Debug|Release] \
+ -DCMAKE_INCLUDE_PATH=[include directory] \
+ -DCMAKE_LIBRARY_PATH=[library directory] \
+ -DCMAKE_CXX_FLAGS="[compiling flags]" \
+ ..
+```
+
+In the first line, the C and C++ compiler are set. We have tested the full library for both the GNU compilers (`CC=gcc CXX=g++`) as well as the Intel compilers (`CC=icc CXX=icpc`). The install directory (for instance `/home/opt`) is defined by the CMake variable `CMAKE_INSTALL_PREFIX`. Debugging tools are switched on by setting `CMAKE_BUILD_TYPE=Debug`; otherwise, all assertions and sanity checks are turned off. The code is significantly faster in release mode (`CMAKE_BUILD_TYPE=Release`) and thus recommended for a production run. The debug mode, on the other hand, turns on assertions (implemented as C++ standard assertions) checking a consistency of the input for all major routines. 
+The path to the libraries that **libcntr** depends upon ([eigen3](http://eigen.tuxfamily.org/index.php?title=Main_Page)  and, optionally, [hdf5](https://www.hdfgroup.org/solutions/hdf5/)) are provided by specifying the include directory `CMAKE_INCLUDE_PATH` and the library path `CMAKE_LIBRARY_PATH`. Finally, the compilation flags are specified by `CMAKE_CXX_FLAGS`. To compile libcntr, the flags should include
+
+```
+-std=c++11 -fpermissive
+```
+
+if the GNU C++ compiler is used. No special flags are required when using the Intel C++ compiler.
+
+As the next step create a build directory
 
 ```
     # From the root directory .../libcntr/
@@ -10,131 +54,59 @@ To build the tests eigen must be installed in the include path (under ./eigen3/)
     cd cbuild
 ```
 
-    # Cmake configuration step (replace paths according to your system)
+and run the configure script:
 
 ```
-    cmake \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INCLUDE_PATH=/opt/local/include \
-        -DCMAKE_LIBRARY_PATH=/opt/local/lib \
-        ..
+    sh ../configure.sh
 ```
 
-    # Build the tests
+After successful configuration (which generates the make files), compile the library by
+
 ```
-    make -j
+    make
 ```
 
-    # Executables now reside in ./cbuild/cntr/
-    cd ./cntr
-    ./test_vie2 1.0 1.0 10 100 5
 
 HDF5
 ====
 
-To enable hdf5 support use the `hdf5` option in cmake
+To enable hdf5 support add the `hdf5` option to the cmake configure script:
 
-    cmake -Dhdf5=ON
+    -Dhdf5=ON
 
 MPI and OpenMP
 ==============
 
-To turn on OpenMP and/or MPI parallelization define the options `omp` and/or `mpi` in the cmake step, respectively, and specify your c and c++ mpi compilers according to
+To turn on OpenMP and/or MPI parallelization define the options `omp` and/or `mpi` in the cmake step, respectively, and specify your C and C++ MPI compilers by `CC=mpicc CXX=mpix++` (or similar, depending on your system). Add the `omp` and `mpi` option to the configure script:
 
-    CC=mpicc CXX=mpic++ \
-    cmake \
-        -DCMAKE_BUILD_TYPE=Release \
-        -Domp=ON \
-        -Dmpi=ON \
-        -DCMAKE_INCLUDE_PATH=/opt/local/include \
-        -DCMAKE_LIBRARY_PATH=/opt/local/lib \
-        ..
+    -Domp=ON \
+    -Dmpi=ON
 
-Note, that CMake should detect the correct options in most cases. Hence, it
-should not be necessary to explicitely define `CC`, and `CXX`.
 
 doxygen
 ==============
 
-To generate documentation run
+The **libcntr** is fully documented using the automated documentation tool [doxygen](http://www.doxygen.nl). To build the documentation,
+add the cmake variable
 
-    doxygen Doxyfile.txt
+    -DBUILD_DOC=ON
 
-it creates a html directory inside an output doc directory. In html directory there is an index.html, which contains the generated HTML documentation.
-
-To make a description in the code use the following comment block starting with two *'s:
-
-    /** \brief Here is a short documentation.
-    * Detailed documentation starts here.
-    */
-
-Class documentation starts with \class. The first sentence after \class is a short description of the class.
-
-    /** \class here is a short class documentation.
-    * Detailed documentation starts here.
-    */
-
-
-To describe parameters of a function use:
-
-    @param  some_parameter  Description of some parameter
-
-To include formulas in the description use:
-
-    \f{equation*}{
-        some_formula_with_latex_commands
-    }
-
-Example of documentation:
-
-    /** \brief <b> Left-Mixing convolution at given time-step. </b>
-      *
-      * <!-- ====== DOCUMENTATION ====== -->
-      *
-      *   \par Purpose
-      * <!-- ========= -->
-      *
-      * > Here we calculate
-      * > \f{eqnarray*}{
-      *     C &=& A*B\\
-      *     C^{tv}(t,\tau') &=& \int_0^\beta ds  A^{tv}(t,s) B^M(s - \tau')
-      *                       + \int_0^t ds A^R(t,s) B^{tv}(s,\tau') \f}
-      * >
-      * > At time-step `t = n h` for all \f$\tau'\f$.
-      * > The result is written into `ctv`.
-      * >
-      * > `ctv` is a pointer to the timestep of elements of type GG,
-      * > so it must have size `(C.ntau_ + 1) * C.element_size_`
-      *
-      * <!-- ARGUMENTS
-      *      ========= -->
-      *
-      * @param beta
-      * > inverse temperature
-      *
-      * @param h
-      * > time step
-      */
+to the configure script. Upon running `make`, the documentation will be generated under `doc/html/index.html`.
 
 
 Tests
 =====
 
-To build the tests activate the option `test`. The executables will be placed in `./cbuild/cntr/`. Those tests that depend on OpenMP will only be built if the `omp` option is activated.
+We also provide a test suite for checking the functionality of every major routine in **libcntr** based on the Catch library. For running the tests, simply run
 
-    cmake \
-        -Dtest=ON
-        -Domp=ON \
-        -Dmpi=ON \
-        -DCMAKE_INCLUDE_PATH=/opt/local/include \
-        -DCMAKE_LIBRARY_PATH=/opt/local/lib \
-        ..
+```
+    make test
+```
+  
+After completing all test, the message `All tests` passed indicates that the compiled version of **libcntr** is fully functional. If compiled with MPI support, the MPI-based functions can be tested by running
 
-Wiki
-=====
-
-The wiki is a git repository. To clone it, use: 
-
-``` 
-git clone https://bitbucket.org/computationalphysicsunifr/libcntr.git/wiki
+```
+    make test_mpi
+```
+computationalphysicsunifr/libcntr.git/wiki
 ```
