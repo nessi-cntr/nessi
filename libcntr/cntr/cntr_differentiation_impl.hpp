@@ -21,6 +21,7 @@ namespace cntr {
 #
 ###########################################################################################*/
 // left derivative (1)
+/// @private
 template <typename T>
 void deriv1_timestep(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A, herm_matrix<T> &Acc,
                      integration::Integrator<T> &I, T beta, T h) {
@@ -36,6 +37,7 @@ void deriv1_timestep(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A, herm_matri
 }
 
 // right derivative (2)
+/// @private
 template <typename T>
 void deriv2_timestep(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A, herm_matrix<T> &Acc,
                      integration::Integrator<T> &I, T beta, T h) {
@@ -54,6 +56,7 @@ void deriv2_timestep(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A, herm_matri
 // deriv1 = -d/dtau
 // deriv2 = +d/dtau' A(tau-tau') = -d/dtau A(tau-tau') = deriv1
 // computed for all imaginary time directly
+/// @private
 template <typename T>
 void deriv1_matsubara(herm_matrix<T> &dA, herm_matrix<T> &A, integration::Integrator<T> &I,
                       T beta) {
@@ -152,6 +155,7 @@ void deriv1_matsubara(herm_matrix<T> &dA, herm_matrix<T> &A, integration::Integr
 // element access only for retarded and lesser
 // A not hermitian: keep track of boundaries explicitly and use Acc when needed
 // not very efficient (many if/else...) improve when desired
+/// @private
 template <typename T>
 void deriv1_element(int tstp1, int tstp2, herm_matrix<T> &dA, herm_matrix<T> &A,
                     herm_matrix<T> &Acc, integration::Integrator<T> &I, T h) {
@@ -230,6 +234,7 @@ void deriv1_element(int tstp1, int tstp2, herm_matrix<T> &dA, herm_matrix<T> &A,
 // lesser/greater: deriv2= -i d/dt
 // element access only for retarded and lesser
 // not very efficient (many if/else...) improve when needed
+/// @private
 template <typename T>
 void deriv2_element(int tstp1, int tstp2, herm_matrix<T> &dA, herm_matrix<T> &A,
                     herm_matrix<T> &Acc, integration::Integrator<T> &I, T h) {
@@ -304,6 +309,7 @@ void deriv2_element(int tstp1, int tstp2, herm_matrix<T> &dA, herm_matrix<T> &A,
 
 // mixed tv: deriv1 = +i d/dt
 // calculated directly whole timestep (sum imaginary time)
+/// @private
 template <typename T>
 void deriv1_tv(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A,
                integration::Integrator<T> &I, T h) {
@@ -341,6 +347,7 @@ void deriv1_tv(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A,
 
 // mixed tv: deriv2 = +d/dtau'
 // calculates directly whole timestep (sum imaginary time)
+/// @private
 template <typename T>
 void deriv2_tv(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A,
                integration::Integrator<T> &I, T beta) {
@@ -374,6 +381,44 @@ void deriv2_tv(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A,
             dA.set_tv(tstp, tstp2, c);
         }
     }
+}
+
+
+// ============================== new interfaces ==============================
+
+template <typename T>
+void deriv1_matsubara(herm_matrix<T> &dA, herm_matrix<T> &A, T beta, int SolveOrder){
+    deriv1_matsubara(dA, A, integration::I<T>(SolveOrder), beta);
+}
+template <typename T>
+void deriv1_element(int tstp1, int tstp2, herm_matrix<T> &dA, herm_matrix<T> &A,
+                    herm_matrix<T> &Acc, T h, int SolveOrder){
+    deriv1_element(tstp1, tstp2, dA, A, Acc, integration::I<T>(SolveOrder), h);
+}
+template <typename T>
+void deriv2_element(int tstp1, int tstp2, herm_matrix<T> &dA, herm_matrix<T> &A,
+                    herm_matrix<T> &Acc, T h, int SolveOrder){
+    deriv2_element(tstp1, tstp2, dA, A, Acc, integration::I<T>(SolveOrder), h);
+}
+template <typename T>
+void deriv1_tv(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A,
+               T h, int SolveOrder){
+    deriv1_tv(tstp, dA, A, integration::I<T>(SolveOrder), h);
+}
+template <typename T>
+void deriv2_tv(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A,
+               T beta, int SolveOrder){
+    deriv2_tv(tstp, dA, A, integration::I<T>(SolveOrder), beta);
+}
+template <typename T>
+void deriv1_timestep(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A, herm_matrix<T> &Acc,
+                     T beta, T h, int SolveOrder){
+    deriv1_timestep(tstp, dA, A, Acc, integration::I<T>(SolveOrder), beta, h);
+}
+template <typename T>
+void deriv2_timestep(int tstp, herm_matrix<T> &dA, herm_matrix<T> &A, herm_matrix<T> &Acc,
+                     T beta, T h, int SolveOrder){
+    deriv2_timestep(tstp, dA, A, Acc, integration::I<T>(SolveOrder), beta, h);
 }
 
 } // namespace cntr
