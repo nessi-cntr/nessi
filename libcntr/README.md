@@ -18,9 +18,9 @@ We use the [cmake](https://cmake.org) build system to generate Makefiles. We rec
 with all options:
 
 ```
-    # From the root directory .../libcntr/
-    # Create configure script
-    vim configure.sh
+# From the root directory .../libcntr/
+# Create configure script
+vim configure.sh
 ```
 
 The basic configure script has the following structure:
@@ -48,22 +48,22 @@ if the GNU C++ compiler is used. No special flags are required when using the In
 As the next step create a build directory
 
 ```
-    # From the root directory .../libcntr/
-    # Create build directory
-    mkdir cbuild
-    cd cbuild
+# From the root directory .../libcntr/
+# Create build directory
+mkdir cbuild
+cd cbuild
 ```
 
 and run the configure script:
 
 ```
-    sh ../configure.sh
+sh ../configure.sh
 ```
 
 After successful configuration (which generates the make files), compile the library by
 
 ```
-    make
+make
 ```
 
 
@@ -99,12 +99,12 @@ Tests
 
 We also provide a test suite for checking the functionality of every major routine in **libcntr** based on the Catch library. For running the tests, simply run
 
-```
+
     make test
-```
+
   
 After completing all test, the message `All tests` passed indicates that the compiled version of **libcntr** is fully functional. If compiled with MPI support, the MPI-based functions can be tested by running
 
-```
+
     make test_mpi
-```
+
