@@ -24,4 +24,6 @@ Please cite the following paper whenever you use parts of **NESSi**:
 
 Michael Schüler, Denis Golež, Yuta Murakami, Nikolaj Bittner, Andreas Herrmann, Hugo U. R. Strand, Philipp Werner, Martin Eckstein, CPC XX, XX (2019)
 
+## License
+
 This project is licensed under the MPL License - see the [LICENSE.md](LICENSE.md) file for details
