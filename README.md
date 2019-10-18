@@ -6,7 +6,7 @@
 
 **Overview:**
 * NESSi provides tools for constructing Feynman diagram and solving equations of motion for non-equilibrium Green's functions on the Kadanoff-Baym contour
-* NESSi is based on high-order quadrature rules: for *N* time slices, the error scales like *O(N<sup>-p<\sup>)* with *p* up to 7.
+* NESSi is based on high-order quadrature rules: for *N* time slices, the error scales like *O(N<sup>-p</sup>)* with *p* up to 7.
 * Efficient distributed-memory parallelization over reciprocal space allows large-scale calculations on extended systems.
 
 ## Documentation and tutorials
