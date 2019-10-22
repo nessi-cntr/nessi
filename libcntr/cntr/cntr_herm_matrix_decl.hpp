@@ -197,10 +197,13 @@ class herm_matrix {
     void get_timestep(int tstp, herm_matrix_timestep<T> &timestep) const;
     void get_timestep(int tstp, herm_matrix<T> &timestep) const;
     void incr_timestep(int tstp, herm_matrix_timestep<T> &timestep,
-                       cplx alpha = 1.0);
-    void incr_timestep(int tstp, herm_matrix<T> &g, cplx alpha = 1.0);
+                       cplx alpha);
+    void incr_timestep(int tstp, herm_matrix_timestep<T> &timestep);
+    void incr_timestep(int tstp, herm_matrix<T> &g, cplx alpha);
+    void incr_timestep(int tstp, herm_matrix<T> &g);
     // check what this is actually doing
-    void incr_timestep(herm_matrix<T> &g, cplx alpha = 1.0);
+    void incr(herm_matrix<T> &g, cplx alpha);
+    void incr(herm_matrix<T> &g);
 
     void set_matrixelement(int tstp, int i1, int i2,
                            herm_matrix_timestep<T> &timestep);

@@ -340,7 +340,7 @@ TEST_CASE("Herm matrix","[Herm_matrix]"){
 
       cntr::green_from_H(G4,mu,h1,beta,h);
       err = 0.0;
-      G4.incr_timestep(G2,wz);
+      G4.incr(G2,wz);
       for(int tstp=-1; tstp<=nt; tstp++){
         err += cntr::distance_norm2(tstp,G3,G4);
       }

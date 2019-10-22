@@ -73,7 +73,7 @@ TEST_CASE("herm_matrix algebra","[herm_matrix_algebra]"){
 
     cntr::green_from_H(G4,mu,h1,beta,dt);
     err = 0.0;
-    G4.incr_timestep(G2,wz);
+    G4.incr(G2,wz);
     for(int tstp=-1; tstp<=nt; tstp++){
       err += cntr::distance_norm2(tstp,G3,G4);
     }
