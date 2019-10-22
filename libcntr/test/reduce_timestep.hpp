@@ -80,14 +80,14 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
       GREEN Gk_master(nt,ntau,size,-1);
       cdmatrix hk;
       for(int tid=0; tid<ntasks; tid++){
-        hk = h1 + tid * MatrixXd::Identity(size, size);
+        hk = h1 + tid * iden;
         cntr::green_from_H(Gk_master,mu,hk,beta,dt);
         for(int tstp=-1; tstp<=nt; tstp++) Gloc.incr_timestep(tstp, Gk_master);
       }      
     } 
 
     cdmatrix hk;
-    hk = h1 + taskid * MatrixXd::Identity(size, size);
+    hk = h1 + taskid * iden;
     cntr::green_from_H(Gk,mu,hk,beta,dt);
 
     for(int tstp=-1; tstp<=nt; tstp++){
@@ -120,7 +120,7 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
       GREEN Gk_master(nt,ntau,size,-1);
       cdmatrix hk;
       for(int tid=0; tid<ntasks; tid++){
-        hk = h1 + tid * MatrixXd::Identity(size, size);
+        hk = h1 + tid * iden;
         cntr::green_from_H(Gk_master,mu,hk,beta,dt);
         for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.incr_timestep(tstp, Gk_master);
       }      
@@ -162,14 +162,14 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
       GREEN Gk_master(nt,ntau,size,-1);
       cdmatrix hk;
       for(int tid=0; tid<ntasks; tid++){
-        hk = h1 + tid * MatrixXd::Identity(size, size);
+        hk = h1 + tid * iden;
         cntr::green_from_H(Gk_master,mu,hk,beta,dt);
         for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.incr_timestep(tstp, Gk_master);
       }      
     } 
 
     cdmatrix hk;
-    hk = h1 + taskid * MatrixXd::Identity(size, size);
+    hk = h1 + taskid * iden;
     cntr::green_from_H(Gk,mu,hk,beta,dt);
 
     for(int tstp=-1; tstp<=nt; tstp++){
@@ -202,14 +202,14 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
       GREEN Gk_master(nt,ntau,size,-1);
       cdmatrix hk;
       for(int tid=0; tid<ntasks; tid++){
-        hk = h1 + tid * MatrixXd::Identity(size, size);
+        hk = h1 + tid * iden;
         cntr::green_from_H(Gk_master,mu,hk,beta,dt);
         for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.incr_timestep(tstp, Gk_master);
       }      
     } 
 
     cdmatrix hk;
-    hk = h1 + taskid * MatrixXd::Identity(size, size);
+    hk = h1 + taskid * iden;
     cntr::green_from_H(Gk,mu,hk,beta,dt);
 
     for(int tstp=-1; tstp<=nt; tstp++){
@@ -241,14 +241,14 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
       GREEN Gk_master(nt,ntau,size,-1);
       cdmatrix hk;
       for(int tid=0; tid<ntasks; tid++){
-        hk = h1 + tid * MatrixXd::Identity(size, size);
+        hk = h1 + tid * iden;
         cntr::green_from_H(Gk_master,mu,hk,beta,dt);
         for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.incr_timestep(tstp, Gk_master);
       }      
     } 
 
     cdmatrix hk;
-    hk = h1 + taskid * MatrixXd::Identity(size, size);
+    hk = h1 + taskid * iden;
     cntr::green_from_H(Gk,mu,hk,beta,dt);
 
     for(int tstp=-1; tstp<=nt; tstp++){
