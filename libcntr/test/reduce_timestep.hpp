@@ -18,7 +18,7 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
   std::complex<double> I(0.0,1.0);
   cdmatrix h1(size,size);
   cdmatrix iden(size,size);
-  iden = MatrixXd::Identity(size, size);
+  iden = MatrixXcd::Identity(size, size);
   
   ntasks = MPI::COMM_WORLD.Get_size();
   taskid = MPI::COMM_WORLD.Get_rank();
