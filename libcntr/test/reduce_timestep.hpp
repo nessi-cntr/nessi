@@ -37,7 +37,7 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
       Gloc = GREEN(nt,ntau,size,-1);
       for(int tstp=-1; tstp<=nt; tstp++) Gloc.set_timestep_zero(tstp);
       GREEN Gk_master(nt,ntau,size,-1);
-      cdmatrix hk;
+      cdmatrix hk(size, size);
       cdmatrix iden = MatrixXd::Identity(size, size);
       for(int tid=0; tid<ntasks; tid++){
         hk = h1 + (double)tid * iden;
@@ -46,7 +46,7 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
       }      
     } 
 
-    cdmatrix hk;
+    cdmatrix hk(size, size);
     dmatrix iden = MatrixXd::Identity(size, size);
     hk = h1 + (double)taskid * iden;
     cntr::green_from_H(Gk,mu,hk,beta,dt);
