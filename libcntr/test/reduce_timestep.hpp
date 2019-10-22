@@ -16,7 +16,9 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
   double tmax=dt*nt;
   double eps1=-0.4,eps2=0.6,lam1=0.1;
   std::complex<double> I(0.0,1.0);
-  cdmatrix h1(2,2);
+  cdmatrix h1(size,size);
+  cdmatrix iden(size,size);
+  iden = MatrixXd::Identity(size, size);
   
   ntasks = MPI::COMM_WORLD.Get_size();
   taskid = MPI::COMM_WORLD.Get_rank();
@@ -38,7 +40,6 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
       for(int tstp=-1; tstp<=nt; tstp++) Gloc.set_timestep_zero(tstp);
       GREEN Gk_master(nt,ntau,size,-1);
       cdmatrix hk(size, size);
-      cdmatrix iden = MatrixXd::Identity(size, size);
       for(int tid=0; tid<ntasks; tid++){
         hk = h1 + (double)tid * iden;
         cntr::green_from_H(Gk_master,mu,hk,beta,dt);
@@ -47,7 +48,6 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
     } 
 
     cdmatrix hk(size, size);
-    dmatrix iden = MatrixXd::Identity(size, size);
     hk = h1 + (double)taskid * iden;
     cntr::green_from_H(Gk,mu,hk,beta,dt);
 
