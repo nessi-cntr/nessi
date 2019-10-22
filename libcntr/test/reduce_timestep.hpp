@@ -127,7 +127,7 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
     } 
 
     cdmatrix hk;
-    hk = h1 + taskid * MatrixXd::Identity(size, size);
+    hk = h1 + taskid * iden;
     cntr::green_from_H(Gk,mu,hk,beta,dt);
 
     for(int tstp=-1; tstp<=nt; tstp++){
