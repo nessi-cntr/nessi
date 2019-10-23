@@ -73,7 +73,7 @@ void response_convolution(int tstp, CPLX &cc, GREEN_TSTP &W, int a1, int a2, fun
     int sizef = f.size1(), idxf = b1 * sizef + b2, sf = sizef * sizef;
     CPLX res;
 
-    assert(W.tstp_ == tstp);
+    assert(W.tstp() >= tstp);
     assert(tstp == -1 || tstp >= SolveOrder);
     assert(SolveOrder <= ntau);
     assert(b1 >= 0 && b1 <= sizef-1);
@@ -102,7 +102,7 @@ void response_convolution(int tstp, CPLX &cc, GREEN &W, int a1, int a2, function
     int n1 = (tstp == -1 || tstp >= SolveOrder ? SolveOrder : SolveOrder);
     CPLX res;
 
-    assert(W.tstp_ == tstp);
+    assert(W.nt() >= tstp);
     assert(tstp == -1 || tstp >= SolveOrder);
     assert(SolveOrder <= ntau);
     assert(b1 >= 0 && b1 <= sizef-1);

@@ -356,8 +356,8 @@ TEST_CASE("function","[function]"){
 			   }
 			   */
 			cdmatrix constant(1,1);
-			constant = MatrixXcd::Zero(1,1);
-			
+			constant(0,0) = 0.0;
+
 			// std::complex<double> constant(0.0, 0.0);
 			f1.set_constant(constant);
 			f0.write_to_hdf5("test_func.h5", "data");

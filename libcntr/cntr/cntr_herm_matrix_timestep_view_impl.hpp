@@ -784,7 +784,7 @@ void herm_matrix_timestep_view<T>::left_multiply(int tstp, std::complex<T> *f0,
     int m;
     cplx *xtemp, *ftemp, *x0;
     xtemp = new cplx[element_size_];
-    assert(tstp >= -1 && tstp <= nt_ && "tstp >= -1 && tstp <= nt_");
+    assert(tstp >= -1 && "tstp >= -1");
     if (tstp == -1) {
         x0 = matptr(0);
         for (m = 0; m <= ntau_; m++) {
@@ -878,7 +878,7 @@ void herm_matrix_timestep_view<T>::right_multiply(int tstp, std::complex<T> *f0,
     int m;
     cplx *xtemp, *ftemp, *x0;
     xtemp = new cplx[element_size_];
-    assert(tstp >= -1 && tstp <= nt_ && "tstp >= -1 && tstp <= nt_");
+    assert(tstp >= -1 && "tstp >= -1");
     if (tstp == -1) {
         x0 = matptr(0);
         for (m = 0; m <= ntau_; m++) {
@@ -947,9 +947,9 @@ void herm_matrix_timestep_view<T>::left_multiply_hermconj(int tstp, function<T> 
     cplx *xtemp, *ftemp, *x0, *f0, *fcc;
     xtemp = new cplx[element_size_];
     fcc = new cplx[element_size_];
-    assert(tstp >= -1 && tstp <= nt_ && ft.nt() >= tstp &&
+    assert(tstp >= -1 && ft.nt() >= tstp &&
            ft.size1() == size1_ && ft.size2() == size2_ &&
-       "tstp >= -1 && tstp <= nt_ && ft.nt() >= tstp && ft.size1() == size1_ && ft.size2() == size2_");
+       "tstp >= -1 && ft.nt() >= tstp && ft.size1() == size1_ && ft.size2() == size2_");
 
     f0 = ft.ptr(-1);
     element_conj<T, LARGESIZE>(size1_, fcc, f0);

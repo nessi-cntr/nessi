@@ -279,7 +279,7 @@ class herm_matrix {
     cplx *tv_; 
     /// @private
     /** \brief <b> Pointer to the Matsubra component. 'mat_+ \f$ \tau \;*\f$ element\_size'  corresponds to \f$(0,0)\f$-component of \f$ G^M(\tau) \f$ </b> */
-    cplx *mat_;;
+    cplx *mat_;
     /// @private
     /** \brief <b> Maximum number of the time steps.</b> */
     int nt_;
