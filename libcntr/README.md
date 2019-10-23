@@ -40,10 +40,16 @@ In the first line, the C and C++ compiler are set. We have tested the full libra
 The path to the libraries that **libcntr** depends upon ([eigen3](http://eigen.tuxfamily.org/index.php?title=Main_Page)  and, optionally, [hdf5](https://www.hdfgroup.org/solutions/hdf5/)) are provided by specifying the include directory `CMAKE_INCLUDE_PATH` and the library path `CMAKE_LIBRARY_PATH`. Finally, the compilation flags are specified by `CMAKE_CXX_FLAGS`. To compile libcntr, the flags should include
 
 ```
--std=c++11 -fpermissive
+-std=c++11
 ```
 
-if the GNU C++ compiler is used. No special flags are required when using the Intel C++ compiler.
+Since a few non-standard features are used, compilation with the GNU C++ compiler also requires the
+
+```
+-fpermissive
+```
+
+flag.
 
 As the next step create a build directory
 
