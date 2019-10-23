@@ -54,7 +54,7 @@ namespace cntr {
 					  const int matsubara_method);
   template void vie2_omp<double>(int omp_num_threads, herm_matrix<double> &G, herm_matrix<double> &F, 
   		herm_matrix<double> &Fcc, herm_matrix<double> &Q, integration::Integrator<double> &I, double beta, double h,
-		const int matsubara_method=CNTR_MAT_FIXPOINT);
+		const int matsubara_method);
   template void vie2_omp<double>(int omp_num_threads, herm_matrix<double> &G, herm_matrix<double> &F,
 				 herm_matrix<double> &Fcc, herm_matrix<double> &Q, double beta, double h, 
 				 const int SolveOrder,
