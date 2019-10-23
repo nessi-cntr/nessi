@@ -497,9 +497,8 @@ T correlation_energy(int tstp, herm_matrix<T> &G, herm_matrix<T> &Sigma,
   for(int i=0; i< size1; i++){
     trGxSGM += GxSGM[i*size1 + i];
   }
-  return 0.5*trGxSGM.real();
-
   delete GxSGM;
+  return 0.5*trGxSGM.real();
 }
 
 /** \brief <b> Returns the result of the correlation energy at a given time-step from the time-diagonal convolution</b>
