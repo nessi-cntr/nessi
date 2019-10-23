@@ -57,8 +57,8 @@ namespace cntr {
      const bool force_hermitian);
 
   extern template
-  void dyson_mat<double>(herm_matrix<double> &G, double mu, function<double> &H, function<double> &SigmaMF, double beta, 
-     herm_matrix<double> &Sigma, const int SolveOrder, const int method,
+  void dyson_mat<double>(herm_matrix<double> &G, double mu, function<double> &H, function<double> &SigmaMF,
+     herm_matrix<double> &Sigma, double beta, const int SolveOrder, const int method,
      const bool force_hermitian);
 
   extern template

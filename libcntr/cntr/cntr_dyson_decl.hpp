@@ -80,8 +80,8 @@ namespace cntr {
      const bool force_hermitian=true);
 
   template <typename T>
-  void dyson_mat(herm_matrix<T> &G, T mu, function<T> &H, function<T> &SigmaMF, T beta, 
-     herm_matrix<T> &Sigma, const int SolveOrder=MAX_SOLVE_ORDER, const int method=CNTR_MAT_FIXPOINT,
+  void dyson_mat(herm_matrix<T> &G, T mu, function<T> &H, function<T> &SigmaMF,
+     herm_matrix<T> &Sigma, T beta,  const int SolveOrder=MAX_SOLVE_ORDER, const int method=CNTR_MAT_FIXPOINT,
      const bool force_hermitian=true);
 
   template <typename T>
