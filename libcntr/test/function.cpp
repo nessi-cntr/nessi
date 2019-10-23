@@ -345,7 +345,8 @@ TEST_CASE("function","[function]"){
 		double h = 0.01;
 		double eps = 1e-10;
 		{//test size = 1
-			cntr::function<double> f0(nt, 1), f1;
+			cntr::function<double> f0(nt, 1);
+			cntr::function<double> f1(nt, 1);
 			/*
 			   double func[nt + 2];
 			   for(int t = -1; t <= nt; t++)
@@ -359,7 +360,7 @@ TEST_CASE("function","[function]"){
 			constant(0,0) = 0.0;
 
 			// std::complex<double> constant(0.0, 0.0);
-			f1.set_constant(constant);
+			f0.set_constant(constant);
 			f0.write_to_hdf5("test_func.h5", "data");
 			f1.read_from_hdf5("test_func.h5", "data");
 			double res = func_norm2(f0, f1);
