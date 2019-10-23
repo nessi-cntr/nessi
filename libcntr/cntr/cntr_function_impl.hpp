@@ -588,7 +588,7 @@ void function<T>::right_multiply(function<T> &f, T weight) {
 
 template <typename T> template<class EigenMatrix>
 void function<T>::set_matrixelement(int tstp,int i1,int i2,EigenMatrix &M,int j1,int j2){
-	assert(0<=i1 && i1<size1_ && 0<=i2 && i2<size1_);
+	assert(0<=i1 && i1<size1_ && 0<=i2 && i2<size2_);
 	assert(0<=j1 && j1<M.rows() && 0<=j2 && j2<M.cols());
 	cplx *ft;
 	ft=ptr(tstp);
