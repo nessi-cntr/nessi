@@ -32,10 +32,10 @@ namespace cntr {
 
   extern template
   void dyson_mat<double>(herm_matrix<double> &G, herm_matrix<double> &Sigma, double mu, function<double> &H,
-			 integration::Integrator<double> &I, double beta, const int method=CNTR_MAT_FIXPOINT, const bool force_hermitian=true);
+			 integration::Integrator<double> &I, double beta, const int method, const bool force_hermitian);
   extern template
   void dyson_mat<double>(herm_matrix<double> &G, herm_matrix<double> &Sigma, double mu, function<double> &H,
-			 function<double> &SigmaMF, integration::Integrator<double> &I, double beta, const int method=CNTR_MAT_FIXPOINT,
+			 function<double> &SigmaMF, integration::Integrator<double> &I, double beta, const int method,
       const bool force_hermitian);
 
 
@@ -47,7 +47,7 @@ namespace cntr {
 			      integration::Integrator<double> &I, double beta,double h);
   extern template
   void dyson<double>(herm_matrix<double> &G,double mu,function<double> &H, herm_matrix<double> &Sigma,
-		     integration::Integrator<double> &I, double beta,double h, const int matsubara_method=CNTR_MAT_FIXPOINT,
+		     integration::Integrator<double> &I, double beta,double h, const int matsubara_method,
         const bool force_hermitian);
 
 // documented user interfaces
