@@ -44,32 +44,32 @@ TEST_CASE("herm_matrix algebra","[herm_matrix_algebra]"){
     cdmatrix mat2(2,2),tv2(2,2),les2(2,2),ret2(2,2);
     cdmatrix mat3(2,2),tv3(2,2),les3(2,2),ret3(2,2);
     
-    for(int q; q<=ntau; q++){
+    for(int q=0; q<=ntau; q++){
       G1.get_mat(q,mat1);
       G2.get_mat(q,mat2);
       mat3 = mat1 + wz*mat2;
       G3.set_mat(q,mat3);
     }
-  
+
     for(int i=0; i<=nt; i++){
       for(int j=0; j<=i; j++){
-	G1.get_les(j,i,les1);
-	G2.get_les(j,i,les2);
-	les3 = les1 + wz*les2;
-	G3.set_les(j,i,les3);
+       G1.get_les(j,i,les1);
+       G2.get_les(j,i,les2);
+       les3 = les1 + wz*les2;
+       G3.set_les(j,i,les3);
 
-	G1.get_ret(i,j,ret1);
-	G2.get_ret(i,j,ret2);
-	ret3 = ret1 + wz*ret2;
-	G3.set_ret(i,j,ret3);	
-      }
-      for(int q=0; q<=ntau; q++){
-	G1.get_tv(i,q,tv1);
-	G2.get_tv(i,q,tv2);
-	tv3 = tv1 + wz*tv2;
-	G3.set_tv(i,q,tv3);
-      }
-    }
+       G1.get_ret(i,j,ret1);
+       G2.get_ret(i,j,ret2);
+       ret3 = ret1 + wz*ret2;
+       G3.set_ret(i,j,ret3);	
+     }
+     for(int q=0; q<=ntau; q++){
+       G1.get_tv(i,q,tv1);
+       G2.get_tv(i,q,tv2);
+       tv3 = tv1 + wz*tv2;
+       G3.set_tv(i,q,tv3);
+     }
+   }
 
     cntr::green_from_H(G4,mu,h1,beta,dt);
     err = 0.0;
@@ -96,7 +96,7 @@ TEST_CASE("herm_matrix algebra","[herm_matrix_algebra]"){
       err += cntr::distance_norm2(tstp,G3,G4);
     }
     REQUIRE(err<eps);
- 
+
   }
 
   SECTION("smul (complex weight)"){
@@ -104,73 +104,73 @@ TEST_CASE("herm_matrix algebra","[herm_matrix_algebra]"){
     cdmatrix mat1(2,2),tv1(2,2),les1(2,2),ret1(2,2);
     cdmatrix mat3(2,2),tv3(2,2),les3(2,2),ret3(2,2);
 
-    for(int q; q<=ntau; q++){
+    for(int q=0; q<=ntau; q++){
       G1.get_mat(q,mat1);
       mat3 = wz*mat1;
       G3.set_mat(q,mat3);
     }
-  
+
     for(int i=0; i<=nt; i++){
       for(int j=0; j<=i; j++){
-	G1.get_les(j,i,les1);
-	les3 = wz*les1;
-	G3.set_les(j,i,les3);
+       G1.get_les(j,i,les1);
+       les3 = wz*les1;
+       G3.set_les(j,i,les3);
 
-	G1.get_ret(i,j,ret1);
-	ret3 = wz*ret1;
-	G3.set_ret(i,j,ret3);	
-      }
-      for(int q=0; q<=ntau; q++){
-	G1.get_tv(i,q,tv1);
-	tv3 = wz*tv1;
-	G3.set_tv(i,q,tv3);
-      }
-    }
+       G1.get_ret(i,j,ret1);
+       ret3 = wz*ret1;
+       G3.set_ret(i,j,ret3);	
+     }
+     for(int q=0; q<=ntau; q++){
+       G1.get_tv(i,q,tv1);
+       tv3 = wz*tv1;
+       G3.set_tv(i,q,tv3);
+     }
+   }
 
-    err = 0.0;
-    cntr::green_from_H(G4,mu,h1,beta,dt);
-    for(int tstp=-1; tstp<=nt; tstp++){
-      G4.smul(tstp,wz);
-      err += cntr::distance_norm2(tstp,G3,G4);
-    }
-    REQUIRE(err<eps);
+   err = 0.0;
+   cntr::green_from_H(G4,mu,h1,beta,dt);
+   for(int tstp=-1; tstp<=nt; tstp++){
+    G4.smul(tstp,wz);
+    err += cntr::distance_norm2(tstp,G3,G4);
+  }
+  REQUIRE(err<eps);
+}
+
+SECTION("smul (real weight)"){
+  double err=0.0;
+  cdmatrix mat1(2,2),tv1(2,2),les1(2,2),ret1(2,2);
+  cdmatrix mat3(2,2),tv3(2,2),les3(2,2),ret3(2,2);
+
+  for(int q=0; q<=ntau; q++){
+    G1.get_mat(q,mat1);
+    mat3 = wr*mat1;
+    G3.set_mat(q,mat3);
   }
 
-  SECTION("smul (real weight)"){
-    double err=0.0;
-    cdmatrix mat1(2,2),tv1(2,2),les1(2,2),ret1(2,2);
-    cdmatrix mat3(2,2),tv3(2,2),les3(2,2),ret3(2,2);
-    
-    for(int q; q<=ntau; q++){
-      G1.get_mat(q,mat1);
-      mat3 = wr*mat1;
-      G3.set_mat(q,mat3);
-    }
-  
-    for(int i=0; i<=nt; i++){
-      for(int j=0; j<=i; j++){
-	G1.get_les(j,i,les1);
-	les3 = wr*les1;
-	G3.set_les(j,i,les3);
+  for(int i=0; i<=nt; i++){
+    for(int j=0; j<=i; j++){
+     G1.get_les(j,i,les1);
+     les3 = wr*les1;
+     G3.set_les(j,i,les3);
 
-	G1.get_ret(i,j,ret1);
-	ret3 = wr*ret1;
-	G3.set_ret(i,j,ret3);	
-      }
-      for(int q=0; q<=ntau; q++){
-	G1.get_tv(i,q,tv1);
-	tv3 = wr*tv1;
-	G3.set_tv(i,q,tv3);
-      }
-    }
+     G1.get_ret(i,j,ret1);
+     ret3 = wr*ret1;
+     G3.set_ret(i,j,ret3);	
+   }
+   for(int q=0; q<=ntau; q++){
+     G1.get_tv(i,q,tv1);
+     tv3 = wr*tv1;
+     G3.set_tv(i,q,tv3);
+   }
+ }
 
-    err = 0.0;
-    cntr::green_from_H(G4,mu,h1,beta,dt);
-    for(int tstp=-1; tstp<=nt; tstp++){
-      G4.smul(tstp,wr);
-      err += cntr::distance_norm2(tstp,G3,G4);
-    }
-    REQUIRE(err<eps);
-  }
+ err = 0.0;
+ cntr::green_from_H(G4,mu,h1,beta,dt);
+ for(int tstp=-1; tstp<=nt; tstp++){
+  G4.smul(tstp,wr);
+  err += cntr::distance_norm2(tstp,G3,G4);
+}
+REQUIRE(err<eps);
+}
 }
 
