@@ -405,7 +405,7 @@ template <typename T>
 void herm_matrix_timestep<T>::set_timestep(int tstp, herm_matrix_timestep<T> &g1) {
     assert(tstp == tstp_);
     assert(tstp == g1.tstp());
-    assert(tstp >= -1 && tstp <= g1.nt() && "tstp >= -1 && tstp <= g1.nt()");
+    assert(tstp >= -1 && tstp <= g1.tstp() && "tstp >= -1 && tstp <= g1.tstp()");
     assert(g1.size1() == size1_ && "g1.size1() == size1_");
     assert(g1.ntau() == ntau_ && "g1.ntau() == ntau_");
     if (tstp == -1) {
@@ -2353,7 +2353,7 @@ void herm_matrix_timestep<T>::set_matrixelement(int tstp, int i1, int i2,
 template<typename T> void herm_matrix_timestep<T>::set_submatrix(int tstp, std::vector<int> &i1,
   std::vector<int> &i2,herm_matrix<T> &g,std::vector<int> &j1,std::vector<int> &j2){
     assert(tstp == tstp_);
-    assert(tstp <= g1.nt());
+    assert(tstp <= g.nt());
     assert(i1.size()==i2.size() && i1.size()==j1.size() && j1.size()==j2.size());
     assert(size1_*size2_==i1.size());
     for(int k1=0;k1<i1.size();k1++){

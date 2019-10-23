@@ -1382,7 +1382,7 @@ void green_from_H(int tstp, herm_matrix_timestep<T> &G,T mu,cntr::function<T> &e
 */
 template<typename T>
 void green_from_H(int tstp, herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,T h,bool fixHam,int SolveOrder,int cf_order){
-  assert(tstp == G.tstp());
+  assert(tstp <= G.nt());
   assert(G.size1()==eps.size2_);
   assert(eps.size1_==eps.size2_);
   assert(SolveOrder <= MAX_SOLVE_ORDER);
