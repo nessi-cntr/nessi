@@ -43,14 +43,6 @@ The path to the libraries that **libcntr** depends upon ([eigen3](http://eigen.t
 -std=c++11
 ```
 
-Since a few non-standard features are used, compilation with the GNU C++ compiler also requires the
-
-```
--fpermissive
-```
-
-flag.
-
 As the next step create a build directory
 
 ```
