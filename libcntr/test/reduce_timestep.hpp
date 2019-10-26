@@ -3,7 +3,7 @@
 using namespace std;
 #define GREEN cntr::herm_matrix<double>
 #define GREEN_TSTP cntr::herm_matrix_timestep<double>
-
+#define GREEN_VIEW cntr::herm_matrix_timestep_view<double>
 
 TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
   int ntasks,taskid,ierr;
@@ -146,6 +146,51 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
     
   }
 
+
+  SECTION("Reduce_timestep: herm_matrix_timestep_view -> herm_matrix_timestep_view"){
+    
+    double err = 0.0;
+    GREEN Gk;
+    GREEN Gloc;
+    GREEN Gloc_ref;
+
+    Gk = GREEN(nt,ntau,size,-1);
+
+    if(taskid == master) {
+      Gloc = GREEN(nt,ntau,size,-1);
+      Gloc_ref = GREEN(nt,ntau,size,-1);
+      for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.set_timestep_zero(tstp);
+      GREEN Gk_master(nt,ntau,size,-1);
+      cdmatrix hk;
+      for(int tid=0; tid<ntasks; tid++){
+        hk = h1 + tid * iden;
+        cntr::green_from_H(Gk_master,mu,hk,beta,dt);
+        for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.incr_timestep(tstp, Gk_master);
+      }      
+    } 
+
+    cdmatrix hk;
+    hk = h1 + taskid * iden;
+    cntr::green_from_H(Gk,mu,hk,beta,dt);
+
+    for(int tstp=-1; tstp<=nt; tstp++){
+      GREEN_VIEW Gk_step(tstp, Gk);
+      GREEN_VIEW Gloc_step(tstp, Gloc);
+      // Gk.get_timestep(tstp, Gk_step);
+      cntr::Reduce_timestep(tstp, master, Gloc_step, Gk_step);
+      if(taskid == master){
+        // Gloc.set_timestep(tstp, Gloc_step);
+        err += cntr::distance_norm2(tstp, Gloc_step, Gloc_ref);
+      }
+    }
+
+    REQUIRE(err < eps);
+    
+  }
+
+
+
+
   SECTION("Reduce_timestep: herm_matrix -> herm_matrix_timestep"){
     
     double err = 0.0;
@@ -186,6 +231,47 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
     
   }
 
+
+  SECTION("Reduce_timestep: herm_matrix -> herm_matrix_timestep"){
+    
+    double err = 0.0;
+    GREEN Gk;
+    GREEN Gloc;
+    GREEN Gloc_ref;
+
+    Gk = GREEN(nt,ntau,size,-1);
+
+    if(taskid == master) {
+      Gloc = GREEN(nt,ntau,size,-1);
+      Gloc_ref = GREEN(nt,ntau,size,-1);
+      for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.set_timestep_zero(tstp);
+      GREEN Gk_master(nt,ntau,size,-1);
+      cdmatrix hk;
+      for(int tid=0; tid<ntasks; tid++){
+        hk = h1 + tid * iden;
+        cntr::green_from_H(Gk_master,mu,hk,beta,dt);
+        for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.incr_timestep(tstp, Gk_master);
+      }      
+    } 
+
+    cdmatrix hk;
+    hk = h1 + taskid * iden;
+    cntr::green_from_H(Gk,mu,hk,beta,dt);
+
+    for(int tstp=-1; tstp<=nt; tstp++){
+      GREEN_VIEW Gloc_step;
+      if(taskid == master) Gloc_step = GREEN_VIEW(tstp, Gloc);
+      cntr::Reduce_timestep(tstp, master, Gloc_step, Gk);
+      if(taskid == master){
+        // Gloc.set_timestep(tstp, Gloc_step);
+        err += cntr::distance_norm2(tstp, Gloc_step, Gloc_ref);
+      }
+    }
+
+    REQUIRE(err < eps);
+    
+  }
+
   SECTION("Reduce_timestep: herm_matrix_timestep -> herm_matrix"){
     
     double err = 0.0;
@@ -215,6 +301,45 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
     for(int tstp=-1; tstp<=nt; tstp++){
       GREEN_TSTP Gk_step(tstp, ntau, size);
       Gk.get_timestep(tstp, Gk_step);
+      cntr::Reduce_timestep(tstp, master, Gloc, Gk_step);
+      if(taskid == master){
+        err += cntr::distance_norm2(tstp, Gloc, Gloc_ref);
+      }
+    }
+
+    REQUIRE(err < eps);
+    
+  }
+
+
+  SECTION("Reduce_timestep: herm_matrix_timestep_view -> herm_matrix"){
+    
+    double err = 0.0;
+    GREEN Gk;
+    GREEN Gloc;
+    GREEN Gloc_ref;
+
+    Gk = GREEN(nt,ntau,size,-1);
+
+    if(taskid == master) {
+      Gloc = GREEN(nt,ntau,size,-1);
+      Gloc_ref = GREEN(nt,ntau,size,-1);
+      for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.set_timestep_zero(tstp);
+      GREEN Gk_master(nt,ntau,size,-1);
+      cdmatrix hk;
+      for(int tid=0; tid<ntasks; tid++){
+        hk = h1 + tid * iden;
+        cntr::green_from_H(Gk_master,mu,hk,beta,dt);
+        for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.incr_timestep(tstp, Gk_master);
+      }      
+    } 
+
+    cdmatrix hk;
+    hk = h1 + taskid * iden;
+    cntr::green_from_H(Gk,mu,hk,beta,dt);
+
+    for(int tstp=-1; tstp<=nt; tstp++){
+      GREEN_VIEW Gk_step(tstp, Gk);
       cntr::Reduce_timestep(tstp, master, Gloc, Gk_step);
       if(taskid == master){
         err += cntr::distance_norm2(tstp, Gloc, Gloc_ref);

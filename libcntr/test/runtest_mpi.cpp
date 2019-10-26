@@ -7,7 +7,7 @@
 #include "distributed_timestep_array_mpi.hpp"
 #include "reduce_timestep.hpp"
 
-int main(int argc, char * argv[]) {
+int main(int argc, char *argv[]) {
     int ierr;
     MPI_Init(&argc,&argv);
     int result = Catch::Session().run(argc, argv);

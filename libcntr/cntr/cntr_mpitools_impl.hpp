@@ -5,6 +5,7 @@
 #include "cntr_herm_matrix_decl.hpp"
 #include "cntr_herm_matrix_timestep_decl.hpp"
 #include "cntr_herm_matrix_timestep_view_decl.hpp"
+#include "cntr_herm_matrix_timestep_view_impl.hpp"
 
 namespace cntr{
 
@@ -31,7 +32,7 @@ namespace cntr{
 * > The `herm_matrix_timestep` on the individual ranks.
 */
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep<T> &Gred, 
-	herm_matrix_timestep<T> G){
+	herm_matrix_timestep<T> &G){
 	assert(tstp == G.tstp()); 
 	int taskid;
 	taskid = MPI::COMM_WORLD.Get_rank();
@@ -48,8 +49,8 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 		MPI::COMM_WORLD.Reduce((double *)G.data_, (double *)Gred.data_, len, MPI::DOUBLE,
 			MPI::SUM, root);
    } else {
-      std::cerr << "herm_matrix_timestep<T>::MPI_Reduce only for double "
-      << std::endl;
+      if (taskid == root) std::cerr << "herm_matrix_timestep<T>::MPI_Reduce only for double " << std::endl;
+      MPI_Finalize();
       exit(0);
    }
 
@@ -79,7 +80,7 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 * > The `herm_matrix_timestep_view` on the individual ranks.
 */
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep_view<T> &Gred, 
-	herm_matrix_timestep_view<T> G){
+	herm_matrix_timestep_view<T> &G){
 	assert(tstp == G.tstp());
 	int taskid;
 	taskid = MPI::COMM_WORLD.Get_rank();
@@ -107,8 +108,8 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 		}
 		
    } else {
-      std::cerr << "herm_matrix_timestep_view<T>::MPI_Reduce only for double "
-      << std::endl;
+   	  if (taskid == root) std::cerr << "herm_matrix_timestep_view<T>::MPI_Reduce only for double " << std::endl;
+   	  MPI_Finalize();
       exit(0);
    }
 
@@ -138,7 +139,7 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 * > The `herm_matrix_timestep` on the individual ranks.
 */
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &Gred, 
-	herm_matrix_timestep<T> G){
+	herm_matrix_timestep<T> &G){
 	assert(tstp == G.tstp());
 	int taskid = MPI::COMM_WORLD.Get_rank();
 	if (taskid == root) {
@@ -184,7 +185,7 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &G
 * > The `herm_matrix_timestep_view` on the individual ranks.
 */
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &Gred, 
-	herm_matrix_timestep_view<T> G){
+	herm_matrix_timestep_view<T> &G){
 	assert(tstp == G.tstp());
 	int taskid = MPI::COMM_WORLD.Get_rank();
 	if (taskid == root) {
@@ -224,7 +225,7 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &G
 * > The `herm_matrix` on the individual ranks.
 */
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep<T> &Gred, 
-	herm_matrix<T> G){
+	herm_matrix<T> &G){
 	assert(tstp <= G.nt());
 	int taskid = MPI::COMM_WORLD.Get_rank();
 	if (taskid == root) {
@@ -265,7 +266,7 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 * > The `herm_matrix` on the individual ranks.
 */
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep_view<T> &Gred, 
-	herm_matrix<T> G){
+	herm_matrix<T> &G){
 	assert(tstp <= G.nt());
 	int taskid = MPI::COMM_WORLD.Get_rank();
 	if (taskid == root) {
@@ -304,7 +305,7 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 * > The `herm_matrix` on the individual ranks.
 */
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &Gred, 
-	herm_matrix<T> G){
+	herm_matrix<T> &G){
 	assert(tstp <= G.nt());
 	int taskid = MPI::COMM_WORLD.Get_rank();
 	if (taskid == root) {
@@ -314,20 +315,25 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &G
 		assert(G.size2() == Gred.size2());
 	}
 
-	herm_matrix_timestep<T> Gred_tmp;
-	if (taskid == root){
-		Gred_tmp.resize(tstp, G.ntau(), G.size1());
-	}
+	herm_matrix_timestep_view<T> Gred_tmp(tstp, Gred);
+	herm_matrix_timestep_view<T> Garr_tmp(tstp, G);
 
-	herm_matrix_timestep<T> G_tmp;
-	G_tmp.resize(tstp, G.ntau(), G.size1());
-	G.get_timestep(tstp, G_tmp);
+	Reduce_timestep(tstp, root, Gred_tmp, Garr_tmp);
 
-	Reduce_timestep(tstp, root, Gred_tmp, G_tmp);
+	// herm_matrix_timestep<T> Gred_tmp;
+	// if (taskid == root){
+	// 	Gred_tmp.resize(tstp, G.ntau(), G.size1());
+	// }
 
-	if (taskid == root){
-		Gred.set_timestep(tstp, Gred_tmp);
-	}
+	// herm_matrix_timestep<T> G_tmp;
+	// G_tmp.resize(tstp, G.ntau(), G.size1());
+	// G.get_timestep(tstp, G_tmp);
+
+	// Reduce_timestep(tstp, root, Gred_tmp, G_tmp);
+
+	// if (taskid == root){
+	// 	Gred.set_timestep(tstp, Gred_tmp);
+	// }
 }
 
 

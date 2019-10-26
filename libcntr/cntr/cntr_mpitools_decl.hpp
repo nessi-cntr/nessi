@@ -11,19 +11,19 @@ namespace cntr {
 	template <typename T> class herm_matrix_timestep_view;
 
 	template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep<T> &Gred, 
-		herm_matrix_timestep<T> G);
+		herm_matrix_timestep<T> &G);
 	template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep_view<T> &Gred, 
-		herm_matrix_timestep_view<T> G);
+		herm_matrix_timestep_view<T> &G);
 	template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &Gred, 
-		herm_matrix_timestep<T> G);
+		herm_matrix_timestep<T> &G);
 	template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &Gred, 
-		herm_matrix_timestep_view<T> G);
+		herm_matrix_timestep_view<T> &G);
 	template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep<T> &Gred, 
-		herm_matrix<T> G);
+		herm_matrix<T> &G);
 	template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep_view<T> &Gred, 
-		herm_matrix<T> G);
+		herm_matrix<T> &G);
 	template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &Gred, 
-		herm_matrix<T> G);
+		herm_matrix<T> &G);
 #endif 
 }
 

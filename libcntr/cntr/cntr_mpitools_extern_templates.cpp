@@ -5,25 +5,25 @@ namespace cntr{
 #if CNTR_USE_MPI == 1
 	///@private
 	template void Reduce_timestep<double>(int tstp, int root, herm_matrix_timestep<double> &Gred, 
-		herm_matrix_timestep<double> G);
+		herm_matrix_timestep<double> &G);
 	///@private
 	template void Reduce_timestep<double>(int tstp, int root, herm_matrix_timestep_view<double> &Gred, 
-		herm_matrix_timestep_view<double> G);
+		herm_matrix_timestep_view<double> &G);
 	///@private
 	template void Reduce_timestep<double>(int tstp, int root, herm_matrix<double> &Gred, 
-		herm_matrix_timestep<double> G);
+		herm_matrix_timestep<double> &G);
 	///@private
 	template void Reduce_timestep<double>(int tstp, int root, herm_matrix_timestep<double> &Gred, 
-		herm_matrix<double> G);
+		herm_matrix<double> &G);
 	///@private
 	template void Reduce_timestep<double>(int tstp, int root, herm_matrix<double> &Gred, 
-		herm_matrix_timestep_view<double> G);
+		herm_matrix_timestep_view<double> &G);
 	///@private
 	template void Reduce_timestep<double>(int tstp, int root, herm_matrix_timestep_view<double> &Gred, 
-		herm_matrix<double> G);
+		herm_matrix<double> &G);
 	///@private
 	template void Reduce_timestep<double>(int tstp, int root, herm_matrix<double> &Gred, 
-		herm_matrix<double> G);
+		herm_matrix<double> &G);
 #endif
 
 } // namespace cntr
