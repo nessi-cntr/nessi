@@ -4,6 +4,7 @@
 #include "cntr_mpitools_decl.hpp"
 #include "cntr_herm_matrix_decl.hpp"
 #include "cntr_herm_matrix_timestep_decl.hpp"
+#include "cntr_herm_matrix_timestep_view_decl.hpp"
 
 namespace cntr{
 
@@ -31,7 +32,7 @@ namespace cntr{
 */
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep<T> &Gred, 
 	herm_matrix_timestep<T> G){
-	assert(tstp == G.tstp());
+	assert(tstp == G.tstp()); 
 	int taskid;
 	taskid = MPI::COMM_WORLD.Get_rank();
 	if (taskid == root) {
@@ -53,6 +54,66 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
    }
 
 }
+
+
+/** \brief <b> MPI reduce for the `herm_matrix_timestep_view` to a `herm_matrix_timestep_view` </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > MPI reduce for the `herm_matrix_timestep_view` to the `root`
+* > Works for scalar or square-matrix contour objects.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > time step
+* @param root
+* > Index of root
+* @param Gred
+* > The reduced `herm_matrix_timestep_view` on rank `root`.
+* @param G
+* > The `herm_matrix_timestep_view` on the individual ranks.
+*/
+template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep_view<T> &Gred, 
+	herm_matrix_timestep_view<T> G){
+	assert(tstp == G.tstp());
+	int taskid;
+	taskid = MPI::COMM_WORLD.Get_rank();
+	if (taskid == root) {
+		assert(tstp == Gred.tstp());
+		assert(G.ntau() == Gred.ntau());
+		assert(G.size1() == Gred.size1());
+		assert(G.size2() == Gred.size2());
+	}
+
+	int len_rt = 2 * (tstp + 1) * G.size1() * G.size2();
+	int len_it = 2 * (G.ntau() + 1) * G.size1() * G.size2();
+
+	if (sizeof(T) == sizeof(double)) {
+		if(tstp == -1){
+			MPI::COMM_WORLD.Reduce((double *)G.mat_, (double *)Gred.mat_, len_it, MPI::DOUBLE,
+				MPI::SUM, root);
+		} else{
+			MPI::COMM_WORLD.Reduce((double *)G.les_, (double *)Gred.les_, len_rt, MPI::DOUBLE,
+				MPI::SUM, root);
+			MPI::COMM_WORLD.Reduce((double *)G.ret_, (double *)Gred.ret_, len_rt, MPI::DOUBLE,
+				MPI::SUM, root);		
+			MPI::COMM_WORLD.Reduce((double *)G.tv_, (double *)Gred.tv_, len_it, MPI::DOUBLE,
+				MPI::SUM, root);
+		}
+		
+   } else {
+      std::cerr << "herm_matrix_timestep_view<T>::MPI_Reduce only for double "
+      << std::endl;
+      exit(0);
+   }
+
+}
+
 
 /** \brief <b> MPI reduce for the `herm_matrix_timestep` to a `herm_matrix` </b>
 *
@@ -99,6 +160,47 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &G
 	}
 }
 
+
+/** \brief <b> MPI reduce for the `herm_matrix_timestep_view` to a `herm_matrix` </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > MPI reduce for the `herm_matrix_timestep_view` to a `herm_matrix` on rank `root`.
+* > Works for scalar or square-matrix contour objects.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > time step
+* @param root
+* > Index of root
+* @param Gred
+* > The reduced `herm_matrix` on rank `root`.
+* @param G
+* > The `herm_matrix_timestep_view` on the individual ranks.
+*/
+template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &Gred, 
+	herm_matrix_timestep_view<T> G){
+	assert(tstp == G.tstp());
+	int taskid = MPI::COMM_WORLD.Get_rank();
+	if (taskid == root) {
+		assert(tstp <= Gred.nt());
+		assert(G.ntau() == Gred.ntau());
+		assert(G.size1() == Gred.size1());
+		assert(G.size2() == Gred.size2());
+	}
+
+	herm_matrix_timestep_view<T> Gred_tmp(tstp, Gred);
+	Reduce_timestep(tstp, root, Gred_tmp, G);
+
+}
+
+
+
 /** \brief <b> MPI reduce for the `herm_matrix` to a `herm_matrix_timestep` </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -136,6 +238,44 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 	Gtemp.resize(tstp, G.ntau(), G.size1());
 	G.get_timestep(tstp, Gtemp);
 
+	Reduce_timestep(tstp, root, Gred, Gtemp);
+
+}
+
+/** \brief <b> MPI reduce for the `herm_matrix` to a `herm_matrix_timestep_view` </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > MPI reduce for the `herm_matrix` to a `herm_matrix_timestep_view` on rank `root`.
+* > Works for scalar or square-matrix contour objects.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > time step
+* @param root
+* > Index of root
+* @param Gred
+* > The reduced `herm_matrix_timestep_view` on rank `root`.
+* @param G
+* > The `herm_matrix` on the individual ranks.
+*/
+template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep_view<T> &Gred, 
+	herm_matrix<T> G){
+	assert(tstp <= G.nt());
+	int taskid = MPI::COMM_WORLD.Get_rank();
+	if (taskid == root) {
+		assert(tstp == Gred.tstp());
+		assert(G.ntau() == Gred.ntau());
+		assert(G.size1() == Gred.size1());
+		assert(G.size2() == Gred.size2());
+	}
+
+	herm_matrix_timestep_view<T> Gtemp(tstp, G);
 	Reduce_timestep(tstp, root, Gred, Gtemp);
 
 }

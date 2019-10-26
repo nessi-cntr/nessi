@@ -1644,6 +1644,40 @@ void herm_matrix_timestep_view<T>::MPI_Reduce(int root) {
     }
 }
 
+/// @private
+/** \brief <b> MPI reduce for the `herm_matrix_timestep_view`.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > MPI reduce for the `herm_matrix_timestep_view` to the `root`
+* > If \f$t>-1\f$ then `ret,les,tv` components are set, otherwise `mat`.
+* > Works for scalar or square-matrix contour objects.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > Time step which should be reduced.
+* @param root
+* > Index of root
+*/
+
+template <typename T>
+void herm_matrix_timestep_view<T>::Reduce_timestep(int tstp, int root) {
+    assert(tstp == tstp_);
+    if (tstp_ == -1) {
+        my_mpi_reduce<T>(mat_, (ntau_ + 1) * element_size_, root);
+    } else {
+        my_mpi_reduce<T>(les_, (tstp_ + 1) * element_size_, root);
+        my_mpi_reduce<T>(ret_, (tstp_ + 1) * element_size_, root);
+        my_mpi_reduce<T>(tv_, (ntau_ + 1) * element_size_, root);
+    }
+}
+
 /** \brief <b> Broadcasts the `herm_matrix_timestep_view` at a given time step to all ranks. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->

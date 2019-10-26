@@ -151,7 +151,7 @@ class herm_matrix_timestep_view {
 #if CNTR_USE_MPI == 1
     /// @private
     void MPI_Reduce(int root);
-    // void Reduce_timestep(int tstp, int root); 
+    void Reduce_timestep(int tstp, int root); 
     void Bcast_timestep(int tstp, int root);
     void Send_timestep(int tstp, int dest, int tag);
     void Recv_timestep(int tstp, int root, int tag);
