@@ -20,9 +20,7 @@ namespace diag {
       for(int k=0;k<Nk_rank;k++){
          gk_all_timesteps.G()[kindex_rank[k]].get_data(corrK_rank[k].G_);
       }
-      cdmatrix tmp;
-      gk_all_timesteps.G()[0].density_matrix(tstp,tmp);
-   // distribute to all nodes
+      // distribute to all nodes
       gk_all_timesteps.mpi_bcast_all();
    }
 
@@ -115,8 +113,10 @@ namespace diag {
       lattice_1d_1b &lattice,int Ntau,int Norb){
       assert(tstp==gk_all_timesteps.tstp());
       assert(tstp==wk_all_timesteps.tstp());
+      
       GREEN_TSTP stmp(tstp,Ntau,Norb,FERMION);
       S.set_timestep_zero(tstp);
+      
       for(int q=0;q<lattice.nk_;q++){
          double wk=lattice.kweight_[q];
          int kq=lattice.add_kpoints(kk,1,q,-1);
