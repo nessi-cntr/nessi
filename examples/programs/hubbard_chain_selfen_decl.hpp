@@ -15,15 +15,15 @@ namespace hubb {
   void Sigma_GW(int tstp, GREEN &G, CFUNC &U, GREEN &Chi, GREEN &Sigma);
   void Sigma_TPP(int tstp, GREEN &G, CFUNC &U, GREEN &TPP, GREEN &Sigma);
  
-  void GenChi(double dt, double beta, GREEN &Pol, CFUNC &U,
+  void GenChi(double h, double beta, GREEN &Pol, CFUNC &U,
 	    GREEN &PxU, GREEN &UxP, GREEN &Chi, int SolveOrder=MAX_SOLVE_ORDER);
-  void GenChi(int tstp, double dt, double beta, GREEN &Pol, CFUNC &U,
+  void GenChi(int tstp, double h, double beta, GREEN &Pol, CFUNC &U,
 	    GREEN &PxU, GREEN &UxP, GREEN &Chi, int SolveOrder=MAX_SOLVE_ORDER);
 
 
-  void GenTPP(double dt, double beta, GREEN &G, GREEN &Phi, CFUNC &U,
+  void GenTPP(double h, double beta, GREEN &G, GREEN &Phi, CFUNC &U,
 	      GREEN &UxPhi, GREEN &PhixU, GREEN &TPP, int SolveOrder=MAX_SOLVE_ORDER);
-  void GenTPP(int tstp, double dt, double beta, GREEN &G, GREEN &Phi, CFUNC &U,
+  void GenTPP(int tstp, double h, double beta, GREEN &G, GREEN &Phi, CFUNC &U,
 	      GREEN &UxPhi, GREEN &PhixU, GREEN &TPP, int SolveOrder=MAX_SOLVE_ORDER);
 }
 
