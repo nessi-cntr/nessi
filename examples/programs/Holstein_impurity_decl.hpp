@@ -42,8 +42,8 @@ namespace Hols {
     void start_D(GREEN &D0, GREEN &D, GREEN &Pi, GREEN &D0_Pi,
         GREEN &Pi_D0, double beta, double h, int SolverOrder);
     
-    void get_phonon_displace(int tstp,CFUNC &X_ph, CFUNC &n_tot,CFUNC &g_el_ph,GREEN &D0, double w0, int SolverOrder,double dt);
-    void get_phonon_displace(CFUNC &X_ph, CFUNC &n_tot,CFUNC &g_el_ph,GREEN &D0, double w0, int SolverOrder,double dt);
+    void get_phonon_displace(int tstp,CFUNC &X_ph, CFUNC &n_tot,CFUNC &g_el_ph,GREEN &D0, double w0, int SolverOrder,double h);
+    void get_phonon_displace(CFUNC &X_ph, CFUNC &n_tot,CFUNC &g_el_ph,GREEN &D0, double w0, int SolverOrder,double h);
 }
 
 #endif

@@ -27,7 +27,7 @@ double KineticEnergy(int tstp, cdmatrix &eps0, GREEN &G){
 }
 // -----------------------------------------------------------------------
 double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN &Sigma,
-  double beta, double dt, int SolveOrder){
+  double beta, double h, int SolveOrder){
     int nst = G.size1();
     double Emf,Ecorr;
     cdmatrix rho(nst,nst),vmf(nst,nst);
@@ -38,7 +38,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
     G.density_matrix(tstp, rho);
     Emf = 0.5*((vmf*rho).trace()).real();
 
-    Ecorr = cntr::correlation_energy(tstp, G, Sigma, beta, dt, SolveOrder);
+    Ecorr = cntr::correlation_energy(tstp, G, Sigma, beta, h, SolveOrder);
     return Emf + Ecorr;
   }
   // -----------------------------------------------------------------------
@@ -53,7 +53,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
     //..................................................
     int Nt,Ntau,MatsMaxIter,CorrectorSteps,Nsites;
     int BootstrapMaxIter;
-    double HoppingT,HubbardU,beta,dt,MuChem,MatsMaxErr,BootstrapMaxErr;
+    double HoppingT,HubbardU,beta,h,MuChem,MatsMaxErr,BootstrapMaxErr;
     int RampSite;
     double RampW0;
     char* flin;
@@ -114,7 +114,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
         // solver parameters
         find_param(flin,"__Nt=",Nt);
         find_param(flin,"__Ntau=",Ntau);
-        find_param(flin,"__dt=",dt);
+        find_param(flin,"__h=",h);
         find_param(flin,"__MatsMaxIter=",MatsMaxIter);
         find_param(flin,"__MatsMaxErr=",MatsMaxErr);
         find_param(flin,"__BootstrapMaxIter=",BootstrapMaxIter);
@@ -179,7 +179,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
         Ut = CFUNC(Nt,Nsites);
         Ut.set_constant(HubbardU*MatrixXcd::Identity(Nsites,Nsites));
 
-        cntr::green_from_H(G, MuChem, eps0, beta, dt);
+        cntr::green_from_H(G, MuChem, eps0, beta, h);
 
         // shift the chemical potential according to the expected average
         // occupation
@@ -209,7 +209,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
           hubb::Ham_MF(tstp, G, Ut, eps0, eps_mf);
 
           // update T-matrix
-          hubb::GenTPP(tstp, dt, beta, G, Phi, Ut, UxPHI, PHIxU, TPP, SolveOrder);
+          hubb::GenTPP(tstp, h, beta, G, Phi, Ut, UxPHI, PHIxU, TPP, SolveOrder);
 
           // update self-energy
           hubb::Sigma_TPP(tstp, G, Ut, TPP, Sigma);
@@ -272,7 +272,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
             }
 
             // update T-matrix
-            hubb::GenTPP(dt, beta, G, Phi, Ut, UxPHI, PHIxU, TPP, SolveOrder);
+            hubb::GenTPP(h, beta, G, Phi, Ut, UxPHI, PHIxU, TPP, SolveOrder);
 
             // update self-energy
             for(tstp=0; tstp<=SolveOrder; tstp++){
@@ -280,7 +280,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
             }
 
             // solve Dyson equation
-            cntr::dyson_start(G, MuChem, eps_mf, Sigma, beta, dt, SolveOrder);
+            cntr::dyson_start(G, MuChem, eps_mf, Sigma, beta, h, SolveOrder);
 
             // self-consistency check
             err=0.0;
@@ -330,13 +330,13 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
               hubb::Ham_MF(tstp, G, Ut, eps0, eps_mf);
 
               // update T-matrix
-              hubb::GenTPP(tstp, dt, beta, G, Phi, Ut, UxPHI, PHIxU, TPP, SolveOrder);
+              hubb::GenTPP(tstp, h, beta, G, Phi, Ut, UxPHI, PHIxU, TPP, SolveOrder);
 
               // update self-energy
               hubb::Sigma_TPP(tstp, G, Ut, TPP, Sigma);
 
               // solve Dyson equation
-              cntr::dyson_timestep(tstp,G,MuChem,eps_mf,Sigma,beta,dt,SolveOrder);
+              cntr::dyson_timestep(tstp,G,MuChem,eps_mf,Sigma,beta,h,SolveOrder);
 
             }
           }
@@ -361,7 +361,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
           vector<double> occ(Nsites);
           for(tstp=0; tstp <= Nt; tstp++){
             G.density_matrix(tstp, rho);
-            f_occ << tstp*dt << "  " ;
+            f_occ << tstp*h << "  " ;
             for(int i=0; i<Nsites; i++){
               occ[i] = (rho(i,i)).real();
               f_occ << occ[i] << "  ";
@@ -381,9 +381,9 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
           f_en << setprecision(10);
           for(tstp=0; tstp <= Nt; tstp++){
             Ekin = KineticEnergy(tstp, eps0, G);
-            Epot = InteractionEnergy(tstp, eps0, eps_mf, G, Sigma, beta, dt, SolveOrder);
+            Epot = InteractionEnergy(tstp, eps0, eps_mf, G, Sigma, beta, h, SolveOrder);
               Etot = Ekin + Epot;
-              f_en << tstp*dt << "  " << Ekin << "  " << Epot << "  " << Etot << endl;
+              f_en << tstp*h << "  " << Ekin << "  " << Epot << "  " << Etot << endl;
             }
             f_en.close();
 

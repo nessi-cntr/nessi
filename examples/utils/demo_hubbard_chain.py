@@ -25,12 +25,12 @@ def GenRampParams(RampSite,RampW0):
         }
     return rampparams
 #----------------------------------------------------------------------
-def GenSolverParams(Nt,Ntau,dt,MatsMaxIter=100,MatsMaxErr=1.0e-8,BootstrapMaxIter=20,
+def GenSolverParams(Nt,Ntau,h,MatsMaxIter=100,MatsMaxErr=1.0e-8,BootstrapMaxIter=20,
                         BootstrapMaxErr=1.0e-8,CorrectorSteps=3,SolverOrder=5):
 
     solverparams = {'Nt': Nt,
                     'Ntau': Ntau,
-                    'dt': dt,
+                    'h': h,
                     'MatsMaxIter': MatsMaxIter,
                     'MatsMaxErr': MatsMaxErr,
                     'BootstrapMaxIter': BootstrapMaxIter,
@@ -52,9 +52,9 @@ def RunHubbardChain(sysparams,rampparams,solverparams,approx_sigma,output_file,
     U = sysparams['HubbardU']
     Nt = solverparams['Nt']
     Ntau = solverparams['Ntau']
-    dt = solverparams['dt']
+    h = solverparams['h']
     if len(input_file) == 0:
-        flin = './inp/hubbardchain_N{}_U{}_Nt{}_Ntau{}_dt{}.inp'.format(ns,U,Nt,Ntau,dt)
+        flin = './inp/hubbardchain_N{}_U{}_Nt{}_Ntau{}_h{}.inp'.format(ns,U,Nt,Ntau,h)
     else:
         flin = input_file
     GenInputFile(flin,sysparams,rampparams,solverparams)
@@ -97,8 +97,8 @@ if __name__ == '__main__':
 
     Nt = 400    # number of time steps
     Ntau = 400  # number of points on Matsubara branch
-    dt = 0.025  # time step
-    solverparams = GenSolverParams(Nt,Ntau,dt,BootstrapMaxErr=1.0e-10)
+    h = 0.025  # time step
+    solverparams = GenSolverParams(Nt,Ntau,h,BootstrapMaxErr=1.0e-10)
 
     fig,(ax1,ax2) = plt.subplots(2,1,sharex=True)
 
@@ -111,8 +111,8 @@ if __name__ == '__main__':
     ax2.set_ylabel('energy')
     ax1.set_ylabel(r'$n_1(t)$')
 
-    ax1.set_xlim(0.0,Nt*dt)
-    ax2.set_xlim(0.0,Nt*dt)
+    ax1.set_xlim(0.0,Nt*h)
+    ax2.set_xlim(0.0,Nt*h)
 
     for i,approx in enumerate(sigma_approx):
         output_file = 'out/hubbardchain_' + approx

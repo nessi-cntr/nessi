@@ -25,7 +25,7 @@ double KineticEnergy(int tstp, cdmatrix &eps0, GREEN &G){
 }
 // -----------------------------------------------------------------------
 double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN &Sigma,
-  double beta, double dt, int SolveOrder){
+  double beta, double h, int SolveOrder){
     int nst = G.size1();
     double Emf,Ecorr;
     cdmatrix rho(nst,nst),vmf(nst,nst);
@@ -36,7 +36,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
     G.density_matrix(tstp, rho);
     Emf = 0.5*((vmf*rho).trace()).real();
 
-    Ecorr = cntr::correlation_energy(tstp, G, Sigma, beta, dt, SolveOrder);
+    Ecorr = cntr::correlation_energy(tstp, G, Sigma, beta, h, SolveOrder);
     return Emf + Ecorr;
   }
   // -----------------------------------------------------------------------
@@ -112,7 +112,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
         // solver parameters
         find_param(flin,"__Nt=",Nt);
         find_param(flin,"__Ntau=",Ntau);
-        find_param(flin,"__dt=",dt);
+        find_param(flin,"__h=",h);
         find_param(flin,"__MatsMaxIter=",MatsMaxIter);
         find_param(flin,"__MatsMaxErr=",MatsMaxErr);
         find_param(flin,"__BootstrapMaxIter=",BootstrapMaxIter);
@@ -181,7 +181,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
         Ut = CFUNC(Nt,Nsites);
         Ut.set_constant(HubbardU*MatrixXcd::Identity(Nsites,Nsites));
 
-        cntr::green_from_H(G, MuChem, eps0, beta, dt);
+        cntr::green_from_H(G, MuChem, eps0, beta, h);
 
         // shift the chemical potential according to the expected average
         // occupation
@@ -214,7 +214,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
           hubb::Polarization(tstp, G, Pol);
 
           // update screened interaction
-          hubb::GenChi(tstp, dt, beta, Pol, Ut, PxU, UxP, Chi, SolveOrder);
+          hubb::GenChi(tstp, h, beta, Pol, Ut, PxU, UxP, Chi, SolveOrder);
 
           // update self-energy
           hubb::Sigma_GW(tstp, G, Ut, Chi, Sigma);
@@ -282,7 +282,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
           }
 
           // update screened interaction
-          hubb::GenChi(dt, beta, Pol, Ut, PxU, UxP, Chi, SolveOrder);
+          hubb::GenChi(h, beta, Pol, Ut, PxU, UxP, Chi, SolveOrder);
 
           // update self-energy
           for(tstp=0; tstp<=SolveOrder; tstp++){
@@ -343,13 +343,13 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
             hubb::Polarization(tstp, G, Pol);
 
             // update screened interaction
-            hubb::GenChi(tstp, dt, beta, Pol, Ut, PxU, UxP, Chi, SolveOrder);
+            hubb::GenChi(tstp, h, beta, Pol, Ut, PxU, UxP, Chi, SolveOrder);
 
             // update self-energy
             hubb::Sigma_GW(tstp, G, Ut, Chi, Sigma);
 
             // solve Dyson equation
-            cntr::dyson_timestep(tstp,G,MuChem,eps_mf,Sigma,beta,dt,SolveOrder);
+            cntr::dyson_timestep(tstp,G,MuChem,eps_mf,Sigma,beta,h,SolveOrder);
 
           }
         }
@@ -374,7 +374,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
         vector<double> occ(Nsites);
         for(tstp=0; tstp <= Nt; tstp++){
           G.density_matrix(tstp, rho);
-          f_occ << tstp*dt << "  " ;
+          f_occ << tstp*h << "  " ;
           for(int i=0; i<Nsites; i++){
             occ[i] = (rho(i,i)).real();
             f_occ << occ[i] << "  ";
@@ -394,9 +394,9 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
         f_en << setprecision(10);
         for(tstp=0; tstp <= Nt; tstp++){
           Ekin = KineticEnergy(tstp, eps0, G);
-          Epot = InteractionEnergy(tstp, eps0, eps_mf, G, Sigma, beta, dt, SolveOrder);
+          Epot = InteractionEnergy(tstp, eps0, eps_mf, G, Sigma, beta, h, SolveOrder);
             Etot = Ekin + Epot;
-            f_en << tstp*dt << "  " << Ekin << "  " << Epot << "  " << Etot << endl;
+            f_en << tstp*h << "  " << Ekin << "  " << Epot << "  " << Etot << endl;
           }
           f_en.close();
 

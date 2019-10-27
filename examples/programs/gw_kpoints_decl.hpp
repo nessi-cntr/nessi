@@ -40,8 +40,8 @@ namespace gw{
     void set_vertex(int tstp,lattice_1d_1b &latt);    
     void write_to_hdf5(hid_t group_id);
     void write_to_hdf5(const char *filename);
-    void write_to_hdf5_slices(hid_t group_id,int dt,int tid);
-    void write_to_hdf5_slices(const char *filename,int dt,int tid);
+    void write_to_hdf5_slices(hid_t group_id,int h,int tid);
+    void write_to_hdf5_slices(const char *filename,int h,int tid);
     void get_Density_matrix(int tstp);
     void step_W(int tstp,int SolverOrder,lattice_1d_1b &latt);
     void step_W2b(int tstp,int SolverOrder,lattice_1d_1b &latt);

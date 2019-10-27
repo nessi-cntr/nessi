@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------
 namespace Hols{
     
-    void evaluate_phonon_energy_qu(CFUNC & Eph_t, GREEN & D, GREEN & Pi,int SolverOrder, double beta, double dt, double w0){
+    void evaluate_phonon_energy_qu(CFUNC & Eph_t, GREEN & D, GREEN & Pi,int SolverOrder, double beta, double h, double w0){
         
         CPLX ii = CPLX(0,1.0);
         
@@ -41,7 +41,7 @@ namespace Hols{
         double fb;
         vector<CPLX> expp;
         expp.resize(nt+1);
-        for(int it=0 ; it<=nt ; it++) expp[it] = exp(-ii*(double)it*dt*w0);
+        for(int it=0 ; it<=nt ; it++) expp[it] = exp(-ii*(double)it*h*w0);
         fb = bose(beta,w0);
         
         //matsubara and left-mixing
@@ -76,23 +76,23 @@ namespace Hols{
         //--------------------
         //evaluate D0_d1_Pi
         //--------------------
-        cntr::convolution(D0_d1_Pi, D0_d1, D0_d2, Pi, Pi, beta, dt, SolverOrder);
+        cntr::convolution(D0_d1_Pi, D0_d1, D0_d2, Pi, Pi, beta, h, SolverOrder);
         
         //--------------------
         //evaluate Pi_D0_d2
         //--------------------
-        cntr::convolution(Pi_D0_d2, Pi, Pi, D0_d2, D0_d1, beta, dt, SolverOrder);
+        cntr::convolution(Pi_D0_d2, Pi, Pi, D0_d2, D0_d1, beta, h, SolverOrder);
         
         //--------------------
         // evalaute Dd1
         //--------------------
-        cntr::convolution(D_d1, D0_d1_Pi, Pi_D0_d2, D, D, beta, dt, SolverOrder);
+        cntr::convolution(D_d1, D0_d1_Pi, Pi_D0_d2, D, D, beta, h, SolverOrder);
         for(int tstp=-1; tstp <= nt; tstp++) D_d1.incr_timestep(tstp,D0_d1,1.0);
         
         //--------------------
         // evaluate Dd2
         //--------------------
-        cntr::convolution(D_d2, D, D, Pi_D0_d2, D0_d1_Pi, beta, dt, SolverOrder);
+        cntr::convolution(D_d2, D, D, Pi_D0_d2, D0_d1_Pi, beta, h, SolverOrder);
         for(int tstp=-1; tstp <= nt; tstp++) D_d2.incr_timestep(tstp,D0_d2,1.0);
         
         for(int tstp=-1; tstp <= nt; tstp++){
@@ -107,7 +107,7 @@ namespace Hols{
             }
             //PP_int = i*[D0_d1 * Pi * D_d2]^<(t,t)
             cdmatrix PP_(1,1);
-            cntr::convolution_density_matrix(tstp,PP,D0_d1_Pi,Pi_D0_d2,D_d2,D_d1, beta, dt, SolverOrder);
+            cntr::convolution_density_matrix(tstp,PP,D0_d1_Pi,Pi_D0_d2,D_d2,D_d1, beta, h, SolverOrder);
             PP *= -1.0;
             //PP_corr = PP_int + i*[D0_d1d2]^<(t,t)
             PP(0,0) += 1.0 + 2.0*cntr::bose(beta,w0);
@@ -135,7 +135,7 @@ namespace Hols{
         }
     }
     
-    void get_phonon_momentum(CFUNC &P_ph, CFUNC &n_tot,CFUNC &g_el_ph, GREEN &D0, double w0, int SolverOrder, double dt){
+    void get_phonon_momentum(CFUNC &P_ph, CFUNC &n_tot,CFUNC &g_el_ph, GREEN &D0, double w0, int SolverOrder, double h){
         
         CPLX ii = CPLX(0,1.0);
         int tstp;
@@ -151,7 +151,7 @@ namespace Hols{
         //Rtarded part of D0_d1 = \partial_t D_0^R/\omega_0
         vector<complex<double> > D0_d1_ret;
         D0_d1_ret.assign(Nt+1,0.0);
-        for(int it=0 ; it<=Nt ; it++) D0_d1_ret[it] = -(exp(-ii*(double)it*dt*w0)+exp(ii*(double)it*dt*w0));
+        for(int it=0 ; it<=Nt ; it++) D0_d1_ret[it] = -(exp(-ii*(double)it*h*w0)+exp(ii*(double)it*h*w0));
 
         //--------------------
         // Matsubara
@@ -168,7 +168,7 @@ namespace Hols{
             D0_d1_gn.assign(SolverOrder+1,0.0);
             integration::Integrator<double> Integ(SolverOrder); 
             
-            //\int^tk_0 dt' D^R_0_d1(t_k-t') (gn(t'+tn-tk) -gn(0)) 
+            //\int^tk_0 h' D^R_0_d1(t_k-t') (gn(t'+tn-tk) -gn(0)) 
             // with gn(t') = gn(0) for t'<0
             for(int it =0 ; it<=SolverOrder ; it++){
                 
@@ -178,7 +178,7 @@ namespace Hols{
                 D0_d1_gn[it] = D0_d1_ret[SolverOrder-it]*(n_g_tmp(0,0)-n_g_0(0,0));
             }
             
-            Mat_tmp(0,0) = Integ.integrate(D0_d1_gn,SolverOrder)*dt;//[check]
+            Mat_tmp(0,0) = Integ.integrate(D0_d1_gn,SolverOrder)*h;//[check]
                         
             P_ph.set_value(tstp,Mat_tmp);
         }
@@ -197,7 +197,7 @@ namespace Hols{
                 D0_d1_gn[it] = D0_d1_ret[tstp-it]*(n_g_tmp(0,0)-n_g_0(0,0));
             }
             
-            Mat_tmp(0,0) = Integ.integrate(D0_d1_gn,tstp)*dt; //[check]
+            Mat_tmp(0,0) = Integ.integrate(D0_d1_gn,tstp)*h; //[check]
             
             P_ph.set_value(tstp,Mat_tmp);
         }

@@ -31,7 +31,7 @@ def Sin2_env(time,tend):
     return dvalue
 
 #----------------------------------------------------------------------
-def GenExciteParams(Excite_ElPh_g,Excite_Hop,Excite_Freq,Tend,Nt,dt,runpath='./'):
+def GenExciteParams(Excite_ElPh_g,Excite_Hop,Excite_Freq,Tend,Nt,h,runpath='./'):
     
     flin_dHopping = runpath+'inp/dHopping_field.txt'
     flin_dElPh_g = runpath+'inp/dElPh_g_field.txt'
@@ -41,7 +41,7 @@ def GenExciteParams(Excite_ElPh_g,Excite_Hop,Excite_Freq,Tend,Nt,dt,runpath='./'
                     'dEl_Ph_g': '--' + flin_dElPh_g 
     }
     
-    time = np.linspace(-dt,float(Nt)*dt,Nt+2)
+    time = np.linspace(-h,float(Nt)*h,Nt+2)
     dElPh_g = np.array([])
     dHopping = np.array([])
     dElPh_g  = np.append(dElPh_g,0.0)
@@ -58,7 +58,7 @@ def GenExciteParams(Excite_ElPh_g,Excite_Hop,Excite_Freq,Tend,Nt,dt,runpath='./'
 
     return exciteparams
 #----------------------------------------------------------------------
-def GenSolverParams(Nt,Ntau,dt,SaveGreen=False,MatsMaxIter=800,
+def GenSolverParams(Nt,Ntau,h,SaveGreen=False,MatsMaxIter=800,
                         MatsMaxErr= 1.0e-7,BootstrapMaxIter= 20,
                         BootstrapMaxErr=1.0e-7,CorrectorSteps=4):
 
@@ -68,7 +68,7 @@ def GenSolverParams(Nt,Ntau,dt,SaveGreen=False,MatsMaxIter=800,
     
     solverparams = {'Nt': Nt,
                     'Ntau': Ntau,
-                    'dt': dt,
+                    'h': h,
                     'MatsMaxIter': MatsMaxIter,
                     'MatsMaxErr': MatsMaxErr,
                     'BootstrapMaxIter': BootstrapMaxIter,
@@ -97,8 +97,8 @@ def RunHolstein(sysparams,exciteparams,solverparams,outparams,approx_sigma,outpu
 
     Nt = solverparams['Nt']
     Ntau = solverparams['Ntau']
-    dt = solverparams['dt']
-    flin = runpath+'/inp/Hol_imp_Nt{}_Ntau{}_dt{}.inp'.format(Nt,Ntau,dt)
+    h = solverparams['h']
+    flin = runpath+'/inp/Hol_imp_Nt{}_Ntau{}_h{}.inp'.format(Nt,Ntau,h)
     
     GenInputFile(flin,sysparams,exciteparams,solverparams,outparams)
     if approx_sigma == 'sMig':
@@ -129,15 +129,15 @@ if __name__ == '__main__':
     # calculation parameters 
     Nt = 500
     Ntau = 200
-    dt = 0.04
-    solverparams = GenSolverParams(Nt,Ntau,dt)
+    h = 0.04
+    solverparams = GenSolverParams(Nt,Ntau,h)
     
     # excitation parameters
     Excite_ElPh_g = 0.4
     Excite_Hop = 0.5
     Excite_Freq = 0.0
     Excite_End = 0.6
-    exciteparams = GenExciteParams(Excite_ElPh_g,Excite_Hop,Excite_Freq,Excite_End,Nt,dt)
+    exciteparams = GenExciteParams(Excite_ElPh_g,Excite_Hop,Excite_Freq,Excite_End,Nt,h)
 
     #  output parameters
     OutEvery = int(Nt/10)
@@ -183,8 +183,8 @@ if __name__ == '__main__':
         def Fwindow(t):
             return np.exp(-t*t/400.0)
         
-        t_rel,G_ret,G_les = read_gf_ret_let_tavtrel(output_file + '_green.h5','G00_tavrel',dt,tstp_plot)
-        t_rel,D_ret,D_les = read_gf_ret_let_tavtrel(output_file + '_green.h5','Dloc_tavrel',dt,tstp_plot)
+        t_rel,G_ret,G_les = read_gf_ret_let_tavtrel(output_file + '_green.h5','G00_tavrel',h,tstp_plot)
+        t_rel,D_ret,D_les = read_gf_ret_let_tavtrel(output_file + '_green.h5','Dloc_tavrel',h,tstp_plot)
 
         A_w = evaluate_spectrum_windowed(G_ret,t_rel,ome,method,Fwindow)
         B_w = evaluate_spectrum_windowed(D_ret,t_rel,ome,method,Fwindow)

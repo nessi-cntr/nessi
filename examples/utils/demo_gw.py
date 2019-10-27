@@ -10,8 +10,8 @@ def merge_two_dicts(x, y):
     z.update(y)    # modifies z with y's keys and values & returns None
     return z
 #----------------------------------------------------------------------
-def GenField(E0,omega,Np,Nt,dt,file_field):
-    ts = np.linspace(0.0,Nt*dt,Nt+1)
+def GenField(E0,omega,Np,Nt,h,file_field):
+    ts = np.linspace(0.0,Nt*h,Nt+1)
     t0 = 2.0*np.pi/(omega*Np)
     Ef = E0 * np.exp(-4.6*(ts-t0)**2/t0**2)*np.sin(omega*(ts-t0))
     Ef = np.insert(Ef, 0, 0.0)
@@ -27,7 +27,7 @@ def GenSysParams(Nk,HoppingT,HubbardU,V,MuChem,Beta):
         }
     return sysparams
 #----------------------------------------------------------------------
-def GenSolverParams(Nt,Ntau,dt,SaveGreen=False,SaveMomentum=False,MatsMaxIter=100,
+def GenSolverParams(Nt,Ntau,h,SaveGreen=False,SaveMomentum=False,MatsMaxIter=100,
                         MatsMaxErr= 1.0e-8,
                         BootstrapMaxIter= 20,BootstrapMaxErr=1.0e-8,
                         TimeMaxErr=1.0e-8,CorrectorSteps=10):
@@ -42,7 +42,7 @@ def GenSolverParams(Nt,Ntau,dt,SaveGreen=False,SaveMomentum=False,MatsMaxIter=10
     
     solverparams = {'Nt': Nt,
                     'Ntau': Ntau,
-                    'dt': dt,
+                    'h': h,
                     'MatsMaxIter': MatsMaxIter,
                     'MatsMaxErr': MatsMaxErr,
                     'BootstrapMaxIter': BootstrapMaxIter,
@@ -67,9 +67,9 @@ def Run(sysparams,solverparams,file_field,output_file,mpicmd,
     V = sysparams['V']
     Nt = solverparams['Nt']
     Ntau = solverparams['Ntau']
-    dt = solverparams['dt']
+    h = solverparams['h']
     if len(input_file) == 0:
-        flin = './inp/gw_Nk{}_U{}_V{}_Nt{}_Ntau{}_dt{}.inp'.format(Nk,U,V,Nt,Ntau,dt)
+        flin = './inp/gw_Nk{}_U{}_V{}_Nt{}_Ntau{}_h{}.inp'.format(Nk,U,V,Nt,Ntau,h)
     else:
         flin = input_file
     GenInputFile(flin,sysparams,solverparams,file_field)
@@ -108,15 +108,15 @@ if __name__ == '__main__':
 
     Nt = 400
     Ntau = 200
-    dt = 0.02
-    solverparams = GenSolverParams(Nt,Ntau,dt,MatsMaxErr= 1.0e-10,BootstrapMaxErr=1.0e-10)
+    h = 0.02
+    solverparams = GenSolverParams(Nt,Ntau,h,MatsMaxErr= 1.0e-10,BootstrapMaxErr=1.0e-10)
 
     # field 
     E0 = 0.2
     Np = 1
     omega = 1.0
     file_field = 'inp/Epulse_E{}_Np{}_w{}.txt'.format(E0,Np,omega)
-    GenField(E0,omega,Np,Nt,dt,file_field)
+    GenField(E0,omega,Np,Nt,h,file_field)
     
     output_file = 'out/gw_'
     mpicmd = 'mpirun -n 2'

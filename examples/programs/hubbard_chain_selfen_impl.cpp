@@ -110,7 +110,7 @@ namespace hubb{
     }
   }
   // -----------------------------------------------------------------------
-  void GenChi(double dt, double beta, GREEN &Pol, CFUNC &U,
+  void GenChi(double h, double beta, GREEN &Pol, CFUNC &U,
     GREEN &PxU, GREEN &UxP, GREEN &Chi, int SolveOrder){
 
       for(int n = 0; n <= SolveOrder; n++){
@@ -122,11 +122,11 @@ namespace hubb{
         UxP.smul(n,-1.0);
       }
 
-      cntr::vie2_start(Chi,PxU,UxP,Pol,beta,dt,SolveOrder);
+      cntr::vie2_start(Chi,PxU,UxP,Pol,beta,h,SolveOrder);
 
   }
   // -----------------------------------------------------------------------
-  void GenChi(int tstp, double dt, double beta, GREEN &Pol, CFUNC &U, GREEN &PxU,
+  void GenChi(int tstp, double h, double beta, GREEN &Pol, CFUNC &U, GREEN &PxU,
       GREEN &UxP, GREEN &Chi, int SolveOrder){
 
       PxU.set_timestep(tstp, Pol);
@@ -139,11 +139,11 @@ namespace hubb{
       if(tstp==-1){
         cntr::vie2_mat(Chi,PxU,UxP,Pol,beta,SolveOrder);
       } else{
-        cntr::vie2_timestep(tstp,Chi,PxU,UxP,Pol,beta,dt,SolveOrder);
+        cntr::vie2_timestep(tstp,Chi,PxU,UxP,Pol,beta,h,SolveOrder);
       }
   }
   // -----------------------------------------------------------------------
-  void GenTPP(double dt, double beta, GREEN &G, GREEN &Phi, CFUNC &U, GREEN &UxPhi,
+  void GenTPP(double h, double beta, GREEN &G, GREEN &Phi, CFUNC &U, GREEN &UxPhi,
       GREEN &PhixU, GREEN &TPP, int SolveOrder){
       int nst=G.size1();
 
@@ -162,10 +162,10 @@ namespace hubb{
         UxPhi.left_multiply(tstp, U);
       }
 
-      cntr::vie2_start(TPP,PhixU,UxPhi,Phi,beta,dt,SolveOrder);
+      cntr::vie2_start(TPP,PhixU,UxPhi,Phi,beta,h,SolveOrder);
   }
     // -----------------------------------------------------------------------
-    void GenTPP(int tstp, double dt, double beta, GREEN &G, GREEN &Phi, CFUNC &U,
+    void GenTPP(int tstp, double h, double beta, GREEN &G, GREEN &Phi, CFUNC &U,
       GREEN &UxPhi, GREEN &PhixU, GREEN &TPP, int SolveOrder){
       int nst=G.size1();
 

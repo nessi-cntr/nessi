@@ -35,7 +35,7 @@ int main(int argc,char *argv[]){
   int SaveGreen,SaveMomentum,output;
   int Nt,Ntau,MatsMaxIter,CorrectorSteps,Nk;
   int BootstrapMaxIter;
-  double HoppingT,HubbardU,V,beta,dt,MuChem,MatsMaxErr,BootstrapMaxErr,TimeMaxErr;
+  double HoppingT,HubbardU,V,beta,h,MuChem,MatsMaxErr,BootstrapMaxErr,TimeMaxErr;
   double RampV0;
   char* flin;
   char* flout;
@@ -103,7 +103,7 @@ int main(int argc,char *argv[]){
       find_param(flin,"__SaveMomentum=",SaveMomentum);
       find_param(flin,"__Nt=",Nt);
       find_param(flin,"__Ntau=",Ntau);
-      find_param(flin,"__dt=",dt);
+      find_param(flin,"__h=",h);
       find_param(flin,"__MatsMaxIter=",MatsMaxIter);
       find_param(flin,"__MatsMaxErr=",MatsMaxErr);
       find_param(flin,"__BootstrapMaxIter=",BootstrapMaxIter);
@@ -162,7 +162,7 @@ int main(int argc,char *argv[]){
     Ut.set_constant(HubbardU*MatrixXcd::Identity(Norb,Norb));
     Vt.set_constant(V*MatrixXcd::Identity(Norb,Norb));
     tt.set_constant(HoppingT*MatrixXcd::Identity(Norb,Norb));
-    lattice_1d_1b lattice(Nk,Nt,tt,Ut,Vt,Epulse,MuChem,Norb,SolverOrder,dt);
+    lattice_1d_1b lattice(Nk,Nt,tt,Ut,Vt,Epulse,MuChem,Norb,SolverOrder,h);
     // Remember k dependent density and vertex on every rank
     std::vector<CFUNC> density_k(Nk);
     std::vector<CFUNC> vertex(Nk);
@@ -198,7 +198,7 @@ int main(int argc,char *argv[]){
       }
       if(tid_map[k]==tid){
         kindex_rank[iq]=k;
-        corrK_rank[iq]=gw::kpoint(Nt,Ntau,Norb,beta,dt,lattice.kpoints_[k],lattice,MuChem);
+        corrK_rank[iq]=gw::kpoint(Nt,Ntau,Norb,beta,h,lattice.kpoints_[k],lattice,MuChem);
         iq++;
       }
 
@@ -442,7 +442,7 @@ int main(int argc,char *argv[]){
             tmp(0,0)=Epulse[tstp+1];
             Epulsetmp.set_value(tstp,tmp);
           }
-          tmp(0,0) = diag::CorrelationEnergy(tstp,Nk_rank,SolverOrder,beta,dt,corrK_rank,lattice);
+          tmp(0,0) = diag::CorrelationEnergy(tstp,Nk_rank,SolverOrder,beta,h,corrK_rank,lattice);
           if(tid==tid_root){
             Epot.set_value(tstp,tmp);
           }
@@ -457,7 +457,7 @@ int main(int argc,char *argv[]){
         store_int_attribute_to_hid(group_id, "Nt", Nt);
         store_int_attribute_to_hid(group_id, "Ntau", Ntau);
         store_double_attribute_to_hid(group_id, "beta", beta);
-        store_double_attribute_to_hid(group_id, "dt", dt);
+        store_double_attribute_to_hid(group_id, "dt", h);
         store_double_attribute_to_hid(group_id, "HubbardU", HubbardU);
         store_double_attribute_to_hid(group_id, "HoppingT", HoppingT);
         store_double_attribute_to_hid(group_id, "MuChem", MuChem);
@@ -491,7 +491,7 @@ int main(int argc,char *argv[]){
             corrK_rank[k].W_.write_to_hdf5_slices(file_id,"W",output);
             
             hid_t group_id = create_group(file_id, "parm");
-            store_double_attribute_to_hid(group_id, "dt", dt);
+            store_double_attribute_to_hid(group_id, "dt", h);
             store_double_attribute_to_hid(group_id, "kk", lattice.kpoints_[kindex_rank[k]]);
             store_int_attribute_to_hid(group_id, "Nt", Nt);
             close_group(group_id);

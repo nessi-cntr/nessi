@@ -38,7 +38,7 @@ int main(int argc,char *argv[]){
 	int SaveGreen;
 	int Nt,Ntau,MatsMaxIter,CorrectorSteps;
 	int BootstrapMaxIter;
-	double Hopping,El_Ph_g,Phfreq_w0,beta,dt;
+	double Hopping,El_Ph_g,Phfreq_w0,beta,h;
     double MuChem_MF,MuChem;
     double MatsMaxErr,BootstrapMaxErr;
 	std::vector<double> dHopping,dEl_Ph_g;
@@ -107,7 +107,7 @@ int main(int argc,char *argv[]){
 			find_param(flin,"__SaveGreen=",SaveGreen);
 			find_param(flin,"__Nt=",Nt);
 			find_param(flin,"__Ntau=",Ntau);
-			find_param(flin,"__dt=",dt);
+			find_param(flin,"__h=",h);
 			find_param(flin,"__MatsMaxIter=",MatsMaxIter);
 			find_param(flin,"__MatsMaxErr=",MatsMaxErr);
 			find_param(flin,"__BootstrapMaxIter=",BootstrapMaxIter);
@@ -184,7 +184,7 @@ int main(int argc,char *argv[]){
 			Hyb.left_multiply(tstp,J_hop_t);
 
 			//initialize D0
-			cntr::green_single_pole_XX(D0,Phfreq_w0,beta,dt);
+			cntr::green_single_pole_XX(D0,Phfreq_w0,beta,h);
 			for(int it=-1 ; it<=Nt ; it++) D0.smul(it,2.0);
             
             
@@ -219,10 +219,10 @@ int main(int argc,char *argv[]){
             
 				if(FIXPOINT) {
 					Hols::Sigma_Mig(tstp, G, Sigma, D0, D, Pi, D0_Pi, Pi_D0,
-						g_elph_t, beta, dt, SolverOrder, CNTR_MAT_FIXPOINT);
+						g_elph_t, beta, h, SolverOrder, CNTR_MAT_FIXPOINT);
 				} else{
 					Hols::Sigma_Mig(tstp, G, Sigma, D0, D, Pi, D0_Pi, Pi_D0,
-						g_elph_t, beta, dt, SolverOrder, CNTR_MAT_FOURIER);
+						g_elph_t, beta, h, SolverOrder, CNTR_MAT_FOURIER);
 				}
                  
 
@@ -286,7 +286,7 @@ int main(int argc,char *argv[]){
             G.density_matrix(tstp,rho_M);
             rho_M *= 2.0;//spin number=2
             n_tot_t.set_value(tstp,rho_M);
-            Hols::get_phonon_displace(tstp, Xph_t, n_tot_t, g_elph_t, D0, Phfreq_w0, SolverOrder,dt);
+            Hols::get_phonon_displace(tstp, Xph_t, n_tot_t, g_elph_t, D0, Phfreq_w0, SolverOrder,h);
             
             cdmatrix Xph_0(1,1),g_elph_0(1,1);
             Xph_t.get_value(tstp,Xph_0);
@@ -332,7 +332,7 @@ int main(int argc,char *argv[]){
 				// update self-energy
                 
 				Hols::Sigma_Mig(G, Sigma, D0, D, Pi, D0_Pi, Pi_D0, g_elph_t,
-					beta, dt, SolverOrder);
+					beta, h, SolverOrder);
 
                 //updating phonon displacement
                 for(tstp=0; tstp<=SolverOrder; tstp++){
@@ -342,7 +342,7 @@ int main(int argc,char *argv[]){
                     n_tot_t.set_value(tstp,rho_M);
                 }
                 
-                Hols::get_phonon_displace(Xph_t, n_tot_t, g_elph_t, D0, Phfreq_w0, SolverOrder,dt);
+                Hols::get_phonon_displace(Xph_t, n_tot_t, g_elph_t, D0, Phfreq_w0, SolverOrder,h);
                 
 				//solve Dyson for impurity
 				for(tstp=0; tstp<=SolverOrder; tstp++){
@@ -429,14 +429,14 @@ int main(int argc,char *argv[]){
                     
 					//update self-energy
                     
-					Hols::Sigma_Mig(tstp, G, Sigma, D0, D, Pi, D0_Pi, Pi_D0, g_elph_t, beta, dt, SolverOrder);
+					Hols::Sigma_Mig(tstp, G, Sigma, D0, D, Pi, D0_Pi, Pi_D0, g_elph_t, beta, h, SolverOrder);
 
                     //update phonon displacement 
                     G.density_matrix(tstp,rho_M);
                     rho_M *= 2.0;//spin number=2
                     n_tot_t.set_value(tstp,rho_M);
                     
-                    Hols::get_phonon_displace(tstp, Xph_t, n_tot_t, g_elph_t, D0, Phfreq_w0, SolverOrder,dt);
+                    Hols::get_phonon_displace(tstp, Xph_t, n_tot_t, g_elph_t, D0, Phfreq_w0, SolverOrder,h);
                     
 					//solve Dyson for impurity
                     Xph_t.get_value(tstp,Xph_tmp);
@@ -447,7 +447,7 @@ int main(int argc,char *argv[]){
 					Hyb_Sig.set_timestep(tstp,Hyb);
 					Hyb_Sig.incr_timestep(tstp,Sigma,1.0);
                     
-					cntr::dyson_timestep(tstp, G, 0.0, h0_imp_MF_t, Hyb_Sig, beta, dt, SolverOrder);
+					cntr::dyson_timestep(tstp, G, 0.0, h0_imp_MF_t, Hyb_Sig, beta, h, SolverOrder);
                     
                     ////////////////////////////////////////////
 					//Lattice self-consistency for Bethe lattice
@@ -482,7 +482,7 @@ int main(int argc,char *argv[]){
             // Ekin for two spin
 			for(tstp = -1; tstp <= Nt ; tstp++){
                 
-                Mat_tmp(0,0) = 4.0*cntr::correlation_energy(tstp, G, Hyb, beta, dt, SolverOrder);
+                Mat_tmp(0,0) = 4.0*cntr::correlation_energy(tstp, G, Hyb, beta, h, SolverOrder);
 				Ekin_t.set_value(tstp,Mat_tmp);
 
 			}
@@ -500,16 +500,16 @@ int main(int argc,char *argv[]){
             
 			// Enx_corr
 			for(tstp = -1; tstp <= Nt ; tstp++){
-				Mat_tmp(0,0) = 4.0*cntr::correlation_energy(tstp, G, Sigma, beta, dt, SolverOrder);
+				Mat_tmp(0,0) = 4.0*cntr::correlation_energy(tstp, G, Sigma, beta, h, SolverOrder);
 				Enx_corr_t.set_value(tstp,Mat_tmp);
 			}
 
             // Eph_cl and P
-            Hols::get_phonon_momentum(Pph_t, n_tot_t, g_elph_t, D0, Phfreq_w0, SolverOrder, dt);
+            Hols::get_phonon_momentum(Pph_t, n_tot_t, g_elph_t, D0, Phfreq_w0, SolverOrder, h);
             Hols::evaluate_phonon_energy_cl(Eph_cl_t, Xph_t, Pph_t, Phfreq_w0);
             
 			// Eph_corr
-            Hols::evaluate_phonon_energy_qu(Eph_qu_t, D, Pi, SolverOrder, beta, dt, Phfreq_w0);
+            Hols::evaluate_phonon_energy_qu(Eph_qu_t, D, Pi, SolverOrder, beta, h, Phfreq_w0);
             
 		}
 		//============================================================================
@@ -580,7 +580,7 @@ int main(int argc,char *argv[]){
 				Eph_qu_t.get_value(tstp,eph_qu);
 				etot = ekin + enx_mf + enx_corr + eph_cl+ eph_qu;
 
-				f_out << tstp*dt << "  " ;
+				f_out << tstp*h << "  " ;
                 
 				for(int a=0; a<Norb; a++){
 					for(int b=0; b<Norb; b++){
@@ -615,7 +615,7 @@ int main(int argc,char *argv[]){
 			//parameters
 			store_int_attribute_to_hid(group_id,"Nt",Nt);
 			store_int_attribute_to_hid(group_id,"Ntau",Ntau);
-			store_double_attribute_to_hid(group_id,"dt",dt);
+			store_double_attribute_to_hid(group_id,"dt",h);
 			store_double_attribute_to_hid(group_id,"beta",beta);
 			close_group(group_id);
 

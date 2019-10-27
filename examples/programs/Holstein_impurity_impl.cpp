@@ -294,7 +294,7 @@ namespace Hols{
     // Phonon displacement    //
     ////////////////////////////
     // <<Matsubara,timestep>>---------------------------------
-    void get_phonon_displace(int tstp,CFUNC &X_ph, CFUNC &n_tot,CFUNC &g_el_ph,GREEN &D0, double w0, int SolverOrder, double dt){
+    void get_phonon_displace(int tstp,CFUNC &X_ph, CFUNC &n_tot,CFUNC &g_el_ph,GREEN &D0, double w0, int SolverOrder, double h){
         
         assert(X_ph.size1()==1);
         assert(X_ph.size2()==1);
@@ -328,7 +328,7 @@ namespace Hols{
                 D0_gn[it] = D0_ret_tmp(0,0)*(n_g_tmp(0,0)-n_g_0(0,0));
             }
             
-            X_ph_tmp(0,0) = Integ.integrate(D0_gn,tstp)*dt; //[check]
+            X_ph_tmp(0,0) = Integ.integrate(D0_gn,tstp)*h; //[check]
             
             X_ph_tmp += X_ph_0;
         }
@@ -337,7 +337,7 @@ namespace Hols{
     }
     
     // <<bootstrap>>---------------------------------
-    void get_phonon_displace(CFUNC &X_ph, CFUNC &n_tot,CFUNC &g_el_ph,GREEN &D0, double w0, int SolverOrder, double dt){
+    void get_phonon_displace(CFUNC &X_ph, CFUNC &n_tot,CFUNC &g_el_ph,GREEN &D0, double w0, int SolverOrder, double h){
         
         assert(X_ph.size1()==1);
         assert(X_ph.size2()==1);
@@ -363,7 +363,7 @@ namespace Hols{
             vector<complex<double> > D0_gn;
             D0_gn.assign(SolverOrder+1,0.0);
 
-            //\int^tk_0 dt' D^R_0(t_k-t') (gn(t'+tn-tk) -gn(0)) 
+            //\int^tk_0 h' D^R_0(t_k-t') (gn(t'+tn-tk) -gn(0)) 
             // with gn(t') = gn(0) for t'<0
             for(int it =0 ; it<=SolverOrder ; it++){
                 
@@ -375,7 +375,7 @@ namespace Hols{
                 D0_gn[it] = D0_ret_tmp(0,0)*(n_g_tmp(0,0)-n_g_0(0,0));
             }
             
-            X_ph_tmp(0,0) = Integ.integrate(D0_gn,SolverOrder)*dt;//[check]
+            X_ph_tmp(0,0) = Integ.integrate(D0_gn,SolverOrder)*h;//[check]
             
             X_ph_tmp += X_ph_0;
             
