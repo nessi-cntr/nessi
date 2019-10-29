@@ -25,15 +25,49 @@ namespace cntr {
   double correlation_energy(int tstp, herm_matrix<double> &G, herm_matrix<double> &Sigma,
            double beta, double h, int SolveOrder);
   
-  extern template double distance_norm2<double>(int tstp,herm_matrix<double> &g1,herm_matrix<double> &g2);
-  extern template double distance_norm2_ret<double>(int tstp,herm_matrix<double> &g1,herm_matrix<double> &g2);
-  extern template double distance_norm2_tv<double>(int tstp,herm_matrix<double> &g1,herm_matrix<double> &g2);
-  extern template double distance_norm2_les<double>(int tstp,herm_matrix<double> &g1,herm_matrix<double> &g2);
-  extern template double distance_norm2<double>(int tstp,herm_matrix_timestep<double> &g1,herm_matrix<double> &g2);
-  extern template double distance_norm2<double>(int tstp,herm_matrix_timestep_view<double> &g1,herm_matrix<double> &g2);
+  
+  extern template double distance_norm2_ret<double>(int tstp, herm_matrix<double> &g1,herm_matrix<double> &g2);
+  extern template double distance_norm2_ret<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix<double> &g2);
+  extern template double distance_norm2_ret<double>(int tstp, herm_matrix<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2_ret<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2_ret<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix<double> &g2);
+  extern template double distance_norm2_ret<double>(int tstp, herm_matrix<double> &g1, herm_matrix_timestep_view<double> &g2);
+  extern template double distance_norm2_ret<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix_timestep_view<double> &g2);
+  extern template double distance_norm2_ret<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2_ret<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix_timestep_view<double> &g2);
+
+  extern template double distance_norm2_tv<double>(int tstp, herm_matrix<double> &g1,herm_matrix<double> &g2);
+  extern template double distance_norm2_tv<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix<double> &g2);
+  extern template double distance_norm2_tv<double>(int tstp, herm_matrix<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2_tv<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2_tv<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix<double> &g2);
+  extern template double distance_norm2_tv<double>(int tstp, herm_matrix<double> &g1, herm_matrix_timestep_view<double> &g2);
+  extern template double distance_norm2_tv<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix_timestep_view<double> &g2);
+  extern template double distance_norm2_tv<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2_tv<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix_timestep_view<double> &g2);
+
+  extern template double distance_norm2_les<double>(int tstp, herm_matrix<double> &g1,herm_matrix<double> &g2);
+  extern template double distance_norm2_les<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix<double> &g2);
+  extern template double distance_norm2_les<double>(int tstp, herm_matrix<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2_les<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2_les<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix<double> &g2);
+  extern template double distance_norm2_les<double>(int tstp, herm_matrix<double> &g1, herm_matrix_timestep_view<double> &g2);
+  extern template double distance_norm2_les<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix_timestep_view<double> &g2);
+  extern template double distance_norm2_les<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2_les<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix_timestep_view<double> &g2);
+
+  extern template double distance_norm2<double>(int tstp, herm_matrix<double> &g1,herm_matrix<double> &g2);
+  extern template double distance_norm2<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix<double> &g2);
+  extern template double distance_norm2<double>(int tstp, herm_matrix<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix<double> &g2);
+  extern template double distance_norm2<double>(int tstp, herm_matrix<double> &g1, herm_matrix_timestep_view<double> &g2);
+  extern template double distance_norm2<double>(int tstp, herm_matrix_timestep<double> &g1, herm_matrix_timestep_view<double> &g2);
+  extern template double distance_norm2<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix_timestep<double> &g2);
+  extern template double distance_norm2<double>(int tstp, herm_matrix_timestep_view<double> &g1, herm_matrix_timestep_view<double> &g2);
+
   extern template double distance_norm2<double>(herm_matrix_timestep_view<double> &g1,herm_matrix_timestep<double> &g2);
   extern template double distance_norm2<double>(herm_matrix_timestep<double> &g1,herm_matrix_timestep<double> &g2);
-  extern template double distance_norm2<double>(int tstp, herm_matrix_timestep<double> &g1,herm_matrix_timestep<double> &g2);
 
   extern template double distance_norm2_eigen<double>(int tstp,herm_matrix_timestep<double> &g1,herm_matrix<double> &g2);
   extern template size_t mem_herm_matrix<double>(int nt,int ntau,int size);

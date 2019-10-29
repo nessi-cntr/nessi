@@ -6,6 +6,7 @@
 #include "cntr_elements.hpp"
 #include "cntr_herm_matrix_decl.hpp"
 #include "cntr_herm_matrix_timestep_view_decl.hpp"
+#include "cntr_herm_matrix_timestep_view_impl.hpp"
 #include "cntr_herm_matrix_timestep_decl.hpp"
 #include "cntr_herm_pseudo_decl.hpp"
 #include "cntr_function_decl.hpp"
@@ -639,39 +640,110 @@ T distance_norm2_dispatch(int tstp, GG &g1, GG &g2) {
     return err;
 }
 
-/** \brief <b>  Evaluate the Euclidean norm between two herm_matrces at a given time step. </b>
- *
- * <!-- ====== DOCUMENTATION ====== -->
- *  \par Purpose
- * <!-- ========= -->
- * > Evaluate the Euclidean norm between two herm_matrces (\f$g_1,g_2\f$) at a given time step (tstp).
- * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used.
- * > The norm is not normalized per elements, but it is the summention of all the elements.
- *
- * <!-- ARGUMENTS
- *      ========= -->
- *
- * @param tstp
- * > [int]time step
- * @param g1
- * > herm_matrix
- * @param g2
- * > herm_matrix
- */
-template <typename T>
-T distance_norm2(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
-    if (g1.size1() == 1)
-        return distance_norm2_dispatch<T, herm_matrix<T>, 1>(tstp, g1, g2);
-    else
-        return distance_norm2_dispatch<T, herm_matrix<T>, LARGESIZE>(tstp, g1,
-                                                                     g2);
+
+
+
+
+
+
+
+/// @private
+template <typename T, int SIZE1>
+T distance_norm2_ret_dispatch(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    int size1 = g1.size1();
+    int s1 = size1*size1;
+    T err = 0.0;
+    std::complex<T> *temp = new std::complex<T>[size1 * size1];
+
+    if (tstp == -1)
+        return 0.0;
+    for (int i = 0; i <= tstp; i++) {
+        element_set<T, SIZE1>(size1, temp, g1.ret_ + i * s1);
+        element_incr<T, SIZE1>(size1, temp, -1.0, g2.ret_ + i * s1);
+        err += element_norm2<T, SIZE1>(size1, temp);
+    }
+    delete[] temp;
+    return err;
 }
-/** \brief <b>  Evaluate the Euclidean norm between the retarded components of two herm_matrces at a given time step. </b>
+/// @private
+template <typename T, int SIZE1>
+T distance_norm2_tv_dispatch(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    int size1 = g1.size1(), ntau = g1.ntau();
+    int s1 = size1*size1;
+    T err = 0.0;
+    std::complex<T> *temp = new std::complex<T>[size1 * size1];
+
+    if (tstp == -1)
+        return 0.0;
+    for (int i = 0; i <= ntau; i++) {
+        element_set<T, SIZE1>(size1, temp, g1.tv_ + i * s1);
+        element_incr<T, SIZE1>(size1, temp, -1.0, g2.tv_ + i * s1);
+        err += element_norm2<T, SIZE1>(size1, temp);
+    }
+    delete[] temp;
+    return err;
+}
+/// @private
+template <typename T, int SIZE1>
+T distance_norm2_les_dispatch(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    int size1 = g1.size1();
+    int s1 = size1*size1;
+    T err = 0.0;
+    std::complex<T> *temp = new std::complex<T>[size1 * size1];
+
+    if (tstp == -1)
+        return 0.0;
+    for (int i = 0; i <= tstp; i++) {
+        element_set<T, SIZE1>(size1, temp, g1.les_ + i * s1);
+        element_incr<T, SIZE1>(size1, temp, -1.0, g2.les_ + i * s1);
+        err += element_norm2<T, SIZE1>(size1, temp);
+    }
+    delete[] temp;
+    return err;
+}
+
+/// @private
+template <typename T, int SIZE1>
+T distance_norm2_dispatch(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    int size1 = g1.size1(), ntau = g1.ntau();
+    int s1 = size1*size1;
+    T err = 0.0;
+    std::complex<T> *temp = new std::complex<T>[size1 * size1];
+
+    if (tstp == -1) {
+        for (int i = 0; i <= ntau; i++) {
+            element_set<T, SIZE1>(size1, temp, g1.mat_ + i * s1);
+            element_incr<T, SIZE1>(size1, temp, -1.0, g2.mat_ + i * s1);
+            err += element_norm2<T, SIZE1>(size1, temp);
+        }
+    } else {
+        for (int i = 0; i <= tstp; i++) {
+            element_set<T, SIZE1>(size1, temp, g1.ret_ + i * s1);
+            element_incr<T, SIZE1>(size1, temp, -1.0, g2.ret_ + i * s1);
+            err += element_norm2<T, SIZE1>(size1, temp);
+        }
+        for (int i = 0; i <= ntau; i++) {
+            element_set<T, SIZE1>(size1, temp, g1.tv_ + i * s1);
+            element_incr<T, SIZE1>(size1, temp, -1.0, g2.tv_ + i * s1);
+            err += element_norm2<T, SIZE1>(size1, temp);
+        }
+        for (int i = 0; i <= tstp; i++) {
+            element_set<T, SIZE1>(size1, temp, g1.les_ + i * s1);
+            element_incr<T, SIZE1>(size1, temp, -1.0, g2.les_ + i * s1);
+            err += element_norm2<T, SIZE1>(size1, temp);
+        }
+    }
+    delete[] temp;
+    return err;
+}
+
+
+/** \brief <b>  Evaluate the Euclidean norm between the retarded components of two `herm_matrix` at a given time step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
  *  \par Purpose
  * <!-- ========= -->
- * > Evaluate the Euclidean norm between the retarded components of two herm_matrces (\f$g_1,g_2\f$) at a given time step (tstp).
+ * > Evaluate the Euclidean norm between the retarded components of two `herm_matrix` (\f$g_1,g_2\f$) at a given time step (tstp).
  * > The norm is not normalized per elements, but it is the summention of all the elements.
  *
  * <!-- ARGUMENTS
@@ -686,6 +758,10 @@ T distance_norm2(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
  */
 template <typename T>
 T distance_norm2_ret(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.nt() => tstp);
     if (g1.size1() == 1)
         return distance_norm2_ret_dispatch<T, herm_matrix<T>, 1>(tstp, g1,
                                                                  g2);
@@ -693,6 +769,262 @@ T distance_norm2_ret(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
         return distance_norm2_ret_dispatch<T, herm_matrix<T>, LARGESIZE>(
             tstp, g1, g2);
 }
+
+/** \brief <b>  Evaluate the Euclidean norm between the retarded components a `herm_matrix_timestep` and `herm_matrix`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the retarded components of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep
+ * @param g2
+ * > herm_matrix
+ */
+template <typename T>
+T distance_norm2_ret(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.nt() => tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_ret_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_ret_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the retarded components a `herm_matrix` and `herm_matrix_timestep`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the retarded components of a `herm_matrix` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix
+ * @param g2
+ * > herm_matrix_timestep
+ */
+template <typename T>
+T distance_norm2_ret(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_ret_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_ret_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
+}
+
+
+/** \brief <b>  Evaluate the Euclidean norm between the retarded components a `herm_matrix_timestep` and `herm_matrix_timestep`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the retarded components of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep
+ * @param g2
+ * > herm_matrix_timestep
+ */
+template <typename T>
+T distance_norm2_ret(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_ret_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_ret_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the retarded components a `herm_matrix_timestep_view` and `herm_matrix`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the retarded components of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix
+ */
+template <typename T>
+T distance_norm2_ret(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.nt() => tstp);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_ret_dispatch<T, 1>(tstp, g1, g2_view);
+    else
+        return distance_norm2_ret_dispatch<T, LARGESIZE>(tstp, g1, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the retarded components a `herm_matrix` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the retarded components of a `herm_matrix` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2_ret(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    if (g1.size1() == 1)
+        return distance_norm2_ret_dispatch<T, 1>(tstp, g1_view, g2);
+    else
+        return distance_norm2_ret_dispatch<T, LARGESIZE>(tstp, g1_view, g2);
+}
+
+
+/** \brief <b>  Evaluate the Euclidean norm between the retarded components a `herm_matrix_timestep` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the retarded components of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2_ret(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    if (g1.size1() == 1)
+        return distance_norm2_ret_dispatch<T, 1>(tstp, g1_view, g2);
+    else
+        return distance_norm2_ret_dispatch<T, LARGESIZE>(tstp, g1_view, g2);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the retarded components a `herm_matrix_timestep_view` and `herm_matrix_timestep`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the retarded components of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix_timestep
+ */
+template <typename T>
+T distance_norm2_ret(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_ret_dispatch<T, 1>(tstp, g1, g2_view);
+    else
+        return distance_norm2_ret_dispatch<T, LARGESIZE>(tstp, g1, g2_view);
+}
+
+
+/** \brief <b>  Evaluate the Euclidean norm between the retarded components a `herm_matrix_timestep_view` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the retarded components of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2_ret(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    if (g1.size1() == 1)
+        return distance_norm2_ret_dispatch<T, 1>(tstp, g1, g2);
+    else
+        return distance_norm2_ret_dispatch<T, LARGESIZE>(tstp, g1, g2);
+}
+
+
+
 /** \brief <b>  Evaluate the Euclidean norm between the left-mixing components of two herm_matrces at a given time step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -713,12 +1045,271 @@ T distance_norm2_ret(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
  */
 template <typename T>
 T distance_norm2_tv(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.nt() => tstp);
     if (g1.size1() == 1)
         return distance_norm2_tv_dispatch<T, herm_matrix<T>, 1>(tstp, g1, g2);
     else
         return distance_norm2_tv_dispatch<T, herm_matrix<T>, LARGESIZE>(
             tstp, g1, g2);
 }
+
+/** \brief <b>  Evaluate the Euclidean norm between the left-mixing components a `herm_matrix_timestep` and `herm_matrix`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the left-mixing components of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep
+ * @param g2
+ * > herm_matrix
+ */
+template <typename T>
+T distance_norm2_tv(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.nt() => tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_tv_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_tv_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the left-mixing components a `herm_matrix` and `herm_matrix_timestep`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the left-mixing components of a `herm_matrix` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix
+ * @param g2
+ * > herm_matrix_timestep
+ */
+template <typename T>
+T distance_norm2_tv(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_tv_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_tv_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
+}
+
+
+/** \brief <b>  Evaluate the Euclidean norm between the left-mixing components a `herm_matrix_timestep` and `herm_matrix_timestep`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the left-mixing components of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep
+ * @param g2
+ * > herm_matrix_timestep
+ */
+template <typename T>
+T distance_norm2_tv(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_tv_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_tv_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the left-mixing components a `herm_matrix_timestep_view` and `herm_matrix`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the left-mixing components of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix
+ */
+template <typename T>
+T distance_norm2_tv(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.nt() => tstp);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_tv_dispatch<T, 1>(tstp, g1, g2_view);
+    else
+        return distance_norm2_tv_dispatch<T, LARGESIZE>(tstp, g1, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the left-mixing components a `herm_matrix` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the left-mixing components of a `herm_matrix` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2_tv(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    if (g1.size1() == 1)
+        return distance_norm2_tv_dispatch<T, 1>(tstp, g1_view, g2);
+    else
+        return distance_norm2_tv_dispatch<T, LARGESIZE>(tstp, g1_view, g2);
+}
+
+
+/** \brief <b>  Evaluate the Euclidean norm between the left-mixing components a `herm_matrix_timestep` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the left-mixing components of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2_tv(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    if (g1.size1() == 1)
+        return distance_norm2_tv_dispatch<T, 1>(tstp, g1_view, g2);
+    else
+        return distance_norm2_tv_dispatch<T, LARGESIZE>(tstp, g1_view, g2);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the left-mixing components a `herm_matrix_timestep_view` and `herm_matrix_timestep`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the left-mixing components of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix_timestep
+ */
+template <typename T>
+T distance_norm2_tv(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_tv_dispatch<T, 1>(tstp, g1, g2_view);
+    else
+        return distance_norm2_tv_dispatch<T, LARGESIZE>(tstp, g1, g2_view);
+}
+
+
+/** \brief <b>  Evaluate the Euclidean norm between the left-mixing components a `herm_matrix_timestep_view` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the left-mixing components of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2_tv(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    if (g1.size1() == 1)
+        return distance_norm2_tv_dispatch<T, 1>(tstp, g1, g2);
+    else
+        return distance_norm2_tv_dispatch<T, LARGESIZE>(tstp, g1, g2);
+}
+
+
 /** \brief <b>  Evaluate the Euclidean norm between the lesser components of two herm_matrces at a given time step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
@@ -739,6 +1330,10 @@ T distance_norm2_tv(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
  */
 template <typename T>
 T distance_norm2_les(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.nt() => tstp);
     if (g1.size1() == 1)
         return distance_norm2_les_dispatch<T, herm_matrix<T>, 1>(tstp, g1,
                                                                  g2);
@@ -747,13 +1342,14 @@ T distance_norm2_les(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
             tstp, g1, g2);
 }
 
-/** \brief <b>  Evaluate the Euclidean norm between herm_matrix_timestep and herm_matrix at a given time step. </b>
+
+
+/** \brief <b>  Evaluate the Euclidean norm between the lesser components a `herm_matrix_timestep` and `herm_matrix`  at a given time step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
  *  \par Purpose
  * <!-- ========= -->
- * > Evaluate the Euclidean norm between herm_matrix_timestep (\f$g_1 \f$) and  herm_matrix(\f$ g_2\f$) at a given time step (tstp).
- * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used.
+ * > Evaluate the Euclidean norm between the lesser components of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix` (\f$g_2\f$) at a given time step (tstp).
  * > The norm is not normalized per elements, but it is the summention of all the elements.
  *
  * <!-- ARGUMENTS
@@ -762,177 +1358,318 @@ T distance_norm2_les(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
  * @param tstp
  * > time step
  * @param g1
- * > object of the class 'herm_matrix_timestep'
+ * > herm_matrix_timestep
  * @param g2
- * > object of the class 'herm_matrix'
+ * > herm_matrix
+ */
+template <typename T>
+T distance_norm2_les(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.nt() => tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_les_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_les_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the lesser components a `herm_matrix` and `herm_matrix_timestep`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the lesser components of a `herm_matrix` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix
+ * @param g2
+ * > herm_matrix_timestep
+ */
+template <typename T>
+T distance_norm2_les(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_les_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_les_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
+}
+
+
+/** \brief <b>  Evaluate the Euclidean norm between the lesser components a `herm_matrix_timestep` and `herm_matrix_timestep`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the lesser components of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep
+ * @param g2
+ * > herm_matrix_timestep
+ */
+template <typename T>
+T distance_norm2_les(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_les_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_les_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the lesser components a `herm_matrix_timestep_view` and `herm_matrix`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the lesser components of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix
+ */
+template <typename T>
+T distance_norm2_les(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.nt() => tstp);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_les_dispatch<T, 1>(tstp, g1, g2_view);
+    else
+        return distance_norm2_les_dispatch<T, LARGESIZE>(tstp, g1, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the lesser components a `herm_matrix` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the lesser components of a `herm_matrix` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2_les(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    if (g1.size1() == 1)
+        return distance_norm2_les_dispatch<T, 1>(tstp, g1_view, g2);
+    else
+        return distance_norm2_les_dispatch<T, LARGESIZE>(tstp, g1_view, g2);
+}
+
+
+/** \brief <b>  Evaluate the Euclidean norm between the lesser components a `herm_matrix_timestep` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the lesser components of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2_les(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    if (g1.size1() == 1)
+        return distance_norm2_les_dispatch<T, 1>(tstp, g1_view, g2);
+    else
+        return distance_norm2_les_dispatch<T, LARGESIZE>(tstp, g1_view, g2);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the lesser components a `herm_matrix_timestep_view` and `herm_matrix_timestep`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the lesser components of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix_timestep
+ */
+template <typename T>
+T distance_norm2_les(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_les_dispatch<T, 1>(tstp, g1, g2_view);
+    else
+        return distance_norm2_les_dispatch<T, LARGESIZE>(tstp, g1, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between the lesser components a `herm_matrix_timestep_view` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between the lesser components of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2_les(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    if (g1.size1() == 1)
+        return distance_norm2_les_dispatch<T, 1>(tstp, g1, g2);
+    else
+        return distance_norm2_les_dispatch<T, LARGESIZE>(tstp, g1, g2);
+}
+
+
+
+/** \brief <b>  Evaluate the Euclidean norm between two `herm_matrix` at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between two`herm_matrix` (\f$g_1,g_2\f$) at a given time step (tstp).
+ * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used.
+ * > The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > [int]time step
+ * @param g1
+ * > herm_matrix
+ * @param g2
+ * > herm_matrix
+ */
+template <typename T>
+T distance_norm2(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.nt() => tstp);
+    if (g1.size1() == 1)
+        return distance_norm2_dispatch<T, herm_matrix<T>, 1>(tstp, g1, g2);
+    else
+        return distance_norm2_dispatch<T, herm_matrix<T>, LARGESIZE>(tstp, g1,
+                                                                     g2);
+}
+
+
+/** \brief <b>  Evaluate the Euclidean norm between  a `herm_matrix_timestep` and `herm_matrix`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between  of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix` (\f$g_2\f$) at a given time step (tstp).
+ * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used. The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep
+ * @param g2
+ * > herm_matrix
  */
 template <typename T>
 T distance_norm2(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2) {
-    int size1 = g2.size1(), ntau = g2.ntau(), i, s1 = size1 * size1;
-    T err = 0.0;
-    std::complex<T> *temp = new std::complex<T>[size1 * size1];
-    std::complex<T> *x;
-    assert(g1.tstp_ == tstp && g1.tstp_ <= g2.nt());
-    assert(g1.ntau_ == g2.ntau() && g1.size1_ == g2.size1());
-
-    if (tstp == -1) {
-        x = g1.data_;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.matptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    } else {
-        x = g1.data_;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.retptr(tstp, i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.data_ + (tstp + 1) * s1;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.tvptr(tstp, i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.data_ + (tstp + 1 + ntau + 1) * s1;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.lesptr(i, tstp));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    }
-    delete[] temp;
-    return err;
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.nt() => tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
 }
 
-/** \brief <b>  Evaluate the Euclidean norm between two herm_matrix_timestep objects </b>
+/** \brief <b>  Evaluate the Euclidean norm between  a `herm_matrix` and `herm_matrix_timestep`  at a given time step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
  *  \par Purpose
  * <!-- ========= -->
- * > Evaluate the Euclidean norm between two herm_matrix_timestep objects (\f$g_1 \f$) and (\f$ g_2\f$).
- * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used.
- * > The norm is not normalized per elements, but it is the summention of all the elements.
- *
- * <!-- ARGUMENTS
- *      ========= -->
- *
- * @param g1
- * > object of the class 'herm_matrix_timestep'
- * @param g2
- * > object of the class 'herm_matrix_timestep'
- */
-template <typename T>
-T distance_norm2(herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2) {
-    int size1 = g2.size1(), ntau = g2.ntau(), i, s1 = size1 * size1;
-    T err = 0.0;
-    int tstp=g1.tstp_;
-    std::complex<T> *temp = new std::complex<T>[size1 * size1];
-    std::complex<T> *x;
-    assert(g1.tstp_ == g2.tstp_ );
-    assert(g1.ntau_ == g2.ntau_ && g1.size1_ == g2.size1_);
-
-    if (tstp == -1) {
-        x = g1.data_;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.matptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    } else {
-        x = g1.data_;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.retptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.data_ + (tstp + 1) * s1;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.tvptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.data_ + (tstp + 1 + ntau + 1) * s1;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.lesptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    }
-    delete[] temp;
-    return err;
-}
-
-
-/** \brief <b>  Evaluate the Euclidean norm between two herm_matrix_timestep objects </b>
- *
- * <!-- ====== DOCUMENTATION ====== -->
- *  \par Purpose
- * <!-- ========= -->
- * > Evaluate the Euclidean norm between two herm_matrix_timestep objects (\f$g_1 \f$) and (\f$ g_2\f$).
- * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used.
- * > The norm is not normalized per elements, but it is the summention of all the elements.
- *
- * <!-- ARGUMENTS
- *      ========= -->
- *
- * @param tstp
- * > time step (dummy argument in release mode)
- * @param g1
- * > object of the class 'herm_matrix_timestep'
- * @param g2
- * > object of the class 'herm_matrix_timestep'
- */
-template <typename T>
-T distance_norm2(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2) {
-    int size1 = g2.size1(), ntau = g2.ntau(), i, s1 = size1 * size1;
-    T err = 0.0;
-    std::complex<T> *temp = new std::complex<T>[size1 * size1];
-    std::complex<T> *x;
-    assert(tstp == g1.tstp_);
-    assert(g1.tstp_ == g2.tstp_ );
-    assert(g1.ntau_ == g2.ntau_ && g1.size1_ == g2.size1_);
-
-    if (tstp == -1) {
-        x = g1.data_;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.matptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    } else {
-        x = g1.data_;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.retptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.data_ + (tstp + 1) * s1;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.tvptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.data_ + (tstp + 1 + ntau + 1) * s1;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.lesptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    }
-    delete[] temp;
-    return err;
-}
-
-/** \brief <b>  Evaluate the Euclidean norm between herm_matrix_timestep_view and herm_matrix at a given time step. </b>
- *
- * <!-- ====== DOCUMENTATION ====== -->
- *  \par Purpose
- * <!-- ========= -->
- * > Evaluate the Euclidean norm between herm_matrix_timestep_view (\f$g_1 \f$) and  herm_matrix(\f$ g_2\f$) at a given time step (tstp).
- * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used.
- * > The norm is not normalized per elements, but it is the summention of all the elements.
+ * > Evaluate the Euclidean norm between  of a `herm_matrix` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used. The norm is not normalized per elements, but it is the summention of all the elements.
  *
  * <!-- ARGUMENTS
  *      ========= -->
@@ -940,172 +1677,241 @@ T distance_norm2(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> 
  * @param tstp
  * > time step
  * @param g1
- * > object of the class 'herm_matrix_timestep_view;
+ * > herm_matrix
  * @param g2
- * > object of the class 'herm_matrix'
+ * > herm_matrix_timestep
  */
 template <typename T>
-T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2) {
-    int size1 = g2.size1(), ntau = g2.ntau(), i, s1 = size1 * size1;
-    T err = 0.0;
-    std::complex<T> *temp = new std::complex<T>[size1 * size1];
-    std::complex<T> *x;
-    assert(g1.tstp_ == tstp && g1.tstp_ <= g2.nt());
-    assert(g1.ntau_ == g2.ntau() && g1.size1_ == g2.size1());
-
-    if (tstp == -1) {
-        x = g1.mat_;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.matptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    } else {
-        x = g1.ret_;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.retptr(tstp, i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.tv_ ;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.tvptr(tstp, i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.les_ ;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.lesptr(i, tstp));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    }
-    delete[] temp;
-    return err;
+T distance_norm2(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
 }
 
-/** \brief <b> Evaluate the Euclidean norm between herm_matrix_timestep_view and herm_matrix_timestep at a given time step. </b>
+
+/** \brief <b>  Evaluate the Euclidean norm between  a `herm_matrix_timestep` and `herm_matrix_timestep`  at a given time step. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->
  *  \par Purpose
  * <!-- ========= -->
- * > Evaluate the Euclidean norm between herm_matrix_timestep_view (\f$g_1 \f$) and  herm_matrix_timestep(\f$ g_2\f$) at a given time step.
- * > Here the time step is extracted from herm_matrix_timestep_view.
- * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used.
- * > The norm is not normalized per elements, but it is the summention of all the elements.
- *
- * <!-- ARGUMENTS
- *      ========= -->
- *
- * @param g1
- * > object of the class 'herm_matrix_timestep_view'
- * @param g2
- * > object of the class 'herm_matrix_timestep'
- */
-template <typename T>
-T distance_norm2(herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2) {
-    int size1 = g2.size1(), ntau = g2.ntau(), i, s1 = size1 * size1;
-    T err = 0.0;
-    int tstp=g1.tstp_;
-    std::complex<T> *temp = new std::complex<T>[size1 * size1];
-    std::complex<T> *x;
-    assert(g1.tstp_ == g2.tstp_ );
-    assert(g1.ntau_ == g2.ntau_ && g1.size1_ == g2.size1_);
-
-    if (tstp == -1) {
-        x = g1.mat_;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.matptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    } else {
-        x = g1.ret_;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.retptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.tv_;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.tvptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.les_ ;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.lesptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    }
-    delete[] temp;
-    return err;
-}
-
-
-
-
-/** \brief <b> Evaluate the Euclidean norm between herm_matrix_timestep_view and herm_matrix_timestep at a given time step. </b>
- *
- * <!-- ====== DOCUMENTATION ====== -->
- *  \par Purpose
- * <!-- ========= -->
- * > Evaluate the Euclidean norm between herm_matrix_timestep_view (\f$g_1 \f$) and  herm_matrix_timestep(\f$ g_2\f$) at a given time step.
- * > Here the time step is extracted from herm_matrix_timestep_view.
- * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used.
- * > The norm is not normalized per elements, but it is the summention of all the elements.
+ * > Evaluate the Euclidean norm between  of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used. The norm is not normalized per elements, but it is the summention of all the elements.
  *
  * <!-- ARGUMENTS
  *      ========= -->
  *
  * @param tstp
- * > time step (dummy argument in release mode)
+ * > time step
  * @param g1
- * > object of the class 'herm_matrix_timestep_view'
+ * > herm_matrix_timestep
  * @param g2
- * > object of the class 'herm_matrix_timestep'
+ * > herm_matrix_timestep
+ */
+template <typename T>
+T distance_norm2(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_dispatch<T, 1>(tstp, g1_view, g2_view);
+    else
+        return distance_norm2_dispatch<T, LARGESIZE>(tstp, g1_view, g2_view);
+}
+
+
+/// @private
+template <typename T>
+T distance_norm2(herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == g2.tstp());
+    herm_matrix_timestep_view<T> g1_view(g1.tstp(), g1);
+    herm_matrix_timestep_view<T> g2_view(g1.tstp(), g2);
+    if (g1.size1() == 1)
+        return distance_norm2_dispatch<T, 1>(g1.tstp(), g1_view, g2_view);
+    else
+        return distance_norm2_dispatch<T, LARGESIZE>(g1.tstp(), g1_view, g2_view);
+}
+
+/// @private
+template <typename T>
+T distance_norm2(herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == g2.tstp());
+    herm_matrix_timestep_view<T> g2_view(g1.tstp(), g2);
+    if (g1.size1() == 1)
+        return distance_norm2_dispatch<T, 1>(g1.tstp(), g1, g2_view);
+    else
+        return distance_norm2_dispatch<T, LARGESIZE>(g1.tstp(), g1, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between  a `herm_matrix_timestep_view` and `herm_matrix`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between  of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix` (\f$g_2\f$) at a given time step (tstp).
+ * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used. The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix
+ */
+template <typename T>
+T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.nt() => tstp);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_dispatch<T, 1>(tstp, g1, g2_view);
+    else
+        return distance_norm2_dispatch<T, LARGESIZE>(tstp, g1, g2_view);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between  a `herm_matrix` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between  of a `herm_matrix` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used. The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.nt() => tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    if (g1.size1() == 1)
+        return distance_norm2_dispatch<T, 1>(tstp, g1_view, g2);
+    else
+        return distance_norm2_dispatch<T, LARGESIZE>(tstp, g1_view, g2);
+}
+
+
+/** \brief <b>  Evaluate the Euclidean norm between  a `herm_matrix_timestep` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between  of a `herm_matrix_timestep` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used. The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g1_view(tstp, g1);
+    if (g1.size1() == 1)
+        return distance_norm2_dispatch<T, 1>(tstp, g1_view, g2);
+    else
+        return distance_norm2_dispatch<T, LARGESIZE>(tstp, g1_view, g2);
+}
+
+/** \brief <b>  Evaluate the Euclidean norm between  a `herm_matrix_timestep_view` and `herm_matrix_timestep`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between  of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix_timestep` (\f$g_2\f$) at a given time step (tstp).
+ * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used. The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix_timestep
  */
 template <typename T>
 T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2) {
-    int size1 = g2.size1(), ntau = g2.ntau(), i, s1 = size1 * size1;
-    T err = 0.0;
-    std::complex<T> *temp = new std::complex<T>[size1 * size1];
-    std::complex<T> *x;
-    assert(tstp == g1.tstp_);
-    assert(g1.tstp_ == g2.tstp_ );
-    assert(g1.ntau_ == g2.ntau_ && g1.size1_ == g2.size1_);
-
-    if (tstp == -1) {
-        x = g1.mat_;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.matptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    } else {
-        x = g1.ret_;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.retptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.tv_;
-        for (i = 0; i <= ntau; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.tvptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-        x = g1.les_ ;
-        for (i = 0; i <= tstp; i++) {
-            element_set<T, LARGESIZE>(size1, temp, g2.lesptr(i));
-            element_incr<T, LARGESIZE>(size1, temp, -1.0, x + i * s1);
-            err += element_norm2<T, LARGESIZE>(size1, temp);
-        }
-    }
-    delete[] temp;
-    return err;
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    herm_matrix_timestep_view<T> g2_view(tstp, g2);
+    if (g1.size1() == 1)
+        return distance_norm2_dispatch<T, 1>(tstp, g1, g2_view);
+    else
+        return distance_norm2_dispatch<T, LARGESIZE>(tstp, g1, g2_view);
 }
+
+
+/** \brief <b>  Evaluate the Euclidean norm between  a `herm_matrix_timestep_view` and `herm_matrix_timestep_view`  at a given time step. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between  of a `herm_matrix_timestep_view` \f$g_1\f$ and a `herm_matrix_timestep_view` (\f$g_2\f$) at a given time step (tstp).
+ * > To evaluate the norm, the elements of retarded, lesser and left-mixing components at the time step is used. The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param tstp
+ * > time step
+ * @param g1
+ * > herm_matrix_timestep_view
+ * @param g2
+ * > herm_matrix_timestep_view
+ */
+template <typename T>
+T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2) {
+    assert(g1.size1() == g2.size1());
+    assert(g1.ntau() == g2.ntau());
+    assert(g1.tstp() == tstp);
+    assert(g2.tstp() == tstp);
+    if (g1.size1() == 1)
+        return distance_norm2_dispatch<T, 1>(tstp, g1, g2);
+    else
+        return distance_norm2_dispatch<T, LARGESIZE>(tstp, g1, g2);
+}
+
 
 // template <typename T>
 // T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2) {

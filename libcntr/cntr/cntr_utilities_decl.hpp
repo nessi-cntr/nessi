@@ -57,26 +57,49 @@ namespace cntr {
   // compare to GF's on timestep tstp
   ///////////////////////////////////////////////////////////////////////////////////////// */
 
-  template <typename T> T distance_norm2(int tstp,herm_matrix<T> &g1,herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_ret(int tstp, herm_matrix<T> &g1,herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_ret(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_ret(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2_ret(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2_ret(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_ret(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2);
+  template <typename T> T distance_norm2_ret(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep_view<T> &g2);
+  template <typename T> T distance_norm2_ret(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2_ret(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2);
 
-  template <typename T> T distance_norm2_ret(int tstp,herm_matrix<T> &g1,herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_tv(int tstp, herm_matrix<T> &g1,herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_tv(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_tv(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2_tv(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2_tv(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_tv(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2);
+  template <typename T> T distance_norm2_tv(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep_view<T> &g2);
+  template <typename T> T distance_norm2_tv(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2_tv(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2);
 
-  template <typename T> T distance_norm2_tv(int tstp,herm_matrix<T> &g1,herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_les(int tstp, herm_matrix<T> &g1,herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_les(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_les(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2_les(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2_les(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2);
+  template <typename T> T distance_norm2_les(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2);
+  template <typename T> T distance_norm2_les(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep_view<T> &g2);
+  template <typename T> T distance_norm2_les(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2_les(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2);
 
-  template <typename T> T distance_norm2_les(int tstp,herm_matrix<T> &g1,herm_matrix<T> &g2);
+  template <typename T> T distance_norm2(int tstp, herm_matrix<T> &g1,herm_matrix<T> &g2);
+  template <typename T> T distance_norm2(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2);
+  template <typename T> T distance_norm2(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2);
+  template <typename T> T distance_norm2(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2);
+  template <typename T> T distance_norm2(int tstp, herm_matrix_timestep<T> &g1, herm_matrix_timestep_view<T> &g2);
+  template <typename T> T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep<T> &g2);
+  template <typename T> T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix_timestep_view<T> &g2);
 
-  template <typename T> T distance_norm2(int tstp,herm_matrix_timestep<T> &g1,herm_matrix<T> &g2);
-
-  template <typename T> T distance_norm2(int tstp,herm_matrix_timestep_view<T> &g1,herm_matrix<T> &g2);
-
+  // legacy interfaces
   template <typename T> T distance_norm2(herm_matrix_timestep_view<T> &g1,herm_matrix_timestep<T> &g2);
-  template <typename T> T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1,herm_matrix_timestep<T> &g2);
-
   template <typename T> T distance_norm2(herm_matrix_timestep<T> &g1,herm_matrix_timestep<T> &g2);
-  template <typename T> T distance_norm2(int tstp, herm_matrix_timestep<T> &g1,herm_matrix_timestep<T> &g2);
-
-  template <typename T> T distance_norm2(int tstp,herm_pseudo<T> &g1,herm_pseudo<T> &g2);
-
   template <typename T> T distance_norm2_eigen(int tstp,herm_matrix_timestep<T> &g1,herm_matrix<T> &g2);
 
   /* /////////////////////////////////////////////////////////////////////////////////////////
