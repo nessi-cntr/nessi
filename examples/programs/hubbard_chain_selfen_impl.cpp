@@ -185,7 +185,7 @@ namespace hubb{
       if(tstp == -1) {
         cntr::vie2_mat(TPP,PhixU,UxPhi,Phi,beta,SolveOrder);
       } else {
-        cntr::vie2_timestep(tstp,TPP,PhixU,UxPhi,Phi,beta,dt,SolveOrder);
+        cntr::vie2_timestep(tstp,TPP,PhixU,UxPhi,Phi,beta,h,SolveOrder);
       }
     }
     // -----------------------------------------------------------------------

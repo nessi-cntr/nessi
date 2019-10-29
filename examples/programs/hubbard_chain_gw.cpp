@@ -51,7 +51,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
     //..................................................
     int Nt,Ntau,MatsMaxIter,CorrectorSteps,Nsites;
     int BootstrapMaxIter;
-    double HoppingT,HubbardU,beta,dt,MuChem,MatsMaxErr,BootstrapMaxErr;
+    double HoppingT,HubbardU,beta,h,MuChem,MatsMaxErr,BootstrapMaxErr;
     int RampSite;
     double RampW0;
     char* flin;
@@ -290,7 +290,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
           }
 
           // solve Dyson equation
-          cntr::dyson_start(G, MuChem, eps_mf, Sigma, beta, dt, SolveOrder);
+          cntr::dyson_start(G, MuChem, eps_mf, Sigma, beta, h, SolveOrder);
 
           // self-consistency check
           err=0.0;
