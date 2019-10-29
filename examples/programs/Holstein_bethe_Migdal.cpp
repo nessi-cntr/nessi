@@ -357,7 +357,7 @@ int main(int argc,char *argv[]){
 					Hyb_Sig.incr_timestep(tstp,Sigma,1.0);
 				}
 
-				cntr::dyson_start(G, 0.0, h0_imp_MF_t, Hyb_Sig, beta, dt, SolverOrder);
+				cntr::dyson_start(G, 0.0, h0_imp_MF_t, Hyb_Sig, beta, h, SolverOrder);
 
                 ////////////////////////////////////////////
 				//Lattice self-consistency for Bethe lattice
