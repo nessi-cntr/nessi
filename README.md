@@ -22,7 +22,7 @@ The full documentation, installation instructions, examples and tutorials is ava
 
 Please cite the following paper whenever you use parts of **NESSi**: 
 
-Michael Schüler, Denis Golež, Yuta Murakami, Nikolaj Bittner, Andreas Herrmann, Hugo U. R. Strand, Philipp Werner, Martin Eckstein, CPC XX, XX (2019)
+Michael Schüler, Denis Golež, Yuta Murakami, Nikolaj Bittner, Andreas Herrmann, Hugo U. R. Strand, Philipp Werner, Martin Eckstein, [arXiv:1911.01211 [cs]](http://arxiv.org/abs/1911.01211)
 
 ## License
 
