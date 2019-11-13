@@ -13,6 +13,7 @@
 
 The NESSi program package contains two major directories:
 
+Directory | Content
 ------------ | -------------
 [libcntr](libcntr/) | The **libcntr** library.
 [examples](examples/) | Example programs based on **libcntr**.
