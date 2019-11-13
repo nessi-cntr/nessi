@@ -4,13 +4,22 @@ This directory contains a number of example programs, demonstrating the usage of
 A detailed discussion is presented in [Michael Schüler, Denis Golež, Yuta Murakami, Nikolaj Bittner, Andreas Herrmann, Hugo U. R. Strand, Philipp Werner, Martin Eckstein, arXiv:1911.01211 [cs]](http://arxiv.org/abs/1911.01211)
 A short introduction and instructions to run the programs can be found on the [official webpage](http://www.nessi.tuxfamily.org).
 
-Content
-==================
+## Content
 
+The directory contains the following files and subdirectories:
 
+File / Directory | Description
+------------ | -------------
+CMakeLists.txt | CMake file for generating Makefiles
+README.md | This readme page
+[data/](data/) | Contains benchmark results for the Hubbard chain example 
+[exe/](exe/) | Executables will be placed here 
+[inp/](inp/) | Default directory for input files
+[out/](out/) | Default directory for output files
+[utils/](utils/) | Contains python driver scripts for the example programs
+[programs/](programs/) | The source code of the example programs
 
-Build instructions
-==================
+## Build instructions
 
 ### Prerequisites
 * [cmake](https://cmake.org)

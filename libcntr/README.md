@@ -3,8 +3,7 @@
 This is the **libcntr** library, the core part of the **NESSi** software package. The full documentation and detailed build instructions
 can be found at the [official webpage](http://www.nessi.tuxfamily.org).
 
-Content
-===============
+## Content
 
 The directory contains the following files and subdirectories:
 
@@ -21,8 +20,7 @@ nessi_small.svg | Image for the generated Doxygen documentation
 [python3/](python3/) | Python tools (python3)
 [test/](test/) | The source code for the automated test runs
 
-Build instructions
-==================
+## Build instructions
 
 ### Prerequisites
 * [cmake](https://cmake.org)
@@ -82,15 +80,13 @@ make
 ```
 
 
-HDF5
-====
+### HDF5
 
 To enable hdf5 support add the `hdf5` option to the cmake configure script:
 
     -Dhdf5=ON
 
-MPI and OpenMP
-==============
+### MPI and OpenMP
 
 To turn on OpenMP and/or MPI parallelization define the options `omp` and/or `mpi` in the cmake step, respectively, and specify your C and C++ MPI compilers by `CC=mpicc CXX=mpix++` (or similar, depending on your system). Add the `omp` and `mpi` option to the configure script:
 
@@ -98,8 +94,7 @@ To turn on OpenMP and/or MPI parallelization define the options `omp` and/or `mp
     -Dmpi=ON
 
 
-doxygen
-=======
+### doxygen
 
 The **libcntr** is fully documented using the automated documentation tool [doxygen](http://www.doxygen.nl). To build the documentation,
 add the cmake variable
@@ -109,8 +104,7 @@ add the cmake variable
 to the configure script. Upon running `make`, the documentation will be generated under `doc/html/index.html`.
 
 
-Tests
-=====
+### Tests
 
 We also provide a test suite for checking the functionality of every major routine in **libcntr** based on the Catch library. For running the tests, simply run
 
@@ -123,8 +117,7 @@ After completing all test, the message `All tests` passed indicates that the com
 
     make test_mpi
 
-Example scripts
-===============
+### Example scripts
 
 On MacOSX and using the GNU compilers, an example configure script with all options would look like the following:
 
