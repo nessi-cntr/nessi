@@ -760,8 +760,8 @@ template <typename T>
 T distance_norm2_ret(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
-    assert(g2.nt() => tstp);
+    assert(g1.nt() >= tstp);
+    assert(g2.nt() >= tstp);
     if (g1.size1() == 1)
         return distance_norm2_ret_dispatch<T, herm_matrix<T>, 1>(tstp, g1,
                                                                  g2);
@@ -793,7 +793,7 @@ T distance_norm2_ret(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2) 
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
     assert(g1.tstp() == tstp);
-    assert(g2.nt() => tstp);
+    assert(g2.nt() >= tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
     if (g1.size1() == 1)
@@ -824,7 +824,7 @@ template <typename T>
 T distance_norm2_ret(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
+    assert(g1.nt() >= tstp);
     assert(g2.tstp() == tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
@@ -890,7 +890,7 @@ T distance_norm2_ret(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> 
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
     assert(g1.tstp() == tstp);
-    assert(g2.nt() => tstp);
+    assert(g2.nt() >= tstp);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
     if (g1.size1() == 1)
         return distance_norm2_ret_dispatch<T, 1>(tstp, g1, g2_view);
@@ -920,7 +920,7 @@ template <typename T>
 T distance_norm2_ret(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
+    assert(g1.nt() >= tstp);
     assert(g2.tstp() == tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     if (g1.size1() == 1)
@@ -1047,8 +1047,8 @@ template <typename T>
 T distance_norm2_tv(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
-    assert(g2.nt() => tstp);
+    assert(g1.nt() >= tstp);
+    assert(g2.nt() >= tstp);
     if (g1.size1() == 1)
         return distance_norm2_tv_dispatch<T, herm_matrix<T>, 1>(tstp, g1, g2);
     else
@@ -1079,7 +1079,7 @@ T distance_norm2_tv(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
     assert(g1.tstp() == tstp);
-    assert(g2.nt() => tstp);
+    assert(g2.nt() >= tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
     if (g1.size1() == 1)
@@ -1110,7 +1110,7 @@ template <typename T>
 T distance_norm2_tv(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
+    assert(g1.nt() >= tstp);
     assert(g2.tstp() == tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
@@ -1176,7 +1176,7 @@ T distance_norm2_tv(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
     assert(g1.tstp() == tstp);
-    assert(g2.nt() => tstp);
+    assert(g2.nt() >= tstp);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
     if (g1.size1() == 1)
         return distance_norm2_tv_dispatch<T, 1>(tstp, g1, g2_view);
@@ -1206,7 +1206,7 @@ template <typename T>
 T distance_norm2_tv(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
+    assert(g1.nt() >= tstp);
     assert(g2.tstp() == tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     if (g1.size1() == 1)
@@ -1332,8 +1332,8 @@ template <typename T>
 T distance_norm2_les(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
-    assert(g2.nt() => tstp);
+    assert(g1.nt() >= tstp);
+    assert(g2.nt() >= tstp);
     if (g1.size1() == 1)
         return distance_norm2_les_dispatch<T, herm_matrix<T>, 1>(tstp, g1,
                                                                  g2);
@@ -1367,7 +1367,7 @@ T distance_norm2_les(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2) 
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
     assert(g1.tstp() == tstp);
-    assert(g2.nt() => tstp);
+    assert(g2.nt() >= tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
     if (g1.size1() == 1)
@@ -1398,7 +1398,7 @@ template <typename T>
 T distance_norm2_les(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
+    assert(g1.nt() >= tstp);
     assert(g2.tstp() == tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
@@ -1464,7 +1464,7 @@ T distance_norm2_les(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> 
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
     assert(g1.tstp() == tstp);
-    assert(g2.nt() => tstp);
+    assert(g2.nt() >= tstp);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
     if (g1.size1() == 1)
         return distance_norm2_les_dispatch<T, 1>(tstp, g1, g2_view);
@@ -1494,7 +1494,7 @@ template <typename T>
 T distance_norm2_les(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
+    assert(g1.nt() >= tstp);
     assert(g2.tstp() == tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     if (g1.size1() == 1)
@@ -1621,8 +1621,8 @@ template <typename T>
 T distance_norm2(int tstp, herm_matrix<T> &g1, herm_matrix<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
-    assert(g2.nt() => tstp);
+    assert(g1.nt() >= tstp);
+    assert(g2.nt() >= tstp);
     if (g1.size1() == 1)
         return distance_norm2_dispatch<T, herm_matrix<T>, 1>(tstp, g1, g2);
     else
@@ -1654,7 +1654,7 @@ T distance_norm2(int tstp, herm_matrix_timestep<T> &g1, herm_matrix<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
     assert(g1.tstp() == tstp);
-    assert(g2.nt() => tstp);
+    assert(g2.nt() >= tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
     if (g1.size1() == 1)
@@ -1685,7 +1685,7 @@ template <typename T>
 T distance_norm2(int tstp, herm_matrix<T> &g1, herm_matrix_timestep<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
+    assert(g1.nt() >= tstp);
     assert(g2.tstp() == tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
@@ -1779,7 +1779,7 @@ T distance_norm2(int tstp, herm_matrix_timestep_view<T> &g1, herm_matrix<T> &g2)
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
     assert(g1.tstp() == tstp);
-    assert(g2.nt() => tstp);
+    assert(g2.nt() >= tstp);
     herm_matrix_timestep_view<T> g2_view(tstp, g2);
     if (g1.size1() == 1)
         return distance_norm2_dispatch<T, 1>(tstp, g1, g2_view);
@@ -1809,7 +1809,7 @@ template <typename T>
 T distance_norm2(int tstp, herm_matrix<T> &g1, herm_matrix_timestep_view<T> &g2) {
     assert(g1.size1() == g2.size1());
     assert(g1.ntau() == g2.ntau());
-    assert(g1.nt() => tstp);
+    assert(g1.nt() >= tstp);
     assert(g2.tstp() == tstp);
     herm_matrix_timestep_view<T> g1_view(tstp, g1);
     if (g1.size1() == 1)
