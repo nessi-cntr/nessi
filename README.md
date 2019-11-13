@@ -11,8 +11,14 @@
 
 ## Content
 
-The **libcntr** library is found in [libcntr](libcntr/), while example programs are located in
-[examples](examples/).
+The NESSi program package contains two major directories:
+
+------------ | -------------
+[libcntr](libcntr/) | The **libcntr** library.
+[examples](examples/) | Example programs based on **libcntr**.
+
+More information on the directory structure and the source files
+can be found in the respective directories.
 
 ## Documentation and tutorials
 

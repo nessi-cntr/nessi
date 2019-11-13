@@ -4,6 +4,24 @@ libcntr library
 This is the **libcntr** library, the core part of the **NESSi** software package. The full documentation and detailed build instructions
 can be found at the [official webpage](http://www.nessi.tuxfamily.org).
 
+Content
+===============
+
+The directory contains the following files and subdirectories:
+
+File / Directory | Description
+------------ | -------------
+CMakeLists.txt | CMake file for generating Makefiles
+Doxyfile.txt | Doxygen configuration file
+README.md | This readme page
+[cmake/](cmake/) | Contains CMake configuration file to locate the eigen3 library
+[cntr/](cntr/) | The source code of the **libcntr** library
+main.dox_inc | Additional content added to the generated Doxygen documentation
+nessi_small.svg | Image for the generated Doxygen documentation
+[python/](python/) | Python tools (python2)
+[python3/](python3/) | Python tools (python3)
+[test/](test/) | The source code for the automated test runs
+
 Build instructions
 ==================
 
