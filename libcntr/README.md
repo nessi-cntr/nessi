@@ -1,5 +1,4 @@
-libcntr library
-===============
+# libcntr library
 
 This is the **libcntr** library, the core part of the **NESSi** software package. The full documentation and detailed build instructions
 can be found at the [official webpage](http://www.nessi.tuxfamily.org).

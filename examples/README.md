@@ -1,8 +1,13 @@
-Example programs
-================
+# Example programs
 
 This directory contains a number of example programs, demonstrating the usage of the **libcntr** library and tools.
-A detailed discussion is presented in [M. Schüler, D. Golež, Y. Murakami, N. Bittner, A. Herrmann, H. U. R. Strand, P. Werner, M. Eckstein, CPC XX, XX (2019)](http://insert_link). A short introduction and instructions to run the programs can be found on the [official webpage](http://www.nessi.tuxfamily.org).
+A detailed discussion is presented in [Michael Schüler, Denis Golež, Yuta Murakami, Nikolaj Bittner, Andreas Herrmann, Hugo U. R. Strand, Philipp Werner, Martin Eckstein, arXiv:1911.01211 [cs]](http://arxiv.org/abs/1911.01211)
+A short introduction and instructions to run the programs can be found on the [official webpage](http://www.nessi.tuxfamily.org).
+
+Content
+==================
+
+
 
 Build instructions
 ==================
