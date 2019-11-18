@@ -293,11 +293,11 @@ template < class dos > struct dos_wrapper{
  */
 class bethedos {
   public:
-    /** \brief <b> Higher edge of the density of states  \f$ </b> */
+    /** \brief <b> Higher edge of the density of states  </b> */
     double hi_;
-    /** \brief <b> Lower edge of the density of states \f$ </b> */
+    /** \brief <b> Lower edge of the density of states </b> */
     double lo_;
-    /** \brief <b> Hopping integral and 4V corresponds to the bandwidth  \f$ </b> */
+    /** \brief <b> Hopping integral and 4V corresponds to the bandwidth </b> */
     double V_;
     bethedos() {
         V_ = 1;
@@ -324,11 +324,11 @@ class bethedos {
  */
 class ohmic{
   public:
-  	/** \brief <b> Higher edge of the density of states  \f$ </b> */
+  	/** \brief <b> Higher edge of the density of states </b> */
     double hi_;
-    /** \brief <b> Lower edge of the density of states \f$ </b> */
+    /** \brief <b> Lower edge of the density of states </b> */
     double lo_;
-    /** \brief <b> Cutoff  \f$ </b> */
+    /** \brief <b> Cutoff </b> */
     double omegac_;
     ohmic() {
         omegac_ = 1;
