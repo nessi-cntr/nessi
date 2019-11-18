@@ -3210,7 +3210,7 @@ void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, func
 
 */
 template <typename T>
-void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc, 
+void convolution(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
                  herm_matrix<T> &B, herm_matrix<T> &Bcc,
                  T beta, T h, int SolveOrder) {
     int tstp;
@@ -3987,7 +3987,7 @@ void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, GG 
 * > [int] integrator order
 */
 template <typename T, class GG>
-void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, GG &B, GG &Bcc, 
+void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, GG &B, GG &Bcc,
     T beta, T h, int SolveOrder) {
 
     int size1 = A.size1();
@@ -5004,7 +5004,7 @@ void convolution_new(herm_matrix<T> &C, herm_matrix<T> &A, herm_matrix<T> &Acc,
  * <!-- ========= -->
  *
  * > Performs the operation \f$C \rightarrow C + \alpha A*ft*B\f$, where 'C', 'A',and 'B' are objects of the type 'GG',
- * > 'f0' is a pointer to \f$F(-\mathrm{i}\beta)\f$ on the Matsubara axis,'ft' is a pointer to \f$F(t)\f$ on the real axis, 
+ * > 'f0' is a pointer to \f$F(-\mathrm{i}\beta)\f$ on the Matsubara axis,'ft' is a pointer to \f$F(t)\f$ on the real axis,
  * > and \f$\alpha\f$ is a complex weight. The operation is performed at given time step `tstp`. `openMP` parallelized version.
  *
  * <!-- ARGUMENTS
@@ -5093,8 +5093,8 @@ void incr_convolution_omp(int omp_num_threads, int tstp, CPLX alpha, GG &C, GG &
 *
 * @param omp_num_threads
 * > [int] number of `openMP` threads
-* @param n
-* > [int] number of the time step ('t=nh')
+* @param tstp
+* > [int] time step
 * @param C
 * > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A
@@ -5206,8 +5206,8 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 *
 * @param omp_num_threads
 * > [int] number of `openMP` threads
-* @param n
-* > [int] number of the time step ('t=nh')
+* @param tstp
+* > [int] time step
 * @param C
 * > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A
@@ -5310,7 +5310,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * <!-- ========= -->
 *
 * > Computes contour convolution C=A*f*B of the objects with class 'herm_matrix'
-* > at a given time step 't=nh'. Here we assume that A and B are hermitian. 
+* > at a given time step 't=nh'. Here we assume that A and B are hermitian.
 * > Works for a scalar and square matrices. `openMP` parallelized version.
 *
 *
@@ -5352,7 +5352,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * <!-- ========= -->
 *
 * > Computes contour convolution C=A*f*B of the objects with class 'herm_matrix'
-* > at a given time step 't=nh'. Here we assume that A and B are hermitian. 
+* > at a given time step 't=nh'. Here we assume that A and B are hermitian.
 * > Works for a scalar and square matrices. `openMP` parallelized version.
 *
 *
@@ -5394,7 +5394,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * <!-- ========= -->
 *
 * > Computes contour convolution \f$ C=A\ast B\f$ of the objects with class 'herm_matrix'
-* > for the Matsubara component \f$C^\mathrm{M}(\tau)\f$. Here we assume that A and B are hermitian. 
+* > for the Matsubara component \f$C^\mathrm{M}(\tau)\f$. Here we assume that A and B are hermitian.
 * > Works for a scalar and square matrices. `openMP` parallelized version.
 *
 *
@@ -5429,7 +5429,7 @@ void convolution_matsubara_omp(int omp_num_threads, herm_matrix<T> &C, herm_matr
 * <!-- ========= -->
 *
 * > Computes contour convolution \f$ C=A\ast f \ast B\f$ of the objects with class 'herm_matrix'
-* > for the Matsubara component \f$C^\mathrm{M}(\tau)\f$. Here we assume that A and B are hermitian. 
+* > for the Matsubara component \f$C^\mathrm{M}(\tau)\f$. Here we assume that A and B are hermitian.
 * > Works for a scalar and square matrices. `openMP` parallelized version.
 *
 *
@@ -5781,7 +5781,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * <!-- ========= -->
 *
 * > Computes contour convolution C=A*f*B of the objects with class 'herm_matrix'
-* > at a given time step 't=nh'. Here we assume that A and B are hermitian. 
+* > at a given time step 't=nh'. Here we assume that A and B are hermitian.
 * > Works for a scalar and square matrices. `openMP` parallelized version.
 *
 *
@@ -5796,8 +5796,6 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A
 * > [herm_matrix] contour Green's function
-* @param ft
-* > [function] function \f$f\f$
 * @param B
 * > [herm_matrix] contour Green's function
 * @param I
@@ -5822,7 +5820,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * <!-- ========= -->
 *
 * > Computes contour convolution C=A*f*B of the objects with class 'herm_matrix'
-* > at a given time step 't=nh'. Here we assume that A and B are hermitian. 
+* > at a given time step 't=nh'. Here we assume that A and B are hermitian.
 * > Works for a scalar and square matrices. `openMP` parallelized version.
 *
 *
@@ -5837,8 +5835,6 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 * > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A
 * > [herm_matrix] contour Green's function
-* @param ft
-* > [function] function \f$f\f$
 * @param B
 * > [herm_matrix] contour Green's function
 * @param beta

@@ -39,7 +39,7 @@ namespace cntr {
 * > [T] inverse temperature \f$\beta\f$
 * @param omega
 * > [T] energy
-*/  
+*/
 template <typename T>
 T fermi(T beta, T omega) {
     T arg = omega * beta;
@@ -66,7 +66,7 @@ T fermi(T beta, T omega) {
 * > [T] inverse temperature \f$\beta\f$
 * @param omega
 * > [dvector] vector of energies
-*/  
+*/
 template<typename T>
 dvector fermi(T beta,dvector &omega){
    int size=omega.size();
@@ -126,7 +126,7 @@ cdmatrix diag_prop(T time,dvector &omega){
 * > [T] inverse temperature \f$\beta\f$
 * @param omega
 * > [T] energy
-*/  
+*/
 template <typename T>
 T bose(T beta, T omega) {
     T arg = omega * beta;
@@ -158,7 +158,7 @@ T bose(T beta, T omega) {
 * > [T] inverse temperature \f$\beta\f$
 * @param omega
 * > [dvector] vector of energies
-*/  
+*/
 template<typename T>
 dvector bose(T beta,dvector &omega){
    int size=omega.size();
@@ -293,7 +293,7 @@ template < class dos > struct dos_wrapper{
  */
 class bethedos {
   public:
-    /** \brief <b> Higher edge of the density of states  </b> */
+    /** \brief <b> Higher edge of the density of states </b> */
     double hi_;
     /** \brief <b> Lower edge of the density of states </b> */
     double lo_;
@@ -553,16 +553,14 @@ void green_equilibrium(herm_matrix<T> &G,dos_function &dos,double beta,double h,
 *
 * @param G
 * > The output Greens function set to the equilibrium free propagator
-* @param mu
-* > chemical potential
 * @param beta
 * > inverse temperature
-* @param h
-* > timestep
 * @param limit
 * > max number of intervals in Fourier transform
 * @param nn
 * > number of points in each interval of the Fourier transform
+* @param mu
+* > chemical potential
 */
 template <typename T>
 void green_equilibrium_mat_bethe(herm_matrix<T> &G, double beta, int limit,
@@ -807,7 +805,7 @@ void green_from_H_dispatch(herm_matrix<T> &G,T mu,cntr::function<T> &eps,T beta,
     Ut.set_value(-1,idm);
     Ut.set_value(0,idm);
     for(int tstp=1;tstp<=nt;tstp++){
-      propagator_exp(tstp,Ut,eps,h,order,kt,fixHam);      
+      propagator_exp(tstp,Ut,eps,h,order,kt,fixHam);
     }
     for(int tstp=0;tstp<=nt;tstp++){
       cdmatrix tmp;
@@ -925,7 +923,7 @@ void green_from_H_const_dispatch(herm_matrix<T> &G,T mu,cdmatrix &H0,T beta,T h)
 	      cdmatrix tmp(size,size);
 	      Ut.get_value(m,exppt1);
 	      Ut.get_value(n,exppt2);
-        tmp = -iu*exppt1*exppt2.adjoint(); 
+        tmp = -iu*exppt1*exppt2.adjoint();
 	      G.set_ret(m,n,tmp);
         tmp = iu*exppt2*value*exppt1.adjoint();
 	      G.set_les(n,m,tmp);
@@ -1013,7 +1011,7 @@ void green_from_H_dispatch(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &ep
        cdmatrix tmp(size,size);
        Ut.get_value(tstp,exppt1);
        Ut.get_value(n,exppt2);
-       tmp = iu*exppt2*value*exppt1.adjoint(); 
+       tmp = iu*exppt2*value*exppt1.adjoint();
        G.set_les(n,tmp);
     }
   }
@@ -1224,6 +1222,8 @@ void green_from_H(herm_matrix_timestep<T> &G,T mu,cdmatrix &eps,T beta,T h){
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param tstp
+* > given time step
 * @param G
 * > The output: a timestep of the Greens function set to time dependent free propagator
 * @param mu
@@ -1326,7 +1326,7 @@ void green_from_H(herm_matrix_timestep<T> &G,T mu,cntr::function<T> &eps,T beta,
 * @param beta
 * > inverse temperature
 * @param h
-* > time step interval 
+* > time step interval
 * @param fixHam
 * > If True Hamiltonian is known for all times and no extrapolation is needed for the predictor/corrector
 * @param SolveOrder
@@ -1372,7 +1372,7 @@ void green_from_H(int tstp, herm_matrix_timestep<T> &G,T mu,cntr::function<T> &e
 * @param beta
 * > inverse temperature
 * @param h
-* > time step interval 
+* > time step interval
 * @param fixHam
 * > If True Hamiltonian is known for all times and no extrapolation is needed for the predictor/corrector
 * @param SolveOrder
