@@ -1,0 +1,29 @@
+language: cpp
+sudo: required
+dist: bionic
+
+compiler:
+  - gcc
+  - clang
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y --allow-unauthenticated  libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy 
+
+install: true
+
+script:
+  - export INSTALL_DIR=$HOME/root_install # We install outside the repository
+  # ===== Set up TRIQS
+  - cd $TRAVIS_BUILD_DIR
+  - mkdir build && cd build
+  - cmake \
+    -DCMAKE_CXX_COMPILER=mpicxx \
+    -DCMAKE_C_COMPILER=mpicc \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
+    -DCMAKE_CXX_FLAGS="-std=c++11"\
+    -Domp=ON -Dmpi=ON -Dhdf5=ON \
+    -DBUILD_DOC=ON \
+    ..
+  - make -j2 && make test
