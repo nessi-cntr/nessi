@@ -399,7 +399,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep_view<T>::
 * <!-- ========= -->
 *
 * > Sets the lesser component \f$G^\rceil(t_i,\tau_j)\f$ of `herm_matrix_timestep`
-* > to a given complex matrix `M`. 
+* > to a given complex matrix `M`.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -427,7 +427,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep_view<T>::
 * <!-- ========= -->
 *
 * > Sets the Matsubara component \f$G^\mathrm{M}(\tau_j)\f$ of `herm_matrix_timestep`
-* > to a given complex matrix `M`. 
+* > to a given complex matrix `M`.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -489,7 +489,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep_view<T>::
 * @param M
 * > Matrix to which the lesser component is given.
 */
-template <typename T> template <class Matrix> 
+template <typename T> template <class Matrix>
       void herm_matrix_timestep_view<T>::get_les(int i, int j, Matrix &M){
          assert(j == tstp_ && i <= tstp_);
          cplx *x;
@@ -626,7 +626,7 @@ template <class Matrix>
  *      ========= -->
  *
  * @param tstp
- * > The time step at which the components are set to zero. 
+ * > The time step at which the components are set to zero.
  * > Dummy argument in release mode.
  *
  */
@@ -734,12 +734,14 @@ void herm_matrix_timestep_view<T>::set_timestep(int tstp, herm_matrix_timestep<T
 *  \par Purpose
 * <!-- ========= -->
 *
-* > Right-multiplication of the `herm_matrix_timestep` with a time dependent contour function F(t)
+* > Left-multiplication of the `herm_matrix_timestep` with a time dependent contour function F(t)
 * > i.e. it performs operation \f$G(t,t') \rightarrow w F(t)G(t,t')\f$
 *
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param tstp
+* > [int] The time step at which \f$F(t)\f$ and \f$G(t,t^\prime)\f$ are multiplied.
 * @param ft
 * > the contour function F(t)
 * @param weight
@@ -834,6 +836,8 @@ void herm_matrix_timestep_view<T>::left_multiply(int tstp, std::complex<T> *f0,
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param tstp
+* > [int] The time step at which \f$F(t)\f$ and \f$G(t,t^\prime)\f$ are multiplied.
 * @param ft
 * > the contour function F(t)
 * @param weight

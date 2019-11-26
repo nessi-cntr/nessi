@@ -321,7 +321,7 @@ void herm_matrix_timestep<T>::clear(void) {
  *      ========= -->
  *
  * @param tstp
- * > The time step at which the components are set to zero. 
+ * > The time step at which the components are set to zero.
  * > Dummy argument in release mode.
  *
  */
@@ -466,7 +466,7 @@ void herm_matrix_timestep<T>::set_timestep(int tstp, herm_matrix_timestep<T> &g1
 * @param M
 * > Matrix to which the lesser component is given.
 */
-template <typename T> template <class Matrix> 
+template <typename T> template <class Matrix>
       void herm_matrix_timestep<T>::get_les(int i, int j, Matrix &M){
          assert(j == tstp_ && i <= tstp_);
          cplx *x;
@@ -1095,6 +1095,8 @@ template <typename T>
 *
 * @param tstp
 * > The time step at which the density matrix is returned.
+* @param rho
+* > Scalar-valued density matrix (complex number)
 */
 template <typename T>
       inline void herm_matrix_timestep<T>::density_matrix(int tstp, cplx &rho) {
@@ -1156,6 +1158,8 @@ template<typename T> template<class Matrix>
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param tstp
+* > given time step
 * @param M
 * > The density matrix at time step `tstp`.
 */
@@ -1324,7 +1328,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_l
 * <!-- ========= -->
 *
 * > Sets the lesser component \f$G^<(t_i,t_j)\f$ of `herm_matrix_timestep`
-* > to a given complex scalar. 
+* > to a given complex scalar.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -1375,7 +1379,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_t
 * <!-- ========= -->
 *
 * > Sets the lesser component \f$G^\rceil(t_i,\tau_j)\f$ of `herm_matrix_timestep`
-* > to a given complex matrix `M`. 
+* > to a given complex matrix `M`.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -1403,7 +1407,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_t
 * <!-- ========= -->
 *
 * > Sets the left-mixing component \f$G^\rceil(t_i,\tau_j)\f$ of `herm_matrix_timestep`
-* > to a given complex scalar `x`. 
+* > to a given complex scalar `x`.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -1430,7 +1434,7 @@ template<typename T> inline void herm_matrix_timestep<T>::set_tv(int i, int j, c
 * <!-- ========= -->
 *
 * > Sets the Matsubara component \f$G^\mathrm{M}(\tau_j)\f$ of `herm_matrix_timestep`
-* > to a given complex matrix `M`. 
+* > to a given complex matrix `M`.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -1454,7 +1458,7 @@ template<typename T> template <class Matrix> void herm_matrix_timestep<T>::set_m
 * <!-- ========= -->
 *
 * > Sets the Matsubara component \f$G^\mathrm{M}(\tau_j)\f$ of `herm_matrix_timestep`
-* > to a given complex scalar `x`. 
+* > to a given complex scalar `x`.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -1579,11 +1583,13 @@ void herm_matrix_timestep<T>::left_multiply(function<T> &ft, T weight) {
 * <!-- ========= -->
 *
 * > Right-multiplication of the `herm_matrix_timestep` with a time dependent contour function F(t)
-* > i.e. it performs operation \f$G(t,t') \rightarrow w F(t)G(t,t')\f$
+* > i.e. it performs operation \f$G(t,t^\prime) \rightarrow w F(t)G(t,t^\prime)\f$
 *
 * <!-- ARGUMENTS
 *      ========= -->
 *
+* @param tstp
+* > [int] The time step at which \f$F(t)\f$ and \f$G(t,t^\prime)\f$ are multiplied.
 * @param ft
 * > the contour function F(t)
 * @param weight
@@ -1613,7 +1619,7 @@ void herm_matrix_timestep<T>::left_multiply(int tstp, function<T> &ft, T weight)
 *      ========= -->
 *
 * @param tstp
-* > [int] The time step at which \f$F^\ddagger(t)\f$ and \f$C(t,t^\prime)\f$ are multiplied. 
+* > [int] The time step at which \f$F^\ddagger(t)\f$ and \f$C(t,t^\prime)\f$ are multiplied.
 * > This is a dummy argument in release mode.
 * @param ft
 * > [function] The contour function.
@@ -1778,7 +1784,7 @@ void herm_matrix_timestep<T>::right_multiply(function<T> &ft, T weight) {
 * <!-- ARGUMENTS
 *      ========= -->
 * @param tstp
-* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep`
 * > e(dummy argument in release mode)
 * @param ft
 * > the contour function F(t)
@@ -1913,7 +1919,7 @@ void herm_matrix_timestep<T>::incr(herm_matrix_timestep<T> &g1, T weight) {
 *      ========= -->
 *
 * @param tstp
-* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep`
 * > e(dummy argument in release mode)
 * @param g1
 * > The `herm_matrix_timestep` which is added
@@ -2001,7 +2007,7 @@ void herm_matrix_timestep<T>::incr(herm_matrix<T> &g, T alpha) {
 *      ========= -->
 *
 * @param tstp
-* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep`
 * > e(dummy argument in release mode)
 * @param g
 * > The `herm_matrix` which is added
@@ -2083,7 +2089,7 @@ void herm_matrix_timestep<T>::smul(T weight) {
 *      ========= -->
 *
 * @param tstp
-* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep`
 * > e(dummy argument in release mode)
 * @param weight
 * > The `template argument` multiplication factor
@@ -2151,7 +2157,7 @@ void herm_matrix_timestep<T>::set_matrixelement(int i1, int i2,
 *      ========= -->
 *
 * @param tstp
-* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep`
 * @param i1
 * > Row index of `herm_matrix_timestep`
 * @param i2
@@ -2225,7 +2231,7 @@ void herm_matrix_timestep<T>::set_matrixelement(
 *      ========= -->
 *
 * @param tstp
-* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep`
 * @param i1
 * > Row index of `herm_matrix_timestep`
 * @param i2
@@ -2299,7 +2305,7 @@ void herm_matrix_timestep<T>::set_matrixelement(int i1, int i2,
 *      ========= -->
 *
 * @param tstp
-* > time step `tstp`, identical to the time step of `herm_matrix_timestep` 
+* > time step `tstp`, identical to the time step of `herm_matrix_timestep`
 * @param i1
 * > Row index of `herm_matrix_timestep`
 * @param i2
