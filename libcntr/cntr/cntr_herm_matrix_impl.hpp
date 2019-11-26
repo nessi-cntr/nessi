@@ -2710,7 +2710,7 @@ void herm_matrix<T>::incr_timestep(int tstp, herm_matrix<T> &g,
 * <!-- ========= -->
 *
 * Performs the operation \f$C \rightarrow C + g\f$, where \f$C\f$ is the
-* `herm_matrix`, \f$g\f$ is a time slice taken from a `herm_matrix` 
+* `herm_matrix`, \f$g\f$ is a time slice taken from a `herm_matrix`
 *  The operation is performed at given time step `tstp`.
 *
 * <!-- ARGUMENTS
@@ -2786,7 +2786,7 @@ void herm_matrix<T>::incr(herm_matrix<T> &g, std::complex<T> alpha) {
         this->incr_timestep(m, g, alpha);
 }
 
-/** \brief <b> Adds a `herm_matrix` with given weight to the `herm_matrix` at all time steps. </b>
+/** \brief <b> Adds a `herm_matrix` 'g' to the `herm_matrix` at all time steps. </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
 *
@@ -2801,8 +2801,6 @@ void herm_matrix<T>::incr(herm_matrix<T> &g, std::complex<T> alpha) {
 *
 * @param g
 * > [herm_matrix] The `herm_matrix` \f$g\f$ which is added to the `herm_matrix`.
-* @param alpha
-* > [complex<T>] The weight in front of \f$g\f$`.
 */
 template <typename T>
 void herm_matrix<T>::incr(herm_matrix<T> &g) {
@@ -3447,7 +3445,7 @@ void herm_matrix<T>::Reduce_timestep(int tstp, int root) {
     herm_matrix_timestep<T> Gtemp;
     Gtemp.resize(tstp, ntau_, size1_);
     this->get_timestep(tstp, Gtemp);
-    
+
     Gtemp.Reduce_timestep(tstp, root);
 
     this->set_timestep(tstp, Gtemp);

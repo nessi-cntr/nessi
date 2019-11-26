@@ -129,7 +129,7 @@ void extrapolate_timestep_dispatch(int n, GG &G,
  * @param G
  * > herm_matrix to be extrapolated.
  * @param I
- * > Class of 'Integrator', which includes the information of a k-th order polynomial interpolatoion/extrapolation.
+ * > Class of 'Integrator', which includes the information of a k-th order polynomial interpolation/extrapolation.
  */
 template <typename T>
 void extrapolate_timestep(int n, herm_matrix<T> &G,
@@ -263,7 +263,7 @@ void extrapolate_timestep(int n, function<T> &f,
  * > t=n+1 data is obtained by the extrapolation.
  * @param f
  * > the contour function to be extrapolated.
- * @param SolveOrder
+ * @param ExtrapolationOrder
  * > Order of extrapolation
  */
 template <typename T>
@@ -331,7 +331,7 @@ cdmatrix interpolation_dispatch(int tstp, double tinter, cntr::function<T> &f,
  * @param f
  * > [function] the contour function to be interpolated
  * @param I
- * > [Integrator] Class of 'Integrator', which includes the information of a k-th order polynomial interpolatoion/extrapolation.
+ * > [Integrator] Class of 'Integrator', which includes the information of a k-th order polynomial interpolation/extrapolation.
  */
 template <typename T>
 cdmatrix interpolation(int tstp,double tinter,function<T> &f,
@@ -367,7 +367,7 @@ cdmatrix interpolation(int tstp,double tinter,function<T> &f,
  * > [double] interpolation time point
  * @param f
  * > [function] the contour function to be interpolated
- * @param SolveOrder
+ * @param InterpolationOrder
  * > [int] Order of interpolation
  */
 template <typename T>

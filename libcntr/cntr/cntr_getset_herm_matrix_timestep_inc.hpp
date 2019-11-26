@@ -18,9 +18,9 @@
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/  
+*/
 template <typename T>
-inline void get_mat(const int m, std::complex<T> &G_mat, herm_matrix_timestep<T> &G, 
+inline void get_mat(const int m, std::complex<T> &G_mat, herm_matrix_timestep<T> &G,
     herm_matrix_timestep<T> &Gcc){
     assert(m <= G.ntau());
     assert(G.ntau() == Gcc.ntau());
@@ -51,7 +51,7 @@ inline void get_mat(const int m, std::complex<T> &G_mat, herm_matrix_timestep<T>
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/  
+*/
 template <typename T>
 inline void get_mat(const int m, cdmatrix &G_mat, herm_matrix_timestep<T> &G, herm_matrix_timestep<T> &Gcc){
     assert(m <= G.ntau());
@@ -86,11 +86,11 @@ inline void get_mat(const int m, cdmatrix &G_mat, herm_matrix_timestep<T> &G, he
 * > [complex<T>] The Matsubara component (scalar GF).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-*/  
+*/
 template <typename T>
 inline void get_mat(const int m, std::complex<T> &G_mat, herm_matrix_timestep<T> &G){
     assert(m <= G.ntau());
- 
+
     G_mat = *G.matptr(m);
 }
 
@@ -112,7 +112,7 @@ inline void get_mat(const int m, std::complex<T> &G_mat, herm_matrix_timestep<T>
 * > [complex<T>] The Matsubara component (scalar GF).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-*/  
+*/
 template <typename T>
 inline void get_mat(const int m, cdmatrix &G_mat, herm_matrix_timestep<T> &G){
     assert(m <= G.ntau());
@@ -148,9 +148,9 @@ inline void get_mat(const int m, cdmatrix &G_mat, herm_matrix_timestep<T> &G){
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/	
+*/
 template <typename T>
-inline void get_les(const int i, const int j, std::complex<T> &G_les, herm_matrix_timestep<T> &G, 
+inline void get_les(const int i, const int j, std::complex<T> &G_les, herm_matrix_timestep<T> &G,
 	herm_matrix_timestep<T> &Gcc){
 	assert(i <= G.tstp() && j <= G.tstp());
 	assert(i == G.tstp() || j == G.tstp());
@@ -161,7 +161,7 @@ inline void get_les(const int i, const int j, std::complex<T> &G_les, herm_matri
 	assert(G.size1() == Gcc.size1());
 	assert(G.size2() == Gcc.size2());
 	assert(G.sig() == Gcc.sig());
-	
+
 	if (G.tstp() == j){
 		G_les = *G.lesptr(i);
 	} else if (G.tstp() == i) {
@@ -193,9 +193,9 @@ inline void get_les(const int i, const int j, std::complex<T> &G_les, herm_matri
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/	
-template <typename T>  
-void get_les(const int i, const int j, cdmatrix &G_les, herm_matrix_timestep<T> &G, 
+*/
+template <typename T>
+void get_les(const int i, const int j, cdmatrix &G_les, herm_matrix_timestep<T> &G,
 	herm_matrix_timestep<T> &Gcc){
 	assert(i <= G.tstp() && j <= G.tstp());
 	assert(i == G.tstp() || j == G.tstp());
@@ -230,7 +230,7 @@ void get_les(const int i, const int j, cdmatrix &G_les, herm_matrix_timestep<T> 
 * <!-- ========= -->
 *
 * > Returns the retarded component \f$ G^\mathrm{R}(t_i,t_j) \f$ at given times \f$ t_i\f$
-* > and \f$ t_j\f$. We assume \f$G^\mathrm{R}(t_i,t_j)\f$ can be analytically continued 
+* > and \f$ t_j\f$. We assume \f$G^\mathrm{R}(t_i,t_j)\f$ can be analytically continued
 * > to \f$ j > i\f$, for which the hermitian conjugate \f$G^\ddagger\f$ is used.
 *
 * <!-- ARGUMENTS
@@ -246,9 +246,9 @@ void get_les(const int i, const int j, cdmatrix &G_les, herm_matrix_timestep<T> 
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/  
+*/
 template <typename T>
-inline void get_ret(const int i, const int j, std::complex<T> &G_ret, herm_matrix_timestep<T> &G, 
+inline void get_ret(const int i, const int j, std::complex<T> &G_ret, herm_matrix_timestep<T> &G,
     herm_matrix_timestep<T> &Gcc){
     assert(i <= G.tstp() && j <= G.tstp());
     assert(i == G.tstp() || j == G.tstp());
@@ -259,7 +259,7 @@ inline void get_ret(const int i, const int j, std::complex<T> &G_ret, herm_matri
     assert(G.size1() == Gcc.size1());
     assert(G.size2() == Gcc.size2());
     assert(G.sig() == Gcc.sig());
-    
+
     if (G.tstp() == i){
         G_ret = *G.retptr(j);
     } else if (G.tstp() == j) {
@@ -276,7 +276,7 @@ inline void get_ret(const int i, const int j, std::complex<T> &G_ret, herm_matri
 * <!-- ========= -->
 *
 * > Returns the retarded component \f$ G^\mathrm{R}(t_i,t_j) \f$ at given times \f$ t_i\f$
-* > and \f$ t_j\f$. We assume \f$G^\mathrm{R}(t_i,t_j)\f$ can be analytically continued 
+* > and \f$ t_j\f$. We assume \f$G^\mathrm{R}(t_i,t_j)\f$ can be analytically continued
 * > to \f$ j > i\f$, for which the hermitian conjugate \f$G^\ddagger\f$ is used.
 *
 * <!-- ARGUMENTS
@@ -292,9 +292,9 @@ inline void get_ret(const int i, const int j, std::complex<T> &G_ret, herm_matri
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/  
-template <typename T>  
-void get_ret(const int i, const int j, cdmatrix &G_ret, herm_matrix_timestep<T> &G, 
+*/
+template <typename T>
+void get_ret(const int i, const int j, cdmatrix &G_ret, herm_matrix_timestep<T> &G,
     herm_matrix_timestep<T> &Gcc){
     assert(i <= G.tstp() && j <= G.tstp());
     assert(i == G.tstp() || j == G.tstp());
@@ -331,7 +331,7 @@ void get_ret(const int i, const int j, cdmatrix &G_ret, herm_matrix_timestep<T> 
 * <!-- ========= -->
 *
 * > Returns the left-mixing component \f$ G^\rceil(t_i,\tau_m) \f$ at given times \f$ t_i\f$
-* > and \f$ \tau_m\f$. 
+* > and \f$ \tau_m\f$.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -346,9 +346,9 @@ void get_ret(const int i, const int j, cdmatrix &G_ret, herm_matrix_timestep<T> 
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/  
+*/
 template <typename T>
-inline void get_tv(const int i, const int m, std::complex<T> &G_tv, herm_matrix_timestep<T> &G, 
+inline void get_tv(const int i, const int m, std::complex<T> &G_tv, herm_matrix_timestep<T> &G,
     herm_matrix_timestep<T> &Gcc){
     assert(i == G.tstp());
     assert(m <= G.ntau());
@@ -357,7 +357,7 @@ inline void get_tv(const int i, const int m, std::complex<T> &G_tv, herm_matrix_
     assert(G.size1() == Gcc.size1());
     assert(G.size2() == Gcc.size2());
     assert(G.sig() == Gcc.sig());
-    
+
     G_tv = *G.tvptr(m);
 }
 
@@ -369,7 +369,7 @@ inline void get_tv(const int i, const int m, std::complex<T> &G_tv, herm_matrix_
 * <!-- ========= -->
 *
 * > Returns the left-mixing component \f$ G^\rceil(t_i,\tau_m) \f$ at given times \f$ t_i\f$
-* > and \f$ \tau_m\f$. 
+* > and \f$ \tau_m\f$.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -384,8 +384,8 @@ inline void get_tv(const int i, const int m, std::complex<T> &G_tv, herm_matrix_
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/  
-template <typename T>  
+*/
+template <typename T>
 void get_tv(const int i, const int m, cdmatrix &G_tv, herm_matrix_timestep<T> &G, herm_matrix_timestep<T> &Gcc){
     assert(i == G.tstp());
     assert(m <= G.ntau());
@@ -430,9 +430,9 @@ void get_tv(const int i, const int m, cdmatrix &G_tv, herm_matrix_timestep<T> &G
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/  
+*/
 template <typename T>
-inline void get_vt(const int m, const int i, std::complex<T> &G_vt, herm_matrix_timestep<T> &G, 
+inline void get_vt(const int m, const int i, std::complex<T> &G_vt, herm_matrix_timestep<T> &G,
     herm_matrix_timestep<T> &Gcc){
     assert(i == G.tstp());
     assert(m <= G.ntau());
@@ -441,7 +441,7 @@ inline void get_vt(const int m, const int i, std::complex<T> &G_vt, herm_matrix_
     assert(G.size1() == Gcc.size1());
     assert(G.size2() == Gcc.size2());
     assert(G.sig() == Gcc.sig());
-    
+
     G_vt = *Gcc.tvptr(G.ntau() - m);
     G_vt = std::complex<T>(-G.sig(),0.0) * std::conj(G_vt);
 }
@@ -463,15 +463,15 @@ inline void get_vt(const int m, const int i, std::complex<T> &G_vt, herm_matrix_
 * > [int] Index of time \f$ \tau_m\f$ .
 * @param i
 * > [int] Index of time \f$ t_i\f$ .
-* @param G_tv
+* @param G_vt
 * > [cdmatrix] The right-mixing component (returned to an eigen3 matrix).
 * @param G
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/  
-template <typename T>  
-void get_vt(const int m, const int i, cdmatrix &G_vt, herm_matrix_timestep<T> &G, 
+*/
+template <typename T>
+void get_vt(const int m, const int i, cdmatrix &G_vt, herm_matrix_timestep<T> &G,
     herm_matrix_timestep<T> &Gcc){
     assert(i == G.tstp());
     assert(m <= G.ntau());
@@ -515,9 +515,9 @@ void get_vt(const int m, const int i, cdmatrix &G_vt, herm_matrix_timestep<T> &G
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/  
+*/
 template <typename T>
-inline void get_gtr(const int i, const int j, std::complex<T> &G_gtr, herm_matrix_timestep<T> &G, 
+inline void get_gtr(const int i, const int j, std::complex<T> &G_gtr, herm_matrix_timestep<T> &G,
     herm_matrix_timestep<T> &Gcc){
     std::complex<T> G_les, G_ret;
 
@@ -549,9 +549,9 @@ inline void get_gtr(const int i, const int j, std::complex<T> &G_gtr, herm_matri
 * > [herm_matrix_timestep] Contour function G
 * @param Gcc
 * > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/  
-template <typename T>  
-void get_gtr(const int i, const int j, cdmatrix &G_gtr, herm_matrix_timestep<T> &G, 
+*/
+template <typename T>
+void get_gtr(const int i, const int j, cdmatrix &G_gtr, herm_matrix_timestep<T> &G,
     herm_matrix_timestep<T> &Gcc){
     cdmatrix G_les, G_ret;
 
@@ -583,7 +583,7 @@ void get_gtr(const int i, const int j, cdmatrix &G_gtr, herm_matrix_timestep<T> 
 * > [complex<T>] The lesser component (scalar GF).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-*/  
+*/
 template <typename T>
 inline void get_les(const int i, const int j, std::complex<T> &G_les, herm_matrix_timestep<T> &G){
     get_les(i, j, G_les, G, G);
@@ -610,8 +610,8 @@ inline void get_les(const int i, const int j, std::complex<T> &G_les, herm_matri
 * > [cdmatrix] The lesser component (returned to an eigen3 matrix).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-*/  
-template <typename T>  
+*/
+template <typename T>
 void get_les(const int i, const int j, cdmatrix &G_les, herm_matrix_timestep<T> &G){
     get_les(i, j, G_les, G, G);
 }
@@ -626,7 +626,7 @@ void get_les(const int i, const int j, cdmatrix &G_les, herm_matrix_timestep<T> 
 * <!-- ========= -->
 *
 * > Returns the retarded component \f$ G^\mathrm{R}(t_i,t_j) \f$ at given times \f$ t_i\f$
-* > and \f$ t_j\f$. We assume \f$G^\mathrm{R}(t_i,t_j)\f$ can be analytically continued 
+* > and \f$ t_j\f$. We assume \f$G^\mathrm{R}(t_i,t_j)\f$ can be analytically continued
 * > to \f$ j > i\f$, for which the hermitian conjugate \f$G^\ddagger\f$ is used.
 *
 * <!-- ARGUMENTS
@@ -640,7 +640,7 @@ void get_les(const int i, const int j, cdmatrix &G_les, herm_matrix_timestep<T> 
 * > [complex<T>] The retarded component (scalar GF).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-*/  
+*/
 template <typename T>
 inline void get_ret(const int i, const int j, std::complex<T> &G_ret, herm_matrix_timestep<T> &G){
     get_ret(i, j, G_ret, G, G);
@@ -654,7 +654,7 @@ inline void get_ret(const int i, const int j, std::complex<T> &G_ret, herm_matri
 * <!-- ========= -->
 *
 * > Returns the retarded component \f$ G^\mathrm{R}(t_i,t_j) \f$ at given times \f$ t_i\f$
-* > and \f$ t_j\f$. We assume \f$G^\mathrm{R}(t_i,t_j)\f$ can be analytically continued 
+* > and \f$ t_j\f$. We assume \f$G^\mathrm{R}(t_i,t_j)\f$ can be analytically continued
 * > to \f$ j > i\f$, for which the hermitian conjugate \f$G^\ddagger\f$ is used.
 *
 * <!-- ARGUMENTS
@@ -668,8 +668,8 @@ inline void get_ret(const int i, const int j, std::complex<T> &G_ret, herm_matri
 * > [cdmatrix] The retarded component (returned to an eigen3 matrix).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-*/  
-template <typename T>  
+*/
+template <typename T>
 void get_ret(const int i, const int j, cdmatrix &G_ret, herm_matrix_timestep<T> &G){
     get_ret(i, j, G_ret, G, G);
 }
@@ -685,7 +685,7 @@ void get_ret(const int i, const int j, cdmatrix &G_ret, herm_matrix_timestep<T> 
 * <!-- ========= -->
 *
 * > Returns the left-mixing component \f$ G^\rceil(t_i,\tau_m) \f$ at given times \f$ t_i\f$
-* > and \f$ \tau_m\f$. 
+* > and \f$ \tau_m\f$.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -698,7 +698,7 @@ void get_ret(const int i, const int j, cdmatrix &G_ret, herm_matrix_timestep<T> 
 * > [complex<T>] The left-mixing component (scalar GF).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-*/  
+*/
 template <typename T>
 inline void get_tv(const int i, const int m, std::complex<T> &G_tv, herm_matrix_timestep<T> &G){
     get_tv(i, m, G_tv, G);
@@ -712,7 +712,7 @@ inline void get_tv(const int i, const int m, std::complex<T> &G_tv, herm_matrix_
 * <!-- ========= -->
 *
 * > Returns the left-mixing component \f$ G^\rceil(t_i,\tau_m) \f$ at given times \f$ t_i\f$
-* > and \f$ \tau_m\f$. 
+* > and \f$ \tau_m\f$.
 *
 * <!-- ARGUMENTS
 *      ========= -->
@@ -725,8 +725,8 @@ inline void get_tv(const int i, const int m, std::complex<T> &G_tv, herm_matrix_
 * > [cdmatrix] The left-mixing component (returned to an eigen3 matrix).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-*/  
-template <typename T>  
+*/
+template <typename T>
 void get_tv(const int i, const int m, cdmatrix &G_tv, herm_matrix_timestep<T> &G){
     get_tv(i, m, G_tv, G);
 }
@@ -758,7 +758,7 @@ void get_tv(const int i, const int m, cdmatrix &G_tv, herm_matrix_timestep<T> &G
 * > [complex<T>] The right-mixing component (scalar GF).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-*/  
+*/
 template <typename T>
 inline void get_vt(const int m, const int i, std::complex<T> &G_vt, herm_matrix_timestep<T> &G){
     get_vt(m, i, G_vt, G);
@@ -781,14 +781,12 @@ inline void get_vt(const int m, const int i, std::complex<T> &G_vt, herm_matrix_
 * > [int] Index of time \f$ \tau_m\f$ .
 * @param i
 * > [int] Index of time \f$ t_i\f$ .
-* @param G_tv
+* @param G_vt
 * > [cdmatrix] The right-mixing component (returned to an eigen3 matrix).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-* @param Gcc
-* > [herm_matrix_timestep] Hermitian conjugate \f$G^\ddagger\f$ of \f$G\f$.
-*/  
-template <typename T>  
+*/
+template <typename T>
 void get_vt(const int m, const int i, cdmatrix &G_vt, herm_matrix_timestep<T> &G){
     get_vt(m, i, G_vt, G);
 }
@@ -817,7 +815,7 @@ void get_vt(const int m, const int i, cdmatrix &G_vt, herm_matrix_timestep<T> &G
 * > [complex<T>] The greater component (scalar GF).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-*/  
+*/
 template <typename T>
 inline void get_gtr(const int i, const int j, std::complex<T> &G_gtr, herm_matrix_timestep<T> &G){
     get_gtr(i, j, G_gtr, G, G);
@@ -844,8 +842,8 @@ inline void get_gtr(const int i, const int j, std::complex<T> &G_gtr, herm_matri
 * > [cdmatrix] The greater component (returned to an eigen3 matrix).
 * @param G
 * > [herm_matrix_timestep] Contour function G
-*/  
-template <typename T>  
+*/
+template <typename T>
 void get_gtr(const int i, const int j, cdmatrix &G_gtr, herm_matrix_timestep<T> &G){
     get_gtr(i, j, G_gtr, G, G);
 }
