@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/nessi-cntr/nessi.svg?branch=master)](https://travis-ci.org/nessi-cntr/nessi/)
 # Welcome to the Non-Equilibrium Systems Simulation (NESSi) package!
 
 ## What is NESSi?
