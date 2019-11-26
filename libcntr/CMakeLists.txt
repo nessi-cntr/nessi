@@ -32,7 +32,7 @@ endif ()
 
 # ~~ Add HDF5 ~~
 if (hdf5)
-  find_library(HDF5_LIB hdf5)
+  #find_library(HDF5_LIB hdf5)
   find_package(HDF5)
   list(APPEND COMMON_LIBS ${HDF5_LIB})
   add_definitions("-DCNTR_USE_HDF5")
