@@ -1,30 +1,58 @@
-# ~~ The actual target library ~~
-add_library(cntr SHARED
-    fourier.cpp
-    linalg_eigen.cpp
-    integration.cpp
-    integration_extern_templates.cpp
-    cntr_convolution_extern_templates.cpp
-    cntr_pseudo_convolution_extern_templates.cpp
-    #cntr_cyclic_timestep_extern_templates.cpp
-    cntr_differentiation_extern_templates.cpp
-    cntr_dyson_extern_templates.cpp
-    cntr_dyson_omp_extern_templates.cpp
-    cntr_equilibrium_extern_templates.cpp
-    #cntr_full_matrix_extern_templates.cpp
-    cntr_function_extern_templates.cpp
-    cntr_herm_matrix_extern_templates.cpp
-    cntr_herm_matrix_timestep_extern_templates.cpp
-    cntr_herm_matrix_timestep_view_extern_templates.cpp
-    cntr_herm_pseudo_extern_templates.cpp
-    cntr_equilibrium_extern_templates.cpp
-    cntr_utilities_extern_templates.cpp
-    cntr_vie2_extern_templates.cpp
-    cntr_distributed_array_extern_templates.cpp
-    cntr_distributed_timestep_array_extern_templates.cpp
-    cntr_getset_extern_templates.cpp
-    cntr_mpitools_extern_templates.cpp
-    )
+if (mpi) 
+    # ~~ The actual target library ~~
+    add_library(cntr SHARED
+        fourier.cpp
+        linalg_eigen.cpp
+        integration.cpp
+        integration_extern_templates.cpp
+        cntr_convolution_extern_templates.cpp
+        cntr_pseudo_convolution_extern_templates.cpp
+        #cntr_cyclic_timestep_extern_templates.cpp
+        cntr_differentiation_extern_templates.cpp
+        cntr_dyson_extern_templates.cpp
+        cntr_dyson_omp_extern_templates.cpp
+        cntr_equilibrium_extern_templates.cpp
+        #cntr_full_matrix_extern_templates.cpp
+        cntr_function_extern_templates.cpp
+        cntr_herm_matrix_extern_templates.cpp
+        cntr_herm_matrix_timestep_extern_templates.cpp
+        cntr_herm_matrix_timestep_view_extern_templates.cpp
+        cntr_herm_pseudo_extern_templates.cpp
+        cntr_equilibrium_extern_templates.cpp
+        cntr_utilities_extern_templates.cpp
+        cntr_vie2_extern_templates.cpp
+        cntr_distributed_array_extern_templates.cpp
+        cntr_distributed_timestep_array_extern_templates.cpp
+        cntr_getset_extern_templates.cpp
+        cntr_mpitools_extern_templates.cpp
+        )
+else(mpi)
+    # ~~ The actual target library ~~
+    add_library(cntr SHARED
+        fourier.cpp
+        linalg_eigen.cpp
+        integration.cpp
+        integration_extern_templates.cpp
+        cntr_convolution_extern_templates.cpp
+        cntr_pseudo_convolution_extern_templates.cpp
+        cntr_differentiation_extern_templates.cpp
+        cntr_dyson_extern_templates.cpp
+        cntr_dyson_omp_extern_templates.cpp
+        cntr_equilibrium_extern_templates.cpp
+        cntr_function_extern_templates.cpp
+        cntr_herm_matrix_extern_templates.cpp
+        cntr_herm_matrix_timestep_extern_templates.cpp
+        cntr_herm_matrix_timestep_view_extern_templates.cpp
+        cntr_herm_pseudo_extern_templates.cpp
+        cntr_equilibrium_extern_templates.cpp
+        cntr_utilities_extern_templates.cpp
+        cntr_vie2_extern_templates.cpp
+        cntr_getset_extern_templates.cpp
+        )
+    
+endif(mpi)
+
+
 set_property(TARGET cntr APPEND_STRING PROPERTY COMPILE_FLAGS " -w")
 
 if (hdf5)
