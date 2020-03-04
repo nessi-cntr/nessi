@@ -60,11 +60,11 @@ if(hdf5)
     endforeach()
 endif(hdf5)
 
-if(mpi) 
+if(mpi AND hdf5) 
     foreach( exe ${mpi_EXECUTABLES} )
         # declare the target...
         add_executable( ${exe} ${EXE_${exe}_SOURCES} )
         target_link_libraries(${exe} cntr cntr_hdf5 ${COMMON_LIBS})
     endforeach()
-endif(mpi)
+endif(mpi AND hdf5)
 
