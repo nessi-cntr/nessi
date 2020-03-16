@@ -35,7 +35,8 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 	herm_matrix_timestep<T> &G){
 	assert(tstp == G.tstp()); 
 	int taskid;
-	taskid = MPI::COMM_WORLD.Get_rank();
+	// taskid = MPI::COMM_WORLD.Get_rank();
+	MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 	if (taskid == root) {
 		assert(tstp == Gred.tstp());
 		assert(G.ntau() == Gred.ntau());
@@ -46,8 +47,10 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 	int len = 2 * (2 * (tstp + 1) + G.ntau() + 1) * G.size1() * G.size2();
 
 	if (sizeof(T) == sizeof(double)) {
-		MPI::COMM_WORLD.Reduce((double *)G.data_, (double *)Gred.data_, len, MPI::DOUBLE,
-			MPI::SUM, root);
+		MPI_Reduce((double *)G.data_, (double *)Gred.data_, len, MPI_DOUBLE_PRECISION, MPI_SUM, root,
+           MPI_COMM_WORLD);
+		// MPI::COMM_WORLD.Reduce((double *)G.data_, (double *)Gred.data_, len, MPI::DOUBLE,
+		// 	MPI::SUM, root);
    } else {
       if (taskid == root) std::cerr << "herm_matrix_timestep<T>::MPI_Reduce only for double " << std::endl;
       MPI_Finalize();
@@ -83,7 +86,8 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 	herm_matrix_timestep_view<T> &G){
 	assert(tstp == G.tstp());
 	int taskid;
-	taskid = MPI::COMM_WORLD.Get_rank();
+	// taskid = MPI::COMM_WORLD.Get_rank();
+	MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 	if (taskid == root) {
 		assert(tstp == Gred.tstp());
 		assert(G.ntau() == Gred.ntau());
@@ -141,7 +145,9 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &Gred, 
 	herm_matrix_timestep<T> &G){
 	assert(tstp == G.tstp());
-	int taskid = MPI::COMM_WORLD.Get_rank();
+	// int taskid = MPI::COMM_WORLD.Get_rank();
+	int taskid;
+	MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 	if (taskid == root) {
 		assert(tstp <= Gred.nt());
 		assert(G.ntau() == Gred.ntau());
@@ -187,7 +193,9 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &G
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &Gred, 
 	herm_matrix_timestep_view<T> &G){
 	assert(tstp == G.tstp());
-	int taskid = MPI::COMM_WORLD.Get_rank();
+	// int taskid = MPI::COMM_WORLD.Get_rank();
+	int taskid;
+	MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 	if (taskid == root) {
 		assert(tstp <= Gred.nt());
 		assert(G.ntau() == Gred.ntau());
@@ -227,7 +235,9 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &G
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep<T> &Gred, 
 	herm_matrix<T> &G){
 	assert(tstp <= G.nt());
-	int taskid = MPI::COMM_WORLD.Get_rank();
+	// int taskid = MPI::COMM_WORLD.Get_rank();
+	int taskid;
+	MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 	if (taskid == root) {
 		assert(tstp == Gred.tstp());
 		assert(G.ntau() == Gred.ntau());
@@ -268,7 +278,9 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_timestep_view<T> &Gred, 
 	herm_matrix<T> &G){
 	assert(tstp <= G.nt());
-	int taskid = MPI::COMM_WORLD.Get_rank();
+	// int taskid = MPI::COMM_WORLD.Get_rank();
+	int taskid;
+	MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 	if (taskid == root) {
 		assert(tstp == Gred.tstp());
 		assert(G.ntau() == Gred.ntau());
@@ -307,7 +319,9 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix_times
 template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &Gred, 
 	herm_matrix<T> &G){
 	assert(tstp <= G.nt());
-	int taskid = MPI::COMM_WORLD.Get_rank();
+	// int taskid = MPI::COMM_WORLD.Get_rank();
+	int taskid;
+	MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 	if (taskid == root) {
 		assert(tstp <= Gred.nt());
 		assert(G.ntau() == Gred.ntau());
