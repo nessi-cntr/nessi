@@ -7,12 +7,10 @@ if (mpi)
         integration_extern_templates.cpp
         cntr_convolution_extern_templates.cpp
         cntr_pseudo_convolution_extern_templates.cpp
-        #cntr_cyclic_timestep_extern_templates.cpp
         cntr_differentiation_extern_templates.cpp
         cntr_dyson_extern_templates.cpp
         cntr_dyson_omp_extern_templates.cpp
         cntr_equilibrium_extern_templates.cpp
-        #cntr_full_matrix_extern_templates.cpp
         cntr_function_extern_templates.cpp
         cntr_herm_matrix_extern_templates.cpp
         cntr_herm_matrix_timestep_extern_templates.cpp
