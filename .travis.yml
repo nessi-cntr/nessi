@@ -1,21 +1,24 @@
 language: cpp
 sudo: required
-dist: bionic
+
+os:
+- linux
+- osx
 
 compiler:
   - gcc
   - clang
 
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install -y --allow-unauthenticated  libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy libeigen3-dev doxygen graphviz
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update ; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y --allow-unauthenticated  libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy libeigen3-dev doxygen graphviz ; fi
 
 install: true
 
 script:
-  - export INSTALL_DIR=$HOME/root_install # We install outside the repository
-  # ===== Set up TRIQS
-  - cd $TRAVIS_BUILD_DIR/libcntr
-  - mkdir build && cd build
-  - cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DCMAKE_CXX_FLAGS="-std=c++11" -Domp=ON -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=ON
-  - make   && make test
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; export INSTALL_DIR=$HOME/root_install ; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; cd $TRAVIS_BUILD_DIR/libcntrl ; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; mkdir build && cd build ; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DCMAKE_CXX_FLAGS="-std=c++11" -Domp=ON -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=ON ; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; make   && make test ; fi
+  
