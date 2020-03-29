@@ -5,16 +5,15 @@ os:
 - linux
 - osx
 
-dist:
-- bionic
-
 compiler:
-- gcc
-- clang
+  - gcc
+  - clang
 
 before_install:
-- if:  "$TRAVIS_OS_NAME" = "linux"  apt-get update &&  apt-get install -y --allow-unauthenticated  libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy libeigen3-dev doxygen graphviz
-install:  true
+    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update ; fi
+    - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y --allow-unauthenticated  libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy libeigen3-dev doxygen graphviz ; fi
+
+install: true
 
 script:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; export INSTALL_DIR=$HOME/root_install ; fi
