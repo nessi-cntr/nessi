@@ -1,5 +1,6 @@
 # paste config here
 language: cpp
+sudo: required
 
 os:
 - linux
