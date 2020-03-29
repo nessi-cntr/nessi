@@ -11,7 +11,7 @@
 #include "cntr/cntr.hpp"
 #include "cntr/utils/read_inputfile.hpp"
 
-// local headers to include
+// local headers to include 1
 #include "formats.hpp"
 #include "gw_latt_decl.hpp"
 #include "gw_kpoints_decl.hpp"
