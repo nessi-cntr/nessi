@@ -1,22 +1,25 @@
+# paste config here
 language: cpp
 
 os:
 - linux
 - osx
 
+dist: xenial
+
 compiler:
-  - gcc
-  - clang
+- gcc
+- clang
 
 before_install:
-- if  "$TRAVIS_OS_NAME" = "linux"  apt-get update && apt-get install -y --allow-unauthenticated  libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy libeigen3-dev doxygen graphviz
+- if ["$TRAVIS_OS_NAME" = "linux"]; then apt-get update && apt-get install -y --allow-unauthenticated  libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy libeigen3-dev doxygen graphviz; fi
 
 install: true
 
 script:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; export INSTALL_DIR=$HOME/root_install ; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; cd $TRAVIS_BUILD_DIR/libcntrl ; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; mkdir build && cd build ; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DCMAKE_CXX_FLAGS="-std=c++11" -Domp=ON -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=ON ; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; make   && make test ; fi
-  
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; export INSTALL_DIR=$HOME/root_install ; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; cd $TRAVIS_BUILD_DIR/libcntrl ; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; mkdir build && cd build ; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DCMAKE_CXX_FLAGS="-std=c++11" -Domp=ON -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=ON ; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; make   && make test ; fi
+
