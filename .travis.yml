@@ -12,8 +12,8 @@ compiler:
 - clang
 
 before_install:
--  apt-get update
--  apt-get install -y --allow-unauthenticated  libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy libeigen3-dev doxygen graphviz
+-  sudo apt-get update
+-  sudo apt-get install -y --allow-unauthenticated  libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy libeigen3-dev doxygen graphviz
 
 install: true
 
