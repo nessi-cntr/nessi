@@ -19,7 +19,7 @@ install: true
 
 script:
 -  export INSTALL_DIR=$HOME/root_install
--  cd $TRAVIS_BUILD_DIR/libcntrl
+-  cd $TRAVIS_BUILD_DIR/libcntr
 -  mkdir build && cd build
 -  cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DCMAKE_CXX_FLAGS="-std=c++11" -Domp=ON -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=ON
 -  make   && make test
