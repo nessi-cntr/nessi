@@ -12,7 +12,7 @@ compiler:
 - clang
 
 addons:
-  - apt:
+  apt:
     packages:
     - libhdf5-serial-dev
     - libopenmpi-dev
@@ -24,7 +24,9 @@ addons:
     - libeigen3-dev
     - doxygen
     - graphviz
-  - homebrew:
+
+addons:
+  homebrew:
     packages:
     - openmpi
     - doxygen
