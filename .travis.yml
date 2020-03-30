@@ -25,6 +25,8 @@ script:
 -  mkdir build && cd build
 -  gcc -v
 -  mpicc -v
+-  clang -v
+-  which clang
 -  cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DCMAKE_CXX_FLAGS="-std=c++11" -Domp=ON -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=ON
 -  make   && make test
 
