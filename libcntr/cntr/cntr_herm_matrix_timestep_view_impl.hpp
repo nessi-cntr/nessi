@@ -1604,16 +1604,17 @@ void my_mpi_reduce(std::complex<T> *data, int len, int root) {
 /// @private
 template<>
 inline void my_mpi_reduce<double>(std::complex<double> *data, int len, int root) {
-    int tid = MPI::COMM_WORLD.Get_rank();
-    int ntasks = MPI::COMM_WORLD.Get_size();
+    int tid, ntasks;
+    MPI_Comm_rank(MPI_COMM_WORLD, &tid);
+    MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
     assert(root>=0 && root <= ntasks -1);
     assert(len>=0);
     if (tid == root) {
-        MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, (double *)data, 2 * len,
-                               MPI::DOUBLE, MPI::SUM, root);
+        MPI_Reduce(MPI_IN_PLACE, (double *)data, 2 * len,
+                               MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
     } else {
-        MPI::COMM_WORLD.Reduce((double *)data, (double *)data, 2 * len,
-                               MPI::DOUBLE, MPI::SUM, root);
+        MPI_Reduce((double *)data, (double *)data, 2 * len,
+                               MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
     }
 }
 
@@ -1703,25 +1704,26 @@ void herm_matrix_timestep_view<T>::Reduce_timestep(int tstp, int root) {
 */
 template <typename T>
 void herm_matrix_timestep_view<T>::Bcast_timestep(int tstp, int root){
-   int numtasks = MPI::COMM_WORLD.Get_size();
-   int taskid = MPI::COMM_WORLD.Get_rank();
+   int numtasks,taskid;
+   MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    // test effective on root:
    assert(tstp == tstp_);
    if (sizeof(T) == sizeof(double)){
       if (tstp_ == -1){
-         MPI::COMM_WORLD.Bcast(mat_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root);
+         MPI_Bcast(mat_, (ntau_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, root, MPI_COMM_WORLD);
       } else {
-         MPI::COMM_WORLD.Bcast(les_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root);
-         MPI::COMM_WORLD.Bcast(ret_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root);
-         MPI::COMM_WORLD.Bcast(tv_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root);
+         MPI_Bcast(les_, (tstp_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, root, MPI_COMM_WORLD);
+         MPI_Bcast(ret_, (tstp_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, root, MPI_COMM_WORLD);
+         MPI_Bcast(tv_, (ntau_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, root, MPI_COMM_WORLD);
       }
    } else { // assuming single precision
       if (tstp_ == -1){
-         MPI::COMM_WORLD.Bcast(mat_, (ntau_ + 1) * element_size_, MPI::COMPLEX, root);
+         MPI_Bcast(mat_, (ntau_ + 1) * element_size_, MPI_COMPLEX, root, MPI_COMM_WORLD);
       } else {
-         MPI::COMM_WORLD.Bcast(les_, (tstp_ + 1) * element_size_, MPI::COMPLEX, root);
-         MPI::COMM_WORLD.Bcast(ret_, (tstp_ + 1) * element_size_, MPI::COMPLEX, root);
-         MPI::COMM_WORLD.Bcast(tv_, (ntau_ + 1) * element_size_, MPI::COMPLEX, root);
+         MPI_Bcast(les_, (tstp_ + 1) * element_size_, MPI_COMPLEX, root, MPI_COMM_WORLD);
+         MPI_Bcast(ret_, (tstp_ + 1) * element_size_, MPI_COMPLEX, root, MPI_COMM_WORLD);
+         MPI_Bcast(tv_, (ntau_ + 1) * element_size_, MPI_COMPLEX, root, MPI_COMM_WORLD);
       }
    }
 
@@ -1748,25 +1750,26 @@ void herm_matrix_timestep_view<T>::Bcast_timestep(int tstp, int root){
 */
 template <typename T>
 void herm_matrix_timestep_view<T>::Send_timestep(int tstp, int dest, int tag) {
-   int taskid = MPI::COMM_WORLD.Get_rank();
+   int taskid;
+   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    assert(tstp == tstp_);
    if (!(taskid == dest)) {
       if (sizeof(T) == sizeof(double)){
          if (tstp_ == -1){
-            MPI::COMM_WORLD.Send(mat_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, dest, tag);
+            MPI_Send(mat_, (ntau_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, dest, tag, MPI_COMM_WORLD);
          } else {
-            MPI::COMM_WORLD.Send(les_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, dest, tag);
-            MPI::COMM_WORLD.Send(ret_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, dest, tag);
-            MPI::COMM_WORLD.Send(tv_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, dest, tag);
+            MPI_Send(les_, (tstp_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, dest, tag, MPI_COMM_WORLD);
+            MPI_Send(ret_, (tstp_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, dest, tag, MPI_COMM_WORLD);
+            MPI_Send(tv_, (ntau_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, dest, tag, MPI_COMM_WORLD);
          }
       }
       else {
          if (tstp_ == -1){
-            MPI::COMM_WORLD.Send(mat_, (ntau_ + 1) * element_size_, MPI::COMPLEX, dest, tag);
+            MPI_Send(mat_, (ntau_ + 1) * element_size_, MPI_COMPLEX, dest, tag, MPI_COMM_WORLD);
          } else {
-            MPI::COMM_WORLD.Send(les_, (tstp_ + 1) * element_size_, MPI::COMPLEX, dest, tag);
-            MPI::COMM_WORLD.Send(ret_, (tstp_ + 1) * element_size_, MPI::COMPLEX, dest, tag);
-            MPI::COMM_WORLD.Send(tv_, (ntau_ + 1) * element_size_, MPI::COMPLEX, dest, tag);
+            MPI_Send(les_, (tstp_ + 1) * element_size_, MPI_COMPLEX, dest, tag, MPI_COMM_WORLD);
+            MPI_Send(ret_, (tstp_ + 1) * element_size_, MPI_COMPLEX, dest, tag, MPI_COMM_WORLD);
+            MPI_Send(tv_, (ntau_ + 1) * element_size_, MPI_COMPLEX, dest, tag, MPI_COMM_WORLD);
          }
       }
    } else {
@@ -1795,24 +1798,25 @@ void herm_matrix_timestep_view<T>::Send_timestep(int tstp, int dest, int tag) {
 */
 template <typename T>
 void herm_matrix_timestep_view<T>::Recv_timestep(int tstp, int root, int tag) {
-   int taskid = MPI::COMM_WORLD.Get_rank();
+   int taskid;
+   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    assert(tstp == tstp_);
    if (!(taskid == root)) {
       if (sizeof(T) == sizeof(double))
          if (tstp_ == -1){
-            MPI::COMM_WORLD.Recv(mat_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root, tag);
+            MPI_Recv(mat_, (ntau_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, root, tag, MPI_COMM_WORLD);
          } else {
-            MPI::COMM_WORLD.Recv(les_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root, tag);
-            MPI::COMM_WORLD.Recv(ret_, (tstp_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root, tag);
-            MPI::COMM_WORLD.Recv(tv_, (ntau_ + 1) * element_size_, MPI::DOUBLE_COMPLEX, root, tag);
+            MPI_Recv(les_, (tstp_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, root, tag, MPI_COMM_WORLD);
+            MPI_Recv(ret_, (tstp_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, root, tag, MPI_COMM_WORLD);
+            MPI_Recv(tv_, (ntau_ + 1) * element_size_, MPI_DOUBLE_COMPLEX, root, tag, MPI_COMM_WORLD);
          }
       else{
          if (tstp_ == -1){
-            MPI::COMM_WORLD.Recv(mat_, (ntau_ + 1) * element_size_, MPI::COMPLEX, root, tag);
+            MPI_Recv(mat_, (ntau_ + 1) * element_size_, MPI_COMPLEX, root, tag, MPI_COMM_WORLD);
          } else {
-            MPI::COMM_WORLD.Recv(les_, (tstp_ + 1) * element_size_, MPI::COMPLEX, root, tag);
-            MPI::COMM_WORLD.Recv(ret_, (tstp_ + 1) * element_size_, MPI::COMPLEX, root, tag);
-            MPI::COMM_WORLD.Recv(tv_, (ntau_ + 1) * element_size_, MPI::COMPLEX, root, tag);
+            MPI_Recv(les_, (tstp_ + 1) * element_size_, MPI_COMPLEX, root, tag, MPI_COMM_WORLD);
+            MPI_Recv(ret_, (tstp_ + 1) * element_size_, MPI_COMPLEX, root, tag, MPI_COMM_WORLD);
+            MPI_Recv(tv_, (ntau_ + 1) * element_size_, MPI_COMPLEX, root, tag, MPI_COMM_WORLD);
          }
       }
    }

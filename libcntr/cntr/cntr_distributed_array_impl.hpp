@@ -102,8 +102,8 @@ template <typename T> distributed_array<T> & distributed_array<T>::operator=(con
 	
 	if(mpi){
 		#if CNTR_USE_MPI==1
-			ntasks_=MPI::COMM_WORLD.Get_size();
-			tid_=MPI::COMM_WORLD.Get_rank();
+		    MPI_Comm_size(MPI_COMM_WORLD, &ntasks_);
+   		    MPI_Comm_rank(MPI_COMM_WORLD, &tid_);
 		#else
 			tid_=0;
 			ntasks_=1;		
@@ -299,10 +299,13 @@ template <typename T> void distributed_array<T>::mpi_send_block(int j,int dest){
 		size_t int_per_t=sizeof(T)/sizeof(int);
 		size_t len=int_per_t*blocksize_;
 		if(tid_map_[j]==tid_){
-			MPI::COMM_WORLD.Send((int*) block(j),len,MPI::INT,dest,tag);
+			MPI_Send((int*) block(j), len, MPI_INT, dest, tag, MPI_COMM_WORLD);
+			// MPI::COMM_WORLD.Send((int*) block(j),len,MPI::INT,dest,tag);
 		}
 		if(tid_==dest){
-			MPI::COMM_WORLD.Recv((int*) block(j),len,MPI::INT,root,tag);
+			// MPI::COMM_WORLD.Recv((int*) block(j),len,MPI::INT,root,tag);
+			MPI_Recv((int*) block(j), len, MPI_INT, root, tag, MPI_COMM_WORLD, 
+				MPI_STATUS_IGNORE);
 		}
 	}
 }
@@ -344,7 +347,8 @@ template <typename T> void distributed_array<T>::mpi_bcast_block(int j){
 	size_t int_per_t=sizeof(T)/sizeof(int);
 	assert(int_per_t*sizeof(int)==sizeof(T));
 	size_t len=int_per_t*blocksize_;
-	MPI::COMM_WORLD.Bcast((int*)block(j),len,MPI::INT,root);
+	// MPI::COMM_WORLD.Bcast((int*)block(j),len,MPI::INT,root);
+	MPI_Bcast((int*)block(j), len, MPI_INT, root, MPI_COMM_WORLD);
 }
 
 //* in a global allgather operation, the data are send from the root to all 
@@ -363,7 +367,6 @@ template <typename T> void distributed_array<T>::mpi_bcast_block(int j){
 *      ========= -->
 *
 */
-  
 template <typename T> void distributed_array<T>::mpi_bcast_all(void){
 
   size_t int_per_t = sizeof(T) / sizeof(int);
@@ -386,8 +389,11 @@ template <typename T> void distributed_array<T>::mpi_bcast_all(void){
     displs[rank] *= element_size;
   }
 	
-  MPI::COMM_WORLD.Allgatherv(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL,
-			     data_, recvcount.data(), displs.data(), MPI::INT);
+  // MPI::COMM_WORLD.Allgatherv(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL,
+		// 	     data_, recvcount.data(), displs.data(), MPI::INT);
+
+  MPI_Allgatherv(MPI_IN_PLACE, 0, MPI_DATATYPE_NULL, data_, 
+  	recvcount.data(), displs.data(), MPI_INT, MPI_COMM_WORLD);
 	
 }
 #endif // CNTR_USE_MPI
