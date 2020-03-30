@@ -12,6 +12,7 @@ compiler:
 - clang
 
 before_install:
+-  echo "$TRAVIS_OS_NAME"
 -  if ["$TRAVIS_OS_NAME" == "linux"]; then echo "HERE" && sudo apt-get update;  fi
 -  if ["$TRAVIS_OS_NAME" == "linux"]; then echo "HERE ALSO" && sudo apt-get install -y --allow-unauthenticated  libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy libeigen3-dev doxygen graphviz;  fi
 
