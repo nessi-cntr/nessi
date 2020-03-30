@@ -13,9 +13,23 @@ compiler:
 
 addons:
 apt:
-  packages: libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy libeigen3-dev doxygen graphviz
+  packages:
+  -libhdf5-serial-dev
+  -libopenmpi-dev
+  -python-dev
+  -python-h5py
+  -python-matplotlib
+  -python-numpy
+  -python-scipy
+  -libeigen3-dev
+  -doxygen
+  -graphviz
 homebrew:
-  packages: openmpi doxygen libomp graphviz
+  packages:
+  -openmpi
+  -doxygen
+  -libomp
+  -graphviz
   
 install: true
 
