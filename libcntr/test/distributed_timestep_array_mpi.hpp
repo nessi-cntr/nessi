@@ -21,8 +21,8 @@ TEST_CASE("distributed_timestep_array MPI","[distributed_timestep_array_mpi]"){
   std::complex<double> I(0.0,1.0);
   cdmatrix h1(2,2);
 
-  ntasks = MPI::COMM_WORLD.Get_size();
-  taskid = MPI::COMM_WORLD.Get_rank();
+  MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
+  MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 
   std::vector<GREEN> Gvec(npoints);
   for(int i=0;i<npoints;i++){

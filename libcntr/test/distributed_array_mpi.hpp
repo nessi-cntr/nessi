@@ -13,8 +13,8 @@ TEST_CASE("distributed_array MPI","[distributed_array_mpi]"){
   int blocksize=5;
   double eps=1e-6;
 
-  ntasks = MPI::COMM_WORLD.Get_size();
-  taskid = MPI::COMM_WORLD.Get_rank();
+  MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
+  MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 
   /*
     The goal of the test is to gather data on all blocks to certain rank

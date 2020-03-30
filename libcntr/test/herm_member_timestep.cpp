@@ -283,31 +283,6 @@ TEST_CASE("Herm member timestep","[Herm_member_timestep]"){
 		}
 		REQUIRE(err<eps);
 	}
-	// Check MPI broadcast
-	#if CNTR_USE_MPI == 1
-
-	//SECTION ("MPI - herm_matrix_timestep"){
-		// std::cout << "Enter MPI" << std::endl;
-    // 		MPI::Init(argc,argv);
-    // 		int numtasks=MPI::COMM_WORLD.Get_size();
-    // 	int taskid=MPI::COMM_WORLD.Get_rank();
-    // 	int mpi_imp=0;
-    // 	double err=0.0;
-    // 	for(int tstp=-1;tstp<nt;tstp++){
-    // 		GREEN_TSTP Atstp(tstp,ntau,size);
-    // 		GREEN_TSTP Atstp2(tstp,ntau,size);
-    // 		if(mpi_imp==taskid){
-    // 			A.get_timestep(tstp,Atstp);
-    // 			A.get_timestep(tstp,Atstp2);
-    // 		}
-    // 		Atstp.Bcast_timestep(tstp,ntau,size,0);
-    // 		// TODO: How to test send/receive ?
-    // 		err+=distance_norm2(tstp,Atstp,A);
-    // 	}
-    // 	REQUIRE(err<eps);
-    // 	MPI::Finalize();
-    // }
-    #endif
     // Check hdf5 write/read is bijection
     #if CNTR_USE_HDF5 == 1
     SECTION ("HDF5 - herm_matrix_timestep"){
