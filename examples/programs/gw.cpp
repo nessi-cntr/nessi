@@ -52,9 +52,9 @@ int main(int argc,char *argv[]){
   //..................................................
 
   {
-    MPI::Init(argc,argv);
-    ntasks=MPI::COMM_WORLD.Get_size();
-    tid=MPI::COMM_WORLD.Get_rank();
+    MPI_Init(&argc,&argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
+    MPI_Comm_rank(MPI_COMM_WORLD, &tid);
     tid_root=0;
   }
   //..................................................
@@ -244,8 +244,8 @@ int main(int argc,char *argv[]){
           diag::get_Polarization_Bubble(tstp,Norb,Ntau,kindex_rank[k],corrK_rank[k].P_,gk_all_timesteps,lattice);
           err_bos += corrK_rank[k].step_W_with_error(tstp,iter,tstp,SolverOrder,lattice);
         }
-        MPI::COMM_WORLD.Allreduce(MPI::IN_PLACE,&err_ele,1,MPI::DOUBLE_PRECISION,MPI::SUM);
-        MPI::COMM_WORLD.Allreduce(MPI::IN_PLACE,&err_bos,1,MPI::DOUBLE_PRECISION,MPI::SUM);
+        MPI_Allreduce(MPI_IN_PLACE,&err_ele,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
+        MPI_Allreduce(MPI_IN_PLACE,&err_bos,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
 
         diag::set_density_k(-1,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);
         diag::get_loc(-1,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
@@ -324,8 +324,8 @@ int main(int argc,char *argv[]){
               err_bos += corrK_rank[k].step_W_with_error(tstp,iter,n,SolverOrder,lattice);
               
             }
-            MPI::COMM_WORLD.Allreduce(MPI::IN_PLACE,&err_ele,1,MPI::DOUBLE_PRECISION,MPI::SUM);
-            MPI::COMM_WORLD.Allreduce(MPI::IN_PLACE,&err_bos,1,MPI::DOUBLE_PRECISION,MPI::SUM);
+            MPI_Allreduce(MPI_IN_PLACE,&err_ele,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
+            MPI_Allreduce(MPI_IN_PLACE,&err_bos,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
 	          // update propagators via MPI
             diag::gather_gk_timestep(n,Nk_rank,gk_all_timesteps,corrK_rank,kindex_rank);
             diag::gather_wk_timestep(n,Nk_rank,wk_all_timesteps,corrK_rank,kindex_rank);
@@ -403,8 +403,8 @@ int main(int argc,char *argv[]){
             err_bos += corrK_rank[k].step_W_with_error(tstp,iter,tstp,SolverOrder,lattice);
 
           }
-          MPI::COMM_WORLD.Allreduce(MPI::IN_PLACE,&err_ele,1,MPI::DOUBLE_PRECISION,MPI::SUM);
-          MPI::COMM_WORLD.Allreduce(MPI::IN_PLACE,&err_bos,1,MPI::DOUBLE_PRECISION,MPI::SUM);
+          MPI_Allreduce(MPI_IN_PLACE,&err_ele,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
+          MPI_Allreduce(MPI_IN_PLACE,&err_bos,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
     
           diag::set_density_k(tstp,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);
           diag::get_loc(tstp,Ntau,Norb,lattice,Gloc,gk_all_timesteps);

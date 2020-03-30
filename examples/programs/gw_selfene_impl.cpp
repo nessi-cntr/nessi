@@ -239,7 +239,8 @@ namespace diag {
             beta,h,SolverOrder)*wk; //Actually *2 due to spin and /2 from the Migdal formula
 
       }
-      MPI::COMM_WORLD.Allreduce(&etmp,&etot,1,MPI::DOUBLE,MPI_SUM);
+      MPI_Allreduce(&etmp,&etot,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
+      // MPI::COMM_WORLD.Allreduce(&etmp,&etot,1,MPI::DOUBLE,MPI_SUM);
       return etot;
       }
    }

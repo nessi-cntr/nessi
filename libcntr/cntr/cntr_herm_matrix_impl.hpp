@@ -3473,17 +3473,17 @@ template <typename T>
 void herm_matrix<T>::Bcast_timestep(int tstp, int root) {
     int numtasks, taskid;
     herm_matrix_timestep<T> Gtemp;
-    numtasks = MPI::COMM_WORLD.Get_size();
-    taskid = MPI::COMM_WORLD.Get_rank();
+    MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
     Gtemp.resize(tstp, ntau_, size1_);
     if (taskid == root)
         this->get_timestep(tstp, Gtemp);
     if (sizeof(T) == sizeof(double))
-        MPI::COMM_WORLD.Bcast(Gtemp.data_, Gtemp.total_size_,
-                              MPI::DOUBLE_COMPLEX, root);
+        MPI_Bcast(Gtemp.data_, Gtemp.total_size_,
+                              MPI_DOUBLE_COMPLEX, root, MPI_COMM_WORLD);
     else
-        MPI::COMM_WORLD.Bcast(Gtemp.data_, Gtemp.total_size_, MPI::COMPLEX,
-                              root);
+        MPI_Bcast(Gtemp.data_, Gtemp.total_size_, MPI_COMPLEX,
+                              root, MPI_COMM_WORLD);
     if (taskid != root)
         this->set_timestep(tstp, Gtemp);
 }
@@ -3509,17 +3509,18 @@ void herm_matrix<T>::Bcast_timestep(int tstp, int root) {
 */
 template <typename T>
 void herm_matrix<T>::Send_timestep(int tstp, int dest, int tag) {
-    int taskid = MPI::COMM_WORLD.Get_rank();
+    int taskid;
+    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
     if (!(taskid == dest)) {
         herm_matrix_timestep<T> Gtemp;
         Gtemp.resize(tstp, ntau_, size1_);
         this->get_timestep(tstp, Gtemp);
         if (sizeof(T) == sizeof(double))
-            MPI::COMM_WORLD.Send(Gtemp.data_, Gtemp.total_size_,
-                                 MPI::DOUBLE_COMPLEX, dest, tag);
+            MPI_Send(Gtemp.data_, Gtemp.total_size_,
+                                 MPI_DOUBLE_COMPLEX, dest, tag, MPI_COMM_WORLD);
         else
-            MPI::COMM_WORLD.Send(Gtemp.data_, Gtemp.total_size_, MPI::COMPLEX,
-                                 dest, tag);
+            MPI_Send(Gtemp.data_, Gtemp.total_size_, MPI_COMPLEX,
+                                 dest, tag, MPI_COMM_WORLD);
     }
 }
 
@@ -3544,16 +3545,17 @@ void herm_matrix<T>::Send_timestep(int tstp, int dest, int tag) {
  */
 template <typename T>
 void herm_matrix<T>::Recv_timestep(int tstp, int root, int tag) {
-    int taskid = MPI::COMM_WORLD.Get_rank();
+    int taskid;
+    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
     if (!(taskid == root)) {
         herm_matrix_timestep<T> Gtemp;
         Gtemp.resize(tstp, ntau_, size1_);
         if (sizeof(T) == sizeof(double))
-            MPI::COMM_WORLD.Recv(Gtemp.data_, Gtemp.total_size_,
-                                 MPI::DOUBLE_COMPLEX, root, tag);
+            MPI_Recv(Gtemp.data_, Gtemp.total_size_,
+                                 MPI_DOUBLE_COMPLEX, root, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         else
-            MPI::COMM_WORLD.Recv(Gtemp.data_, Gtemp.total_size_, MPI::COMPLEX,
-                                 root, tag);
+            MPI_Recv(Gtemp.data_, Gtemp.total_size_, MPI_COMPLEX,
+                                 root, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         this->set_timestep(tstp, Gtemp);
     }
 }
