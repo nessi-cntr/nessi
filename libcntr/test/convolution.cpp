@@ -874,10 +874,10 @@ TEST_CASE("convolution: size2x2","[convolution: size2x2]"){
       cdmatrix C_diag(size1,size1);
       if(tstp == -1){
 				AB_fer.get_mat(0,C_diag);
-				err = fabs(C_diag(0,0) - AB_diag[0]);
+				err = abs(C_diag(0,0) - AB_diag[0]);
       } else {
 				AB_fer.get_les(tstp,tstp,C_diag);
-				err = fabs(C_diag(0,0) - I*AB_diag[0]);
+				err = abs(C_diag(0,0) - I*AB_diag[0]);
       }
       err_tot += err;
     }

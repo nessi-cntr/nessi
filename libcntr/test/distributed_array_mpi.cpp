@@ -12,9 +12,9 @@ TEST_CASE("distributed_array MPI","[distributed_array_mpi]"){
   int master=0;
   int n=10;
   
-  MPI::Init();
-  ntasks = MPI::COMM_WORLD.Get_size();
-  taskid = MPI::COMM_WORLD.Get_rank();
+  MPI_Init();
+  MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
+  MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 
   cntr::distributed_array<double> A(n,1,true);
   
@@ -55,6 +55,6 @@ TEST_CASE("distributed_array MPI","[distributed_array_mpi]"){
       REQUIRE(err_glob<eps);
     }
   }
-  MPI::Finalize();
+  MPI_Finalize();
 }
 

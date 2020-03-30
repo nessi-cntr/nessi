@@ -20,8 +20,9 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
   cdmatrix iden(size,size);
   iden = MatrixXcd::Identity(size, size);
   
-  ntasks = MPI::COMM_WORLD.Get_size();
-  taskid = MPI::COMM_WORLD.Get_rank();
+
+  MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
+  MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
 
   h1(0,0) = eps1;
   h1(1,1) = eps2;
