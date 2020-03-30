@@ -15,7 +15,7 @@ before_install:
 -  if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update;  fi
 -  if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y --allow-unauthenticated  libhdf5-serial-dev libopenmpi-dev python-dev python-h5py python-matplotlib  python-numpy python-scipy libeigen3-dev doxygen graphviz;  fi
 -  if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update;  fi
--  if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install  hdf5 open-mpi doxygen graphviz;  fi
+-  if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install  open-mpi doxygen graphviz;  fi
 
 install: true
 
