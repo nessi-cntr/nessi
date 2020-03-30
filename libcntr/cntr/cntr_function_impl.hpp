@@ -1098,11 +1098,12 @@ void function<T>::Bcast_timestep(int tstp,int root){
   int numtasks,taskid;
   cdmatrix ftemp;
   ftemp.resize(size1_,size2_);
-  numtasks=MPI::COMM_WORLD.Get_size();
-  taskid=MPI::COMM_WORLD.Get_rank();
+  MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+  MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
     if(taskid==root) this->get_value(tstp,ftemp);
-    if(sizeof(T)==sizeof(double)) MPI::COMM_WORLD.Bcast(ftemp.data(),ftemp.size(),MPI::DOUBLE_COMPLEX,root);
-    else MPI::COMM_WORLD.Bcast(ftemp.data(),ftemp.size(),MPI::COMPLEX,root);
+    // if(sizeof(T)==sizeof(double)) MPI::COMM_WORLD.Bcast(ftemp.data(),ftemp.size(),MPI::DOUBLE_COMPLEX,root);
+    // else MPI::COMM_WORLD.Bcast(ftemp.data(),ftemp.size(),MPI::COMPLEX,root);
+    if(sizeof(T)==sizeof(double)) MPI_Bcast(ftemp.data(),ftemp.size(),MPI_DOUBLE_COMPLEX,root,MPI_COMM_WORLD);
     if(taskid!=root) this->set_value(tstp,ftemp);
 }
 #endif

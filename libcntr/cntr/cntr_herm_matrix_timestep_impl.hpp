@@ -2435,18 +2435,16 @@ template<typename T> void herm_matrix_timestep<T>::set_submatrix(int tstp, std::
 * > Index of root
 */
 template <typename T>
-void herm_matrix_timestep<T>::MPI_Reduce(int root) {
+void herm_matrix_timestep<T>::Reduce_timestep(int root) {
    int taskid;
    int len = 2 * (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
-   taskid = MPI::COMM_WORLD.Get_rank();
+   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    if (sizeof(T) == sizeof(double)) {
       if (taskid == root) {
-         MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, (double *)this->data_, len,
-            MPI::DOUBLE, MPI::SUM, root);
+         MPI_Reduce(MPI_IN_PLACE, (double *)this->data_, len, MPI_DOUBLE_PRECISION, MPI_SUM, root, MPI_COMM_WORLD);
       } else {
-         MPI::COMM_WORLD.Reduce((double *)this->data_,
-            (double *)this->data_, len, MPI::DOUBLE,
-            MPI::SUM, root);
+         MPI_Reduce((double *)this->data_,
+            (double *)this->data_, len, MPI_DOUBLE_PRECISION, MPI_SUM, root, MPI_COMM_WORLD);
       }
    } else {
       std::cerr << "herm_matrix_timestep<T>::MPI_Reduce only for double "
@@ -2479,15 +2477,15 @@ void herm_matrix_timestep<T>::Reduce_timestep(int tstp, int root) {
    assert(tstp == tstp_);
    int taskid;
    int len = 2 * (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
-   taskid = MPI::COMM_WORLD.Get_rank();
+   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    if (sizeof(T) == sizeof(double)) {
       if (taskid == root) {
-         MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, (double *)this->data_, len,
-            MPI::DOUBLE, MPI::SUM, root);
+         MPI_Reduce(MPI_IN_PLACE, (double *)this->data_, len,
+            MPI_DOUBLE_PRECISION, MPI_SUM, root, MPI_COMM_WORLD);
       } else {
-         MPI::COMM_WORLD.Reduce((double *)this->data_,
-            (double *)this->data_, len, MPI::DOUBLE,
-            MPI::SUM, root);
+         MPI_Reduce((double *)this->data_,
+            (double *)this->data_, len, MPI_DOUBLE_PRECISION,
+            MPI_SUM, root, MPI_COMM_WORLD);
       }
    } else {
       std::cerr << "herm_matrix_timestep<T>::MPI_Reduce only for double "
@@ -2527,8 +2525,9 @@ void herm_matrix_timestep<T>::Reduce_timestep(int tstp, int root) {
 template <typename T>
 void herm_matrix_timestep<T>::Bcast_timestep(int tstp, int ntau, int size1,
    int root) {
-   int numtasks = MPI::COMM_WORLD.Get_size();
-   int taskid = MPI::COMM_WORLD.Get_rank();
+   int numtasks,taskid;
+   MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    if (taskid != root)
       resize(tstp, ntau, size1);
    int len = (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
@@ -2537,9 +2536,9 @@ void herm_matrix_timestep<T>::Bcast_timestep(int tstp, int ntau, int size1,
    assert(ntau == ntau_);
    assert(size1 == size1_);
    if (sizeof(T) == sizeof(double))
-      MPI::COMM_WORLD.Bcast(data_, len, MPI::DOUBLE_COMPLEX, root);
+      MPI_Bcast(data_, len, MPI_DOUBLE_COMPLEX, root, MPI_COMM_WORLD);
    else
-      MPI::COMM_WORLD.Bcast(data_, len, MPI::COMPLEX, root);
+      MPI_Bcast(data_, len, MPI_COMPLEX, root, MPI_COMM_WORLD);
 }
 
 /** \brief <b> Broadcasts the `herm_matrix_timestep` at a given time step to all ranks. </b>
@@ -2566,17 +2565,18 @@ void herm_matrix_timestep<T>::Bcast_timestep(int tstp, int ntau, int size1,
 */
 template <typename T>
 void herm_matrix_timestep<T>::Bcast_timestep(int tstp, int root) {
-   int numtasks = MPI::COMM_WORLD.Get_size();
-   int taskid = MPI::COMM_WORLD.Get_rank();
+   int numtasks,taskid;
+   MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    if (taskid != root)
       resize(tstp, ntau_, size1_);
    int len = (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
 // test effective on root:
    assert(tstp == tstp_);
    if (sizeof(T) == sizeof(double))
-      MPI::COMM_WORLD.Bcast(data_, len, MPI::DOUBLE_COMPLEX, root);
+      MPI_Bcast(data_, len, MPI_DOUBLE_COMPLEX, root, MPI_COMM_WORLD);
    else
-      MPI::COMM_WORLD.Bcast(data_, len, MPI::COMPLEX, root);
+      MPI_Bcast(data_, len, MPI_COMPLEX, root, MPI_COMM_WORLD);
 }
 
 /** \brief <b> Sends the `herm_matrix_timestep` at a given time step to a specific task. </b>
@@ -2605,25 +2605,18 @@ void herm_matrix_timestep<T>::Bcast_timestep(int tstp, int root) {
 template <typename T>
 void herm_matrix_timestep<T>::Send_timestep(int tstp, int ntau, int size1,
    int dest, int tag) {
-   int taskid = MPI::COMM_WORLD.Get_rank();
+   int taskid;
+   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    int len = (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
    if (!(taskid == dest)) {
       assert(tstp == tstp_);
       assert(ntau == ntau_);
       assert(size1 == size1_);
-
-// std::cout << "SEnd timestep tstp= " << tstp << " ntau=  " << ntau
-//<< " size1= " << size1 << " rank= " << taskid << " dest= " << dest<<
-//" tot= " << les << " tag " << tag << std::endl;
       if (sizeof(T) == sizeof(double))
-         MPI::COMM_WORLD.Send(data_, len, MPI::DOUBLE_COMPLEX, dest, tag);
+         MPI_Send(data_, len, MPI_DOUBLE_COMPLEX, dest, tag, MPI_COMM_WORLD);
       else
-         MPI::COMM_WORLD.Send(data_, len, MPI::COMPLEX, dest, tag);
+         MPI_Send(data_, len, MPI_COMPLEX, dest, tag, MPI_COMM_WORLD);
    } else {
-// std::cout << "Sending timestep  DEST==ROOT tstp= " << tstp << "
-// ntau=  " << ntau
-//<< " size1= " << size1 << " root= " << taskid << " dest= " << dest
-//<< std::endl;
    }
 }
 
@@ -2648,14 +2641,15 @@ void herm_matrix_timestep<T>::Send_timestep(int tstp, int ntau, int size1,
 */
 template <typename T>
 void herm_matrix_timestep<T>::Send_timestep(int tstp, int dest, int tag) {
-   int taskid = MPI::COMM_WORLD.Get_rank();
+   int taskid;
+   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    int len = (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
    if (!(taskid == dest)) {
       assert(tstp == tstp_);
       if (sizeof(T) == sizeof(double))
-         MPI::COMM_WORLD.Send(data_, len, MPI::DOUBLE_COMPLEX, dest, tag);
+         MPI_Send(data_, len, MPI_DOUBLE_COMPLEX, dest, tag, MPI_COMM_WORLD);
       else
-         MPI::COMM_WORLD.Send(data_, len, MPI::COMPLEX, dest, tag);
+         MPI_Send(data_, len, MPI_COMPLEX, dest, tag, MPI_COMM_WORLD);
    } else {
    }
 }
@@ -2686,21 +2680,15 @@ void herm_matrix_timestep<T>::Send_timestep(int tstp, int dest, int tag) {
 template <typename T>
 void herm_matrix_timestep<T>::Recv_timestep(int tstp, int ntau, int size1,
    int root, int tag) {
-   int taskid = MPI::COMM_WORLD.Get_rank();
+   int taskid;
+   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    if (!(taskid == root)) {
       resize(tstp, ntau, size1);
       int len = (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
-// std::cout << "Rcv timestep tstp= " << tstp << " ntau=  " << ntau
-//<< " size1= " << size1 << " rank= " << taskid << " root= " << root<<
-//" tot= " << les << " tag " << tag << std::endl;
       if (sizeof(T) == sizeof(double))
-         MPI::COMM_WORLD.Recv(data_, len, MPI::DOUBLE_COMPLEX, root, tag);
+         MPI_Recv(data_, len, MPI_DOUBLE_COMPLEX, root, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       else
-         MPI::COMM_WORLD.Recv(data_, len, MPI::COMPLEX, root, tag);
-// std::cout << "FINISHED Rcv timestep tstp= " << tstp << " ntau=  "
-// << ntau
-//<< " size1= " << size1 << " rank= " << taskid << " root= " << root<<
-//" tot= " << total_size_ << " tag " << tag << std::endl;
+         MPI_Recv(data_, len, MPI_COMPLEX, root, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
    }
 }
 
@@ -2726,14 +2714,15 @@ void herm_matrix_timestep<T>::Recv_timestep(int tstp, int ntau, int size1,
 */
 template <typename T>
 void herm_matrix_timestep<T>::Recv_timestep(int tstp, int root, int tag) {
-   int taskid = MPI::COMM_WORLD.Get_rank();
+   int taskid;
+   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    if (!(taskid == root)) {
       resize(tstp, ntau_, size1_);
       int len = (2 * (tstp_ + 1) + ntau_ + 1) * element_size_;
       if (sizeof(T) == sizeof(double))
-         MPI::COMM_WORLD.Recv(data_, len, MPI::DOUBLE_COMPLEX, root, tag);
+         MPI_Recv(data_, len, MPI_DOUBLE_COMPLEX, root, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       else
-         MPI::COMM_WORLD.Recv(data_, len, MPI::COMPLEX, root, tag);
+         MPI_Recv(data_, len, MPI_COMPLEX, root, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
    }
 }
 

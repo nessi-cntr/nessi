@@ -102,8 +102,8 @@ template <typename T> distributed_array<T> & distributed_array<T>::operator=(con
 	
 	if(mpi){
 		#if CNTR_USE_MPI==1
-			ntasks_=MPI::COMM_WORLD.Get_size();
-			tid_=MPI::COMM_WORLD.Get_rank();
+		    MPI_Comm_size(MPI_COMM_WORLD, &ntasks_);
+   		    MPI_Comm_rank(MPI_COMM_WORLD, &tid_);
 		#else
 			tid_=0;
 			ntasks_=1;		

@@ -204,7 +204,7 @@ class herm_matrix_timestep {
 
     // legacy interfaces
     /// @private
-    void MPI_Reduce(int root);
+    void Reduce_timestep(int root);
     /// @private
     void Bcast_timestep(int tstp, int ntau, int size1, int root);
     /// @private
