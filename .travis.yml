@@ -17,7 +17,7 @@ before_install:
 -  if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew unlink python@2;  fi
 -  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "gcc" ]; then brew install doxygen libomp graphviz;  fi
 -  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "gcc" ]; then export HOMEBREW_CC=/usr/local/opt/gcc/bin/gcc-9 && export HOMEBREW_CXX=/usr/local/opt/gcc/bin/g++-9 && brew install openmpi;  fi
--  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "clang" ]; then brew install llvm doxygen libomp graphviz;  fi
+-  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "clang" ]; then brew install llvm doxygen libomp  graphviz;  fi
 -  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "clang" ]; then export HOMEBREW_CC=/usr/local/opt/llvm/bin/clang && export HOMEBREW_CXX=/usr/local/opt/llvm/bin/clang++ && brew install openmpi ;  fi
 
 
@@ -36,7 +36,7 @@ script:
 -  ls /usr/local/opt/
 -  echo "$TRAVIS_COMPILER"
 -  if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DCMAKE_CXX_FLAGS="-std=c++11" -Domp=ON -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=ON;  fi
--  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "gcc" ]; then cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DCMAKE_CXX_FLAGS="-std=c++11 -fpermissive" -Domp=ON -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=ON;  fi
--  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "clang" ]; then cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DCMAKE_CXX_FLAGS="-std=c++11 -fpermissive" -Domp=ON -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=ON;  fi
+-  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "gcc" ]; then cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DCMAKE_CXX_FLAGS="-std=c++11 -fpermissive" -Domp=OFF -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=ON;  fi
+-  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "clang" ]; then cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DCMAKE_CXX_FLAGS="-std=c++11 -fpermissive" -Domp=OFF -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=ON;  fi
 -  make   && make test
 
