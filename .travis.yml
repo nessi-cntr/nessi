@@ -17,7 +17,7 @@ before_install:
 -  if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew unlink python@2;  fi
 -  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "gcc" ]; then brew install doxygen libomp graphviz;  fi
 -  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "gcc" ]; then export HOMEBREW_CC=/usr/local/opt/gcc/bin/gcc-9 && export HOMEBREW_CXX=/usr/local/opt/gcc/bin/g++-9 && brew install openmpi;  fi
--  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "clang" ]; then brew install llvm doxygen libomp  graphviz;  fi
+-  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "clang" ]; then brew install llvm doxygen libomp graphviz;  fi
 -  if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$TRAVIS_COMPILER" == "clang" ]; then export HOMEBREW_CC=/usr/local/opt/llvm/bin/clang && export HOMEBREW_CXX=/usr/local/opt/llvm/bin/clang++ && brew install openmpi ;  fi
 
 
