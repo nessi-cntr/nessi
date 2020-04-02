@@ -40,9 +40,9 @@ class herm_matrix_timestep_view {
     herm_matrix_timestep_view(const herm_matrix_timestep_view &g);
     herm_matrix_timestep_view &operator=(const herm_matrix_timestep_view &g);
     herm_matrix_timestep_view(herm_matrix_timestep<T> &g);
-    herm_matrix_timestep_view(int tstp, herm_matrix<T> &g);
+    herm_matrix_timestep_view(int tstp, herm_matrix<T> &g, bool check_assert=true);
     herm_matrix_timestep_view(int tstp, int ntau, int size1, int size2, int sig);
-    herm_matrix_timestep_view(int tstp, herm_matrix_timestep<T> &g);
+    herm_matrix_timestep_view(int tstp, herm_matrix_timestep<T> &g, bool check_assert=true);
     herm_matrix_timestep_view(int tstp, herm_matrix_timestep_view<T> &g);
     ///////////////////////////////////////////
     int size1(void) const { return size1_; }

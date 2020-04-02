@@ -156,9 +156,9 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
     GREEN Gloc_ref;
 
     Gk = GREEN(nt,ntau,size,-1);
+    Gloc = GREEN(nt,ntau,size,-1);
 
     if(taskid == master) {
-      Gloc = GREEN(nt,ntau,size,-1);
       Gloc_ref = GREEN(nt,ntau,size,-1);
       for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.set_timestep_zero(tstp);
       GREEN Gk_master(nt,ntau,size,-1);
@@ -321,9 +321,9 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
     GREEN Gloc_ref;
 
     Gk = GREEN(nt,ntau,size,-1);
+    Gloc = GREEN(nt,ntau,size,-1);
 
     if(taskid == master) {
-      Gloc = GREEN(nt,ntau,size,-1);
       Gloc_ref = GREEN(nt,ntau,size,-1);
       for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.set_timestep_zero(tstp);
       GREEN Gk_master(nt,ntau,size,-1);
@@ -359,9 +359,9 @@ TEST_CASE("Reduce_timestep","[Reduce_timestep]"){
     GREEN Gloc_ref;
 
     Gk = GREEN(nt,ntau,size,-1);
+    Gloc = GREEN(nt,ntau,size,-1);
 
     if(taskid == master) {
-      Gloc = GREEN(nt,ntau,size,-1);
       Gloc_ref = GREEN(nt,ntau,size,-1);
       for(int tstp=-1; tstp<=nt; tstp++) Gloc_ref.set_timestep_zero(tstp);
       GREEN Gk_master(nt,ntau,size,-1);

@@ -197,7 +197,8 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &G
 		assert(G.size2() == Gred.size2());
 	}
 
-	herm_matrix_timestep_view<T> Gred_tmp(tstp, Gred);
+	bool check_tstp = (taskid == root);
+	herm_matrix_timestep_view<T> Gred_tmp(tstp, Gred, check_tstp);
 	Reduce_timestep(tstp, root, Gred_tmp, G);
 
 }
@@ -320,7 +321,8 @@ template <typename T> void Reduce_timestep(int tstp, int root, herm_matrix<T> &G
 		assert(G.size2() == Gred.size2());
 	}
 
-	herm_matrix_timestep_view<T> Gred_tmp(tstp, Gred);
+	bool check_tstp = (taskid == root);
+	herm_matrix_timestep_view<T> Gred_tmp(tstp, Gred, check_tstp);
 	herm_matrix_timestep_view<T> Garr_tmp(tstp, G);
 
 	Reduce_timestep(tstp, root, Gred_tmp, Garr_tmp);

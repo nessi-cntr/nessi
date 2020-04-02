@@ -214,8 +214,8 @@ herm_matrix_timestep_view<T>::herm_matrix_timestep_view(
 
 template <typename T>
 herm_matrix_timestep_view<T>::herm_matrix_timestep_view(
-    int tstp, herm_matrix_timestep<T> &g) {
-    assert(tstp==g.tstp_);
+    int tstp, herm_matrix_timestep<T> &g, bool check_assert) {
+    if(check_assert) assert(tstp==g.tstp_);
 
     tstp_ = g.tstp_;
     ntau_ = g.ntau_;
@@ -299,8 +299,9 @@ herm_matrix_timestep_view<T>::herm_matrix_timestep_view(
 
 template <typename T>
 herm_matrix_timestep_view<T>::herm_matrix_timestep_view(int tstp,
-                                                        herm_matrix<T> &g) {
-    assert(tstp>=-1 && tstp <=g.nt());
+                                                        herm_matrix<T> &g, bool check_assert) {
+    
+    if(check_assert) assert(tstp>=-1 && tstp <=g.nt());
     tstp_ = tstp;
     ntau_ = g.ntau();
     size1_ = g.size1();
