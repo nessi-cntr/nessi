@@ -533,7 +533,46 @@ void dyson_timestep_omp(int omp_num_threads, int n, herm_matrix<T> &G, T lam0,
     }
 }
 
-
+/** \brief <b> One step Dyson solver (integral-differential form) for a Green's function \f$G\f$ using openMP parallelization</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > One solves the Dyson equation of the following form:
+* > \f$ [ id/dt + \mu - H(t) ] G(t,t^\prime) - [\Sigma*G](t,t^\prime) = \delta(t,t^\prime)\f$
+* > for a hermitian matrix \f$G(t, t^\prime)\f$ at a given timestep 'n',
+* > i.e.,  G^ret(nh,t'<=nh), G^les(t<=nh,nh), G^tv(nt,tau=0..beta). Timestep must be >k,
+* > where k is the Integration order 'I'.
+* > The timesteps n=0..k must be computed seperately, using the routine
+* > "_start", which assumes that the Matsubara component of \f$G\f$ and \f$\Sigma(t,t^\prime)\f$
+* > for \f$t,t^\prime\f$<=k are given.
+* > Here, are given: \f$\Sigma(t, t^\prime)\f$, \f$\mu\f$, and \f$H(t)\f$.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param omp_num_threads
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > If omp_num_threads = -1, the maximum available number of threads is used.
+* @param n
+* > [int] time step
+* @param &G
+* > [herm_matrix<T>] solution
+* @param mu
+* > [T] chemical potential
+* @param &H
+* > [function<T>] time-dependent function
+* @param &Sigma
+* > [herm_matrix<T>] self-energy
+* @param beta
+* > [double] inverse temperature
+* @param h
+* > [double] time interval
+* @param SolveOrder
+* > [int] integrator order
+*/
 template <typename T>
 void dyson_timestep_omp(int omp_num_threads, int n, herm_matrix<T> &G, T lam0,
                         function<T> &H, herm_matrix<T> &Sigma,

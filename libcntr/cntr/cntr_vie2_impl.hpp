@@ -1998,7 +1998,7 @@ void vie2_timestep_omp_dispatch(int omp_num_threads, int tstp, GG &B, CPLX alpha
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] number of threads for omp parallelization
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
 * @param tstp
 * > [int] time step
 * @param &G
@@ -2016,7 +2016,7 @@ void vie2_timestep_omp_dispatch(int omp_num_threads, int tstp, GG &B, CPLX alpha
 * @param h
 * > [double] time interval
 * @param matsubara_method
-* > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: fixpoint
+* > [const] Solution method on the Matsubara axis with 0: Fourier, 1: steep, 2: Newton iteration
 */
 template <typename T>
 void vie2_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &G, herm_matrix<T> &F,
@@ -2102,7 +2102,7 @@ void vie2_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &G, herm_ma
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] number of threads for omp parallelization
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
 * @param tstp
 * > [int] time step
 * @param &G
@@ -2206,7 +2206,7 @@ void vie2_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &G, herm_ma
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] number of threads for omp parallelization
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
 * @param tstp
 * > [int] time step
 * @param &G
@@ -2323,7 +2323,7 @@ void vie2_timestep_sin_omp(int omp_num_threads, int tstp,herm_matrix<T> &G,funct
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] number of threads for omp parallelization
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
 * @param tstp
 * > [int] time step
 * @param &G
@@ -2486,7 +2486,7 @@ void vie2_omp(int omp_num_threads, herm_matrix<T> &G, herm_matrix<T> &F, herm_ma
   *      ========= -->
   *
   * @param omp_num_threads
-  * > [int] number of threads for omp parallelization
+  * > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
   * @param &G
   * > [herm_matrix<T>] solution
   * @param &F
