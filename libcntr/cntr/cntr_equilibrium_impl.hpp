@@ -503,6 +503,16 @@ void green_equilibrium_les(herm_matrix<T> &G,dos_function &dos,double beta,doubl
   }
 }
 
+/// @private
+template <typename T,class dos_function>
+void green_equilibrium(herm_matrix<T> &G,dos_function &dos,double beta,double h,int limit,int nn,double mu)
+{
+  green_equilibrium_mat(G,dos,beta,limit,nn,mu);
+  green_equilibrium_ret(G,dos,h,limit,nn,mu);
+  green_equilibrium_tv(G,dos,beta,h,limit,nn,mu);
+  green_equilibrium_les(G,dos,beta,h,limit,nn,mu);
+}
+
 /** \brief <b> Equilibrium  propagator for the given density of states  </b>
 *
 * <!-- ====== DOCUMENTATION ====== -->
@@ -523,15 +533,15 @@ void green_equilibrium_les(herm_matrix<T> &G,dos_function &dos,double beta,doubl
 * > inverse temperature
 * @param h
 * > timestep
-* @param limit
-* > max number of intervals in Fourier transform
-* @param nn
-* > number of points in each interval of the Fourier transform
 * @param mu
 * > chemical potential
+* @param limit
+* > max number of intervals in Fourier transform (default: 100)
+* @param nn
+* > number of points in each interval of the Fourier transform (default: 20)
 */
 template <typename T,class dos_function>
-void green_equilibrium(herm_matrix<T> &G,dos_function &dos,double beta,double h,int limit,int nn,double mu)
+void green_equilibrium(herm_matrix<T> &G,dos_function &dos,double beta,double h,double mu,int limit,int nn)
 {
   green_equilibrium_mat(G,dos,beta,limit,nn,mu);
   green_equilibrium_ret(G,dos,h,limit,nn,mu);

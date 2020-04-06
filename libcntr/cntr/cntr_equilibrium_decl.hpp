@@ -48,9 +48,16 @@ namespace cntr {
   template <typename T, class dos_function>
   void green_equilibrium_mat(herm_matrix<T> &G, dos_function &dos, double beta,
     int limit = 100, int nn = 20,double mu=0.0);
+
+  /// @private
   template <typename T, class dos_function>
   void green_equilibrium(herm_matrix<T> &G, dos_function &dos, double beta,
     double h, int limit = 100, int nn = 20, double mu=0.0);
+
+  template <typename T, class dos_function>
+  void green_equilibrium(herm_matrix<T> &G, dos_function &dos, double beta,
+    double h, double mu=0.0, int limit = 100, int nn = 20);
+
   // other "simple" Greenfunctions: [idt + mu - H(t)]^{-1} and [idt + mu -
   // H0]^{-1} etc
   // template <typename T>
