@@ -94,3 +94,24 @@ make
 ```
 
 The executables are located in `examples/exe`.
+
+The `examples/utils` directory contains useful python driver scripts which simplify the execution of the example programs.
+In order to run the python script, we need to make sure to set the python path to `nessi/libcntr/python` and/or `nessi/libcntr/python3`.
+The scripts should be run from `nessi/examples` as follows:
+```
+python3 utils/*******.py
+```
+In the following table, we summarize the python scripts and its brief explanations.
+
+
+
+Script | Dependencies
+------------ | -------------
+test_equilibrium.py |  Runs 'test_equilibrium.x' to show the scaling of accuracy of the Matsubara Dyson solvers with the specified order as an input. 
+test_nonequilibrium.py |   Runs 'test_nonequilibrium.x' to show the scaling of accuracy of the integro-differential (Dyson) and integral (VIE2) formulation with the specified order as an input.  
+demo_hubbard_chain.py | Runs 'hubbard_chain_ooo.x' to simulate quench dynamics of the Hubbard chain. Here,  ooo (=  2b, gw, tpp) indicates different many body approximations, which can be specified in the python script. 
+demo_Holstein_impurity.py | Runs 'Holstein_impurity_singlebath_ooo.x' to simulate dynamics against modulation of system parameters in the Holstein-type impurity with a single bath site.  Here, ooo (= Migdal, uMig) indicates different approximate impurity solvers, which can be specified in the python script. 
+demo_Holstein.py | Runs 'Holstein_bethe_ooo.x' to simulate dynamics of the Holstein model  against  modulation of system parameters within DMFT.
+demo_Holstein_sc.py | Runs 'Holstein_bethe_Nambu_ooo.x' which is a generalized version of 'Holstein_bethe_ooo.x'  to treat s-wave superconductor.
+demo_gw.py| Runs 'gw.x' to simulate the 1dim chain of the extended Hubbard model within the GW approximation using MPI parallelization. 
+demo_integration.py | Runs 'integration.x' to demonstrate the accuracy of the Gregory integration implemented in `nessi`. 
