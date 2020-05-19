@@ -27,6 +27,21 @@ def read_gf_ret_slice(filename,name_green,dt,tstp=0):
     return t_rel, G_ret
 
 # ----------------------------------------------------------------------
+# Read G^<(tstp,t) from 'G_slice' for t>tstp
+# Outputs are given and G^<(t') = G^<(tstp,tstp-t') and list of t'
+# [note]; t_rel is given every dt
+def read_gf_les_slice(filename,name_green,dt,tstp=0):
+    
+    fd = h5py.File(filename)
+    name_tstp = 't{}'.format(tstp)
+    G_les_ = fd[name_green][name_tstp]['les'][:,:,:]
+    Nt = len(G_les_)-1
+    t_rel = np.linspace(0.0,float(Nt)*dt,Nt+1)
+    G_les = np.flip(G_les_,0)
+
+    return t_rel, G_les
+
+# ----------------------------------------------------------------------
 # Read G^R(t_av;t_rel) and G^<(t_av;t_rel) from 'G_tavtrel' for specified tav and trel>=0
 # [note]; t_rel is given every 2dt
 def read_gf_ret_let_tavtrel(filename,name_green,dt,tav=0):
