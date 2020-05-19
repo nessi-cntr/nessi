@@ -213,6 +213,24 @@ def evaluate_occupation_windowed(green_less,tgrd,wgrd,method,Fwindow):
             Nles[:,ie] = 1.0/(2.0*np.pi)*np.imag(green_less_w_[:])
     
     return Nles
+
+#----------------------------------------------------------------------
+def evaluate_occupation_windowed_withwidth(green_less,tgrd,wgrd,method,Fwindow,twindow):
+    
+    w_size = len(wgrd)
+    element_size = green_less.shape[1]
+    
+    Nles = np.zeros(shape=(w_size,element_size))
+    
+    for ie in range(element_size):
+        green_less_damp_ = green_less[:,ie,ie]*Fwindow(tgrd[:],twindow)
+        green_less_w_ = fourier_t2w(green_less_damp_,tgrd,wgrd,method)
+        if tgrd[0] == 0.0: # for the case only t>=t' for G^< is given
+            Nles[:,ie] = 1.0/(2.0*np.pi)*np.imag(green_less_w_[:]-np.conj(green_less_w_[:]))
+        else:
+            Nles[:,ie] = 1.0/(2.0*np.pi)*np.imag(green_less_w_[:])
+    
+    return Nles
 # ----------------------------------------------------------------------
 '''
 if __name__ == "__main__":
