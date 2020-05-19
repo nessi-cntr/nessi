@@ -554,13 +554,13 @@ void dyson_timestep_omp(int omp_num_threads, int n, herm_matrix<T> &G, T lam0,
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * > If omp_num_threads = -1, the maximum available number of threads is used.
 * @param n
 * > [int] time step
 * @param &G
 * > [herm_matrix<T>] solution
-* @param mu
+* @param lam0
 * > [T] chemical potential
 * @param &H
 * > [function<T>] time-dependent function

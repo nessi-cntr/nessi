@@ -210,6 +210,8 @@ herm_matrix_timestep_view<T>::herm_matrix_timestep_view(
 * > Index of time
 * @param g
 * > The `herm_matrix_timestep` according to which the class should be initialized
+* @param check_assert
+* > Flag: true or false. Includes assertions
 */
 
 template <typename T>
@@ -295,12 +297,14 @@ herm_matrix_timestep_view<T>::herm_matrix_timestep_view(
 * > Index of time
 * @param g
 * > The `herm_matrix` according to which the class should be initialized
+* @param check_assert
+* > Flag: true or false. Includes assertions
 */
 
 template <typename T>
 herm_matrix_timestep_view<T>::herm_matrix_timestep_view(int tstp,
                                                         herm_matrix<T> &g, bool check_assert) {
-    
+
     if(check_assert) assert(tstp>=-1 && tstp <=g.nt());
     tstp_ = tstp;
     ntau_ = g.ntau();
