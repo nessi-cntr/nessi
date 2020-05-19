@@ -37,7 +37,6 @@ def read_gf_les_slice(filename,name_green,dt,tstp=0):
     G_les_ = fd[name_green][name_tstp]['les'][:,:,:]
     Nt = len(G_les_)-1
     t_rel = np.linspace(0.0,float(Nt)*dt,Nt+1)
-    G_les = np.flip(G_les_,0)
 
     return t_rel, G_les
 
