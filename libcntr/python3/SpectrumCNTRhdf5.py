@@ -165,7 +165,7 @@ def evaluate_spectrum_windowed(green_ret,tgrd,wgrd,method,Fwindow):
 #----------------------------------------------------------------------
 # Add the width parameter to the window function
 #----------------------------------------------------------------------
-def evaluate_spectrum_windowed(green_ret,tgrd,wgrd,method,Fwindow,twindow):
+def evaluate_spectrum_windowed_withwidth(green_ret,tgrd,wgrd,method,Fwindow,twindow):
     
     w_size = len(wgrd)
     element_size = green_ret.shape[1]
