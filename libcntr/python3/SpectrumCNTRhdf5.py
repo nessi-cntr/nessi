@@ -163,6 +163,23 @@ def evaluate_spectrum_windowed(green_ret,tgrd,wgrd,method,Fwindow):
     return Aret
 
 #----------------------------------------------------------------------
+# Add the width parameter to the window function
+#----------------------------------------------------------------------
+def evaluate_spectrum_windowed(green_ret,tgrd,wgrd,method,Fwindow,twindow):
+    
+    w_size = len(wgrd)
+    element_size = green_ret.shape[1]
+    
+    Aret = np.zeros(shape=(w_size,element_size))
+    
+    for ie in range(element_size):
+        green_ret_damp_ = green_ret[:,ie,ie]*Fwindow(tgrd[:],twindow)
+        green_ret_w_ = fourier_t2w(green_ret_damp_,tgrd,wgrd,method)
+        Aret[:,ie] = -1.0/np.pi*np.imag(green_ret_w_[:])
+    
+    return Aret
+
+#----------------------------------------------------------------------
 def evaluate_occupation(green_less,tgrd,wgrd,method):
     
     w_size = len(wgrd)
