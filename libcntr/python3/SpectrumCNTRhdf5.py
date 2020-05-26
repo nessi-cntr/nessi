@@ -27,6 +27,20 @@ def read_gf_ret_slice(filename,name_green,dt,tstp=0):
     return t_rel, G_ret
 
 # ----------------------------------------------------------------------
+# Read G^<(tstp,t) from 'G_slice' for t>tstp
+# Outputs are given and G^<(t') = G^<(tstp,tstp-t') and list of t'
+# [note]; t_rel is given every dt
+def read_gf_les_slice(filename,name_green,dt,tstp=0):
+    
+    fd = h5py.File(filename)
+    name_tstp = 't{}'.format(tstp)
+    G_les = fd[name_green][name_tstp]['les'][:,:,:]
+    Nt = len(G_les)-1
+    t_rel = np.linspace(0.0,float(Nt)*dt,Nt+1)
+
+    return t_rel, G_les
+
+# ----------------------------------------------------------------------
 # Read G^R(t_av;t_rel) and G^<(t_av;t_rel) from 'G_tavtrel' for specified tav and trel>=0
 # [note]; t_rel is given every 2dt
 def read_gf_ret_let_tavtrel(filename,name_green,dt,tav=0):
@@ -149,6 +163,23 @@ def evaluate_spectrum_windowed(green_ret,tgrd,wgrd,method,Fwindow):
     return Aret
 
 #----------------------------------------------------------------------
+# Add the width parameter to the window function
+#----------------------------------------------------------------------
+def evaluate_spectrum_windowed_withwidth(green_ret,tgrd,wgrd,method,Fwindow,twindow):
+    
+    w_size = len(wgrd)
+    element_size = green_ret.shape[1]
+    
+    Aret = np.zeros(shape=(w_size,element_size))
+    
+    for ie in range(element_size):
+        green_ret_damp_ = green_ret[:,ie,ie]*Fwindow(tgrd[:],twindow)
+        green_ret_w_ = fourier_t2w(green_ret_damp_,tgrd,wgrd,method)
+        Aret[:,ie] = -1.0/np.pi*np.imag(green_ret_w_[:])
+    
+    return Aret
+
+#----------------------------------------------------------------------
 def evaluate_occupation(green_less,tgrd,wgrd,method):
     
     w_size = len(wgrd)
@@ -175,6 +206,24 @@ def evaluate_occupation_windowed(green_less,tgrd,wgrd,method,Fwindow):
     
     for ie in range(element_size):
         green_less_damp_ = green_less[:,ie,ie]*Fwindow(tgrd[:])
+        green_less_w_ = fourier_t2w(green_less_damp_,tgrd,wgrd,method)
+        if tgrd[0] == 0.0: # for the case only t>=t' for G^< is given
+            Nles[:,ie] = 1.0/(2.0*np.pi)*np.imag(green_less_w_[:]-np.conj(green_less_w_[:]))
+        else:
+            Nles[:,ie] = 1.0/(2.0*np.pi)*np.imag(green_less_w_[:])
+    
+    return Nles
+
+#----------------------------------------------------------------------
+def evaluate_occupation_windowed_withwidth(green_less,tgrd,wgrd,method,Fwindow,twindow):
+    
+    w_size = len(wgrd)
+    element_size = green_less.shape[1]
+    
+    Nles = np.zeros(shape=(w_size,element_size))
+    
+    for ie in range(element_size):
+        green_less_damp_ = green_less[:,ie,ie]*Fwindow(tgrd[:],twindow)
         green_less_w_ = fourier_t2w(green_less_damp_,tgrd,wgrd,method)
         if tgrd[0] == 0.0: # for the case only t>=t' for G^< is given
             Nles[:,ie] = 1.0/(2.0*np.pi)*np.imag(green_less_w_[:]-np.conj(green_less_w_[:]))
