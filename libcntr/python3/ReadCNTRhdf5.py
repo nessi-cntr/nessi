@@ -61,6 +61,7 @@ def read_group_slices(filename):
             setattr(imp, key, read_gf_tavrel_group(item))
         else:
             setattr(imp, key, read_all_sets(item))
+    fd.close()
     return imp
 
 # ----------------------------------------------------------------------
@@ -102,6 +103,7 @@ def read_imp_h5file_slices(filename,key_lim=None):
 #setattr(imp, key, read_gf_tavrel_group(item))
         else:
             setattr(imp, key, read_all_sets(item))
+    fd.close()
     return imp
 
 # ----------------------------------------------------------------------
@@ -116,7 +118,7 @@ def read_imp_h5file_old(filename):
             setattr(imp, key, read_gf_group(item))
         else:
             setattr(imp, key, read_all_sets(item))
-
+    fd.close()
     return imp
 
 # ----------------------------------------------------------------------

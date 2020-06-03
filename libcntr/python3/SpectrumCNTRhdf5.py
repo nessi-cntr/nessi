@@ -23,7 +23,7 @@ def read_gf_ret_slice(filename,name_green,dt,tstp=0):
     Nt = len(G_ret_)-1
     t_rel = np.linspace(0.0,float(Nt)*dt,Nt+1)
     G_ret = np.flip(G_ret_,0)
-
+    fd.close()
     return t_rel, G_ret
 
 # ----------------------------------------------------------------------
@@ -37,7 +37,7 @@ def read_gf_les_slice(filename,name_green,dt,tstp=0):
     G_les = fd[name_green][name_tstp]['les'][:,:,:]
     Nt = len(G_les)-1
     t_rel = np.linspace(0.0,float(Nt)*dt,Nt+1)
-
+    fd.close()
     return t_rel, G_les
 
 # ----------------------------------------------------------------------
@@ -52,7 +52,7 @@ def read_gf_ret_let_tavtrel(filename,name_green,dt,tav=0):
 
     Nt = len(G_ret)-1
     t_rel = np.linspace(0.0,float(Nt)*2.0*dt,Nt+1)
-    
+    fd.close()
     return t_rel, G_ret, G_les
 
 # ----------------------------------------------------------------------
