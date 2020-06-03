@@ -157,7 +157,6 @@ int main(int argc,char *argv[]){
     //============================================================================
     //               (IV) INITIALIZE lattice_1d_1b AND CORRESPONDING PROPAGATORS
     //============================================================================
-
     CFUNC Ut(Nt,Norb),Vt(Nt,Norb),tt(Nt,Norb);
     Ut.set_constant(HubbardU*MatrixXcd::Identity(Norb,Norb));
     Vt.set_constant(V*MatrixXcd::Identity(Norb,Norb));
@@ -182,7 +181,6 @@ int main(int argc,char *argv[]){
     std::vector<int> kindex_rank;kindex_rank.resize(Nk_rank);
     // Momentum depedent correlators on one rank
     std::vector<gw::kpoint> corrK_rank;corrK_rank.resize(Nk_rank);
-
     if(tid==tid_root){
       Gloc=GREEN(Nt,Ntau,Norb,FERMION);
       Wloc=GREEN(Nt,Ntau,Norb,BOSON);
@@ -212,9 +210,11 @@ int main(int argc,char *argv[]){
       diag::gather_gk_timestep(-1,Nk_rank,gk_all_timesteps,corrK_rank,kindex_rank);
       // diag::gather_wk_timestep(-1,Nk_rank,wk_all_timesteps,corrK_rank,kindex_rank);
       diag::set_density_k(-1,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);
-      diag::get_loc(-1,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
+      if(tid==tid_root){
+        diag::get_loc(-1,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
+      }
     }
-
+    
     { // begin Matsubara Dyson iteration
       if(tid==tid_root){
         print_line_minus(50);
@@ -229,8 +229,10 @@ int main(int argc,char *argv[]){
         diag::gather_gk_timestep(tstp,Nk_rank,gk_all_timesteps,corrK_rank,kindex_rank);
         diag::gather_wk_timestep(tstp,Nk_rank,wk_all_timesteps,corrK_rank,kindex_rank);
         diag::set_density_k(-1,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);
-        diag::get_loc(-1,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
-        diag::get_loc(-1,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
+        if(tid==tid_root){
+          diag::get_loc(-1,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
+          diag::get_loc(-1,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
+        }
         // update mean field and self-energy
         for(int k=0;k<Nk_rank;k++){
             diag::sigma_Hartree(-1,Norb,corrK_rank[k].SHartree_,lattice,density_k,vertex,Ut);
@@ -248,9 +250,10 @@ int main(int argc,char *argv[]){
         MPI_Allreduce(MPI_IN_PLACE,&err_bos,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
 
         diag::set_density_k(-1,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);
-        diag::get_loc(-1,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
-        diag::get_loc(-1,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
-
+        if(tid==tid_root){
+          diag::get_loc(-1,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
+          diag::get_loc(-1,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
+        }
         if(tid==tid_root){
           cdmatrix tmp;
           rho_loc.get_value(tstp,tmp);
@@ -312,8 +315,10 @@ int main(int argc,char *argv[]){
 
             
             diag::set_density_k(n,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);          
-            diag::get_loc(n,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
-    	      // update mean field and self-energy
+            if(tid==tid_root){
+              diag::get_loc(n,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
+    	      }
+            // update mean field and self-energy
             for(int k=0;k<Nk_rank;k++){
               diag::sigma_Hartree(n,Norb,corrK_rank[k].SHartree_,lattice,density_k,vertex,Ut);
               diag::sigma_Fock(n,Norb,kindex_rank[k],corrK_rank[k].SFock_,lattice,density_k,vertex,Ut);
@@ -330,9 +335,10 @@ int main(int argc,char *argv[]){
             diag::gather_gk_timestep(n,Nk_rank,gk_all_timesteps,corrK_rank,kindex_rank);
             diag::gather_wk_timestep(n,Nk_rank,wk_all_timesteps,corrK_rank,kindex_rank);
             diag::set_density_k(n,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);
-            diag::get_loc(n,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
-            diag::get_loc(n,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
-            
+            if(tid==tid_root){
+              diag::get_loc(n,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
+              diag::get_loc(n,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
+            }
           }
           if(tid==tid_root){
             cdmatrix tmp;
@@ -386,9 +392,10 @@ int main(int argc,char *argv[]){
           diag::gather_wk_timestep(tstp,Nk_rank,wk_all_timesteps,corrK_rank,kindex_rank);
 
           diag::set_density_k(tstp,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);          
-          diag::get_loc(tstp,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
-          diag::get_loc(tstp,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
-
+          if(tid==tid_root){
+            diag::get_loc(tstp,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
+            diag::get_loc(tstp,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
+          }
 	        // update mean field and SigmaGW
           for(int k=0;k<Nk_rank;k++){
             diag::sigma_Hartree(tstp,Norb,corrK_rank[k].SHartree_,lattice,density_k,vertex,Ut);
@@ -407,8 +414,10 @@ int main(int argc,char *argv[]){
           MPI_Allreduce(MPI_IN_PLACE,&err_bos,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
     
           diag::set_density_k(tstp,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);
-          diag::get_loc(tstp,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
-          diag::get_loc(tstp,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
+          if(tid==tid_root){
+            diag::get_loc(tstp,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
+            diag::get_loc(tstp,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
+          }
           if(tid==tid_root){
             cdmatrix tmp;
             rho_loc.get_value(tstp,tmp);

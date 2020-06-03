@@ -339,6 +339,54 @@ void herm_matrix_timestep<T>::set_timestep_zero(int tstp) {
 }
 
 
+/** \brief <b> Get `(i1,i2)` component of `herm_matrix_timestep` from the corresponding component of
+ *  a given `herm_matrix`. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > Gets `(i1,i2)` component of the `herm_matrix_timestep` at a time step from
+ * > the corresponding component of given `herm_matrix`. If `tstp = -1`, only the
+ * > Matsubara component will be copied.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param i1
+ * > 1st index.
+ *
+ * @param i2
+ * > 2nd index.
+ *
+ * @param g1
+ * > The `herm_matrix` from which the time step is copied.
+ *
+ */
+template<typename T> void herm_matrix_timestep<T>::get_matrixelement(int i1,int i2,herm_matrix<T> &g){
+	int i,sij=i1*g.size1()+i2;
+	cplx *x;
+	// std::cout << tstp_ << " " << g.nt() << " "  << i1 << " " << i2 << " " << g.size1() << " " << g.size2() <<  std::endl;
+	assert(tstp_<=g.nt());
+	assert(0<=i1 && i1<g.size1() && 0<=i2 && i2<g.size1() && size1_==1);
+	if(tstp_==-1){
+		x=data_;
+		for(i=0;i<=ntau_;i++) x[i]=*(g.matptr(i)+sij);
+	}else{
+		x=data_;
+		for(i=0;i<=tstp_;i++) x[i]=*(g.retptr(tstp_,i)+sij);
+		x=data_+(tstp_+1)*element_size_;
+		for(i=0;i<=ntau_;i++) x[i]=*(g.tvptr(tstp_,i)+sij);
+		x=data_+(tstp_+1+ntau_+1)*element_size_;
+		for(i=0;i<=tstp_;i++) x[i]=*(g.lesptr(i,tstp_)+sij);
+	}
+}
+
+
+
+
+
 /** \brief <b> Sets all components of `herm_matrix_timestep`  to the components of
  *  a given `herm_matrix` at time step `tstp`. </b>
  *
