@@ -68,9 +68,9 @@ namespace gw{
     //Set up propagators
     Sigma_=GREEN(nt_,ntau_,nrpa_,FERMION);
     G_=GREEN(nt_,ntau_,nrpa_,FERMION);
-
-    G0Sigma_=GREEN(nt_,ntau_,nrpa_,FERMION);
-    SigmaG0_=GREEN(nt_,ntau_,nrpa_,FERMION);
+    
+    // G0Sigma_=GREEN(nt_,ntau_,nrpa_,FERMION);
+    // SigmaG0_=GREEN(nt_,ntau_,nrpa_,FERMION);
     P_=GREEN(nt_,ntau_,nrpa_,BOSON);
     PV_=GREEN(nt_,ntau_,nrpa_,BOSON);
     VP_=GREEN(nt_,ntau_,nrpa_,BOSON);
