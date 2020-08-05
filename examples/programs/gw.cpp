@@ -443,7 +443,7 @@ int main(int argc,char *argv[]){
     {
       // Get kinetic and potential energy
       CFUNC Ekin(Nt,1),Epot(Nt,1),Epulsetmp(Nt,1);
-      cdmatrix tmp(Norb,Norb);
+      cdmatrix tmp(1,1);
       for(tstp=-1; tstp <= Nt; tstp++){
           if(tid==tid_root){
             tmp(0,0)=diag::KineticEnergy(tstp,lattice,density_k);
