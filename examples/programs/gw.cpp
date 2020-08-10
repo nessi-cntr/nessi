@@ -326,7 +326,7 @@ int main(int argc,char *argv[]){
               diag::get_Polarization_Bubble(n,Norb,Ntau,kindex_rank[k],corrK_rank[k].P_,gk_all_timesteps,lattice);
     	        // solve Dyson equation
               err_ele += corrK_rank[k].step_dyson_with_error(n,iter,SolverOrder,lattice);
-              err_bos += corrK_rank[k].step_W_with_error(tstp,iter,n,SolverOrder,lattice);
+              err_bos += corrK_rank[k].step_W_with_error(n,iter,n,SolverOrder,lattice);
               
             }
             MPI_Allreduce(MPI_IN_PLACE,&err_ele,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
