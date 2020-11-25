@@ -255,7 +255,7 @@ def read_gf_slices_group(group):
     # -- Reshape the Green's function components
     dout=Dummy()
     data = getattr(dmat[0], 'mat')
-    setattr(dout, 'mat', data[:,0,0])
+    setattr(dout, 'mat', data)
 
     key = ['les','ret']
     maximum=max(p.tstp for p in dall)
