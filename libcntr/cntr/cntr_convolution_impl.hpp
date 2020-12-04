@@ -4100,7 +4100,7 @@ void convolution_les_timediag(int tstp, cdmatrix &Cles, GG &A, GG &B,
     }
   }
 
-  delete Cles_ptr;
+  delete[] Cles_ptr;
 
 }
 
@@ -4119,7 +4119,7 @@ void convolution_density_matrix(int tstp, cdmatrix &Cles, GG &A, GG &B,
       Cles(n1,n2) = std::complex<T>(0, 1.0) * Cles_ptr[n1 * size1 + n2];
     }
   }
-  delete Cles_ptr;
+  delete[] Cles_ptr;
 
 }
 
@@ -5092,7 +5092,7 @@ void incr_convolution_omp(int omp_num_threads, int tstp, CPLX alpha, GG &C, GG &
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param tstp
 * > [int] time step
 * @param C
@@ -5205,7 +5205,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param tstp
 * > [int] time step
 * @param C
@@ -5318,7 +5318,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param tstp
 * > [int] index of the time step ('t=nh')
 * @param C
@@ -5360,7 +5360,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param tstp
 * > [int] index of the time step ('t=nh')
 * @param C
@@ -5437,7 +5437,7 @@ void convolution_matsubara_omp(int omp_num_threads, herm_matrix<T> &C, herm_matr
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param C
 * > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A
@@ -5476,7 +5476,7 @@ void convolution_matsubara_omp(int omp_num_threads, herm_matrix<T> &C, herm_matr
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param C
 * > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A
@@ -5524,7 +5524,7 @@ void convolution_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param C
 * > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A
@@ -5572,7 +5572,7 @@ void convolution_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param tstp
 * > [int] index of the time step ('t=nh')
 * @param C
@@ -5680,7 +5680,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param tstp
 * > [int] index of the time step ('t=nh')
 * @param C
@@ -5789,7 +5789,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param tstp
 * > [int] index of the time step ('t=nh')
 * @param C
@@ -5828,7 +5828,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param tstp
 * > [int] index of the time step ('t=nh')
 * @param C
@@ -5867,7 +5867,7 @@ void convolution_timestep_omp(int omp_num_threads, int tstp, herm_matrix<T> &C,
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param C
 * > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A
@@ -5910,7 +5910,7 @@ void convolution_omp(int omp_num_threads, herm_matrix<T> &C, herm_matrix<T> &A,
 *      ========= -->
 *
 * @param omp_num_threads
-* > [int] The number of openMP threads to be used. Set to the number of threads in the current team. 
+* > [int] The number of openMP threads to be used. Set to the number of threads in the current team.
 * @param C
 * > [herm_matrix] Matrix to which the result of the convolution on Matsubara axis is given
 * @param A

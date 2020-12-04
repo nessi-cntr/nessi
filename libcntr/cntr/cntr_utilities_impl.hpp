@@ -498,7 +498,7 @@ T correlation_energy(int tstp, herm_matrix<T> &G, herm_matrix<T> &Sigma,
   for(int i=0; i< size1; i++){
     trGxSGM += GxSGM[i*size1 + i];
   }
-  delete GxSGM;
+  delete[] GxSGM;
   return 0.5*trGxSGM.real();
 }
 
@@ -543,7 +543,7 @@ T correlation_energy(int tstp, herm_matrix<T> &G, herm_matrix<T> &Sigma,
   }
   return 0.5*trGxSGM.real();
 
-  delete GxSGM;
+  delete[] GxSGM;
 }
 
 
