@@ -490,11 +490,11 @@ template <typename T>
 T correlation_energy(int tstp, herm_matrix<T> &G, herm_matrix<T> &Sigma,
 		     integration::Integrator<T> &I, T beta, T h){
   int size1=G.size1();
-  std::complex<T> trGxSGM;
+  std::complex<T> trGxSGM (0.0,0.0);
   std::complex<T> *GxSGM = new std::complex<T>[size1*size1];
 
   convolution_density_matrix<T,herm_matrix<T>>(tstp, GxSGM, Sigma, G, I, beta, h);
-  trGxSGM = (0.0,0.0);
+  //trGxSGM = (0.0,0.0);
   for(int i=0; i< size1; i++){
     trGxSGM += GxSGM[i*size1 + i];
   }
@@ -533,11 +533,11 @@ template <typename T>
 T correlation_energy(int tstp, herm_matrix<T> &G, herm_matrix<T> &Sigma,
               T beta, T h, int SolveOrder){
   int size1=G.size1();
-  std::complex<T> trGxSGM;
+  std::complex<T> trGxSGM (0.0,0.0);
   std::complex<T> *GxSGM = new std::complex<T>[size1*size1];
 
   convolution_density_matrix<T,herm_matrix<T>>(tstp, GxSGM, Sigma, G, integration::I<T>(SolveOrder), beta, h);
-  trGxSGM = (0.0,0.0);
+  //trGxSGM = (0.0,0.0);
   for(int i=0; i< size1; i++){
     trGxSGM += GxSGM[i*size1 + i];
   }

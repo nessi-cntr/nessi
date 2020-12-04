@@ -2806,7 +2806,7 @@ template <typename T>
 void herm_matrix<T>::incr(herm_matrix<T> &g) {
     assert(g.nt_ >= nt_ && g.ntau_ == ntau_ && g.size1_ == size1_
        && "g.nt_ >= nt_ && g.ntau_ == ntau_ && g.size1_ == size1_");
-    cplx alpha = (1.0,0.0);
+    cplx alpha = cplx(1.0,0.0);
     for (int m = -1; m <= nt_; m++)
         this->incr_timestep(m, g, alpha);
 }
