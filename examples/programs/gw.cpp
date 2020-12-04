@@ -510,7 +510,7 @@ int main(int argc,char *argv[]){
       }
     } // end output
     end_tot =  MPI_Wtime();
-    if(tid=tid_root){
+    if(tid==tid_root){
       double runtime_seconds = end_tot-start_tot;
 
       cout << endl;
