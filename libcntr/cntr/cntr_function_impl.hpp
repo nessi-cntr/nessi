@@ -15,6 +15,7 @@ function<T>::function() {
     size1_ = 0;
     size2_ = 0;
     element_size_ = 0;
+    total_size_ = 0;
 }
 template <typename T>
 function<T>::~function() {
@@ -150,12 +151,14 @@ function<T>::function(function &&g) noexcept
       nt_(g.nt_),
       size1_(g.size1_),
       size2_(g.size2_),
-      element_size_(g.element_size_) {
+      element_size_(g.element_size_),
+      total_size_(g.total_size_) {
     g.data_ = nullptr;
     g.nt_ = -2;
     g.size1_ = 0;
     g.size2_ = 0;
     g.element_size_ = 0;
+    g.total_size_ = 0;
 }
 /** \brief <b> Overloaded operator '=', which copies data from an existing `function` object(right-value reference)</b>
 *
@@ -185,12 +188,14 @@ function<T> &function<T>::operator=(function &&g) noexcept {
     size1_ = g.size1_;
     size2_ = g.size2_;
     element_size_ = g.element_size_;
+    total_size_ = g.total_size_;
 
     g.data_ = nullptr;
     g.nt_ = -2;
     g.size1_ = 0;
     g.size2_ = 0;
     g.element_size_ = 0;
+    g.total_size_ = 0;
 
     return *this;
 }
