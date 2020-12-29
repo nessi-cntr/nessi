@@ -5,6 +5,7 @@
 
 #include "cntr_function_decl.hpp"
 
+#include "cntr_herm_matrix_timestep_moving_view_decl.hpp"
 #include "cntr_herm_matrix_timestep_view_decl.hpp"
 #include "cntr_herm_matrix_timestep_decl.hpp"
 #include "cntr_herm_matrix_decl.hpp"
@@ -25,8 +26,11 @@
 #include "cntr_pseudodyson_decl.hpp"
 
 #include "cntr_bubble_decl.hpp"
+#include "cntr_bubble_moving_decl.hpp"
+
 #include "cntr_distributed_array_decl.hpp"
 #include "cntr_distributed_timestep_array_decl.hpp"
+#include "cntr_distributed_timestep_array_moving_decl.hpp"
 
 #include "cntr_getset_decl.hpp"
 

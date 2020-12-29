@@ -12,10 +12,15 @@
 #include "cntr_matsubara_impl.hpp"
 
 #include "cntr_function_impl.hpp"
+#include "cntr_function_moving_impl.hpp"
 
+#include "cntr_herm_matrix_timestep_moving_view_impl.hpp"
 #include "cntr_herm_matrix_timestep_view_impl.hpp"
 #include "cntr_herm_matrix_timestep_impl.hpp"
 #include "cntr_herm_matrix_impl.hpp"
+
+#include "cntr_herm_matrix_timestep_moving_impl.hpp"
+#include "cntr_herm_matrix_moving_impl.hpp"
 
 #include "cntr_herm_pseudo_impl.hpp"
 
@@ -32,8 +37,10 @@
 #include "cntr_pseudodyson_impl.hpp"
 
 #include "cntr_bubble_impl.hpp"
+#include "cntr_bubble_moving_impl.hpp"
 #include "cntr_distributed_array_impl.hpp"
 #include "cntr_distributed_timestep_array_impl.hpp"
+#include "cntr_distributed_timestep_array_moving_impl.hpp"
 
 #include "cntr_getset_impl.hpp"
 #if CNTR_USE_MPI == 1
