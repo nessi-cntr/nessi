@@ -2,6 +2,7 @@
 #define CNTR_HERM_MATRIX_TIMESTEP_MOVING_IMPL_H
 
 #include "cntr_herm_matrix_timestep_decl.hpp"
+#include "cntr_herm_matrix_timestep_moving_decl.hpp"
 //#include "cntr_exception.hpp"
 #include "cntr_elements.hpp"
 #include "cntr_function_decl.hpp"

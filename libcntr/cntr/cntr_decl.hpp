@@ -5,9 +5,12 @@
 
 #include "cntr_function_decl.hpp"
 
-#include "cntr_herm_matrix_timestep_moving_view_decl.hpp"
+
 #include "cntr_herm_matrix_timestep_view_decl.hpp"
 #include "cntr_herm_matrix_timestep_decl.hpp"
+#include "cntr_herm_matrix_timestep_moving_view_decl.hpp"
+#include "cntr_herm_matrix_timestep_moving_decl.hpp"
+#include "cntr_herm_matrix_moving_decl.hpp"
 #include "cntr_herm_matrix_decl.hpp"
 
 #include "cntr_herm_pseudo_decl.hpp"
