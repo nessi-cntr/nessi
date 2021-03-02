@@ -67,6 +67,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cntr/)
 
 add_subdirectory(cntr)
+add_subdirectory(example)
 
 option(BUILD_TEST "Build test suite" ON)
 if(BUILD_TEST)
