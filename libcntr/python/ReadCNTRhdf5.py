@@ -210,7 +210,7 @@ def read_gf_group(group):
             (d.nt[0]+1, d.nt[0]+1, d.size1[0], d.size2[0]),
             dtype=np.complex)
 
-        new_data[idx] = data
+        new_data[tuple(idx)] = data
         setattr(d, key, new_data)
 
     return d
