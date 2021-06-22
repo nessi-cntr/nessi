@@ -3,7 +3,7 @@
 """ Helper functions for post processing for cntr hdf5-file based output
  data (Green's functions and observables).
 
-Author: Hugo Strand, hugo.strand@gmail.com (2015) 
+Author: Hugo Strand, hugo.strand@gmail.com (2015)
 
 """
 
@@ -25,12 +25,12 @@ def read_group(group,key_lim=None):
         for key in key_lim:
             index=group.keys().index(key)
             klist.append(group.items()[index])
-    
+
     d = Dummy()
     for key, item in klist:
 
         #print key, type(item)
-        
+
         if isgroup(item):
 
             if isgreensfunction(item):
@@ -49,7 +49,7 @@ def read_group(group,key_lim=None):
 
 def read_group_slices(filename):
 
-    fd = h5py.File(filename)
+    fd = h5py.File(filename,"r")
 
     imp = Dummy()
     for key, item in fd.items():
@@ -74,7 +74,7 @@ def isgroup(group):
 # ----------------------------------------------------------------------
 def read_imp_h5file(filename,key_lim=None):
 
-    fd = h5py.File(filename)
+    fd = h5py.File(filename, "r")
     imp = read_group(fd,key_lim)
     fd.close()
 
@@ -83,7 +83,7 @@ def read_imp_h5file(filename,key_lim=None):
 # ----------------------------------------------------------------------
 def read_imp_h5file_slices(filename,key_lim=None):
 
-    fd = h5py.File(filename)
+    fd = h5py.File(filename, "r")
     if key_lim==None:
         klist=fd.items()
     else:
@@ -91,7 +91,7 @@ def read_imp_h5file_slices(filename,key_lim=None):
         for key in key_lim:
             index=fd.keys().index(key)
             klist.append(fd.items()[index])
-    
+
     imp = Dummy()
     for key, item in klist:
         if isgreensfunction_slices(item):
@@ -108,11 +108,11 @@ def read_imp_h5file_slices(filename,key_lim=None):
 # ----------------------------------------------------------------------
 def read_imp_h5file_old(filename):
 
-    fd = h5py.File(filename)
+    fd = h5py.File(filename, "r")
 
     imp = Dummy()
     for key, item in fd.items():
-        
+
         if isgreensfunction(item):
             setattr(imp, key, read_gf_group(item))
         else:
@@ -123,24 +123,24 @@ def read_imp_h5file_old(filename):
 # ----------------------------------------------------------------------
 def read_gf_h5file(filename):
 
-    fd = h5py.File(filename)
+    fd = h5py.File(filename, "r")
 
     if len(fd.keys()) > 1:
         raise NotImplementedError
-    
+
     key = fd.keys()[0]
     group = fd[key]
     G = read_gf_group(group)
     fd.close() # done with hdf5 file
-    
+
     return G
-    
+
 # ----------------------------------------------------------------------
 def read_all_sets(group):
 
     # -- Read in data to dummy class
     d = Dummy()
-    for key, item in group.items():        
+    for key, item in group.items():
         np_data = read_ndarray_from_data_set(group[key])
         setattr(d, key, np_data)
 
@@ -153,7 +153,7 @@ def read_ndarray_from_data_set(hdf5_data):
     if( not hdf5_data.shape == (0,) ):
         hdf5_data.read_direct(np_data)
     return np_data
-    
+
 # ----------------------------------------------------------------------
 def isgreensfunction_slices(group):
 
@@ -183,15 +183,15 @@ def read_gf_group(group):
 
     if not isgreensfunction(group):
         raise NotImplementedError
-    
+
     #print group.keys()
     d = read_all_sets(group)
 
     # -- Don't reshape stripped Green's function
     if isstrippedgreensfunction(group): return d
-    
+
     # -- Reshape the Green's function components
-    
+
     # Recast to matrix form in time
     d.tv = d.tv.reshape(d.nt[0]+1, d.ntau[0]+1, d.size1[0], d.size2[0])
 
@@ -209,8 +209,8 @@ def read_gf_group(group):
         new_data = np.zeros(
             (d.nt[0]+1, d.nt[0]+1, d.size1[0], d.size2[0]),
             dtype=np.complex)
-        
-        new_data[idx] = data
+
+        new_data[tuple(idx)] = data
         setattr(d, key, new_data)
 
     return d
@@ -220,7 +220,7 @@ def read_gf_tavrel_group(group):
 
     if not isgreensfunction_tavtrel(group):
         raise NotImplementedError
-    
+
     dout=Dummy()
     for key, item in group.items():
         length=len(item.items())
@@ -242,7 +242,7 @@ def read_gf_slices_group(group):
 
     if not isgreensfunction_slices(group):
         raise NotImplementedError
-    
+
     dall = []
     dmat = []
     for key, item in group.items():
@@ -259,10 +259,10 @@ def read_gf_slices_group(group):
 
     key = ['les','ret']
     maximum=max(p.tstp for p in dall)
-    
-    
+
+
     for key in key:
-        new_data = np.zeros((len(dall),maximum+1, dall[len(dall)-1].size1, dall[len(dall)-1].size2), dtype=np.complex)
+        new_data = np.zeros((len(dall),int(maximum)+1, int(dall[len(dall)-1].size1), int(dall[len(dall)-1].size2)), dtype=np.complex)
         tstep = np.array([],dtype=int)
         for t in np.arange(len(dall)):
             data = getattr(dall[t], key)
@@ -316,16 +316,16 @@ def strip_gf_group(group):
 def strip_imp_h5file(filename):
 
     fd = h5py.File(filename, 'r+')
-    
+
     print dir(fd)
-    
+
     for key in fd.keys():
         print key
-        
+
     for key, item in fd.items():
         print key, item
         if isgreensfunction(item):
             print '--> got gf:', key
-            strip_gf_group(item)    
+            strip_gf_group(item)
 
     fd.close()
