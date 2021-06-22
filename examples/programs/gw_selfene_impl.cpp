@@ -226,11 +226,12 @@ namespace diag {
 
    //Evaluate the potential energy
    double CorrelationEnergy(int tstp,int Nk_rank,int SolverOrder,double beta, double h,std::vector<gw::kpoint> &corrK_rank,
-      lattice_1d_1b &lattice){
+      std::vector<int> &kindex_rank,lattice_1d_1b &lattice){
       cdmatrix tmpH,tmpF,tmpR;
       double etmp=0.0,etot=0.0;
       for(int k=0;k<Nk_rank;k++){
-         double wk=lattice.kweight_[k]; 
+	 int kir = kindex_rank[k];
+         double wk=lattice.kweight_[kir]; 
          corrK_rank[k].rho_.get_value(tstp,tmpR);
          corrK_rank[k].SHartree_.get_value(tstp,tmpH);
          corrK_rank[k].SFock_.get_value(tstp,tmpF);
