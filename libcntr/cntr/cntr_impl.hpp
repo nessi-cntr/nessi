@@ -16,6 +16,8 @@
 #include "cntr_herm_matrix_timestep_view_impl.hpp"
 #include "cntr_herm_matrix_timestep_impl.hpp"
 #include "cntr_herm_matrix_impl.hpp"
+#include "cntr_full_member_impl.hpp"
+#include "cntr_cyclic_tstp_impl.hpp"
 
 #include "cntr_herm_pseudo_impl.hpp"
 

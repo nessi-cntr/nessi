@@ -8,6 +8,8 @@
 #include "cntr_herm_matrix_timestep_view_decl.hpp"
 #include "cntr_herm_matrix_timestep_decl.hpp"
 #include "cntr_herm_matrix_decl.hpp"
+#include "cntr_full_member_decl.hpp"
+#include "cntr_cyclic_tstp_decl.hpp"
 
 #include "cntr_herm_pseudo_decl.hpp"
 
