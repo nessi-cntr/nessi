@@ -451,7 +451,7 @@ int main(int argc,char *argv[]){
             tmp(0,0)=Epulse[tstp+1];
             Epulsetmp.set_value(tstp,tmp);
           }
-          tmp(0,0) = diag::CorrelationEnergy(tstp,Nk_rank,SolverOrder,beta,h,corrK_rank,lattice);
+          tmp(0,0) = diag::CorrelationEnergy(tstp,Nk_rank,SolverOrder,beta,h,corrK_rank,kindex_rank,lattice);
           if(tid==tid_root){
             Epot.set_value(tstp,tmp);
           }
