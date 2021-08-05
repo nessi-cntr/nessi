@@ -2,6 +2,7 @@
 #define CNTR_HERM_PSEUDE_DECL_H
 
 #include "cntr_global_settings.hpp"
+#include "cntr_cyclic_tstp_decl.hpp"
 
 namespace cntr {
 
@@ -101,6 +102,7 @@ template <typename T> class herm_pseudo {
     void set_timestep_zero(int tstp);
     void set_timestep(int tstp, herm_pseudo &g1);
     void set_timestep(int tstp, herm_matrix_timestep<T> &timestep);
+    void set_timestep(int tstp, cyclic_timestep<T> &timestep);
      void get_timestep(int tstp, herm_matrix_timestep<T> &timestep);
     void incr_timestep(int tstp, herm_matrix_timestep<T> &timestep, cplx alpha = 1.0);
     void left_multiply(int tstp, cplx *f0, cplx *ft,

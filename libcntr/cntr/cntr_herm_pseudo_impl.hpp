@@ -769,6 +769,26 @@ void herm_pseudo<T>::get_timestep(int tstp, herm_matrix_timestep<T> &timestep) {
     }
 }
 /// @private
+template<typename T>
+void herm_pseudo<T>::set_timestep(int tstp,cyclic_timestep<T> &timestep){
+   cplx *x=timestep.data_;
+   int i;
+   assert(tstp>=-1 && tstp<=nt_);
+   assert(timestep.tstp_==tstp && timestep.ntau_==ntau_ && timestep.size1_==size1_);
+   if(tstp>=0){
+	 for(i=0;i<=tstp;i++) element_minusconj<T,LARGESIZE>(size1_,retptr(tstp,i),x+(tstp-i)*element_size_);
+	 if(sig_==-1){
+	    for(i=0;i<=ntau_;i++) element_conj<T,LARGESIZE>(size1_,tvptr(tstp,ntau_-i),x+(tstp+1+i)*element_size_);
+	 }else{
+	    for(i=0;i<=ntau_;i++) element_minusconj<T,LARGESIZE>(size1_,tvptr(tstp,ntau_-i),x+(tstp+1+i)*element_size_);
+	 }
+	 memcpy(lesptr(0,tstp),x+(tstp+1+ntau_+1)*element_size_,sizeof(cplx)*(tstp+1)*element_size_);
+  }else{
+     memcpy(mat_,x,sizeof(cplx)*(ntau_+1)*element_size_);
+	 for(i=0;i<=ntau_;i++) element_smul<T,LARGESIZE>(size1_,matptr(i),cplx(0,-1));
+  }
+}
+/// @private
 #define herm_pseudo_INCR_TSTP                                                               \
     if (alpha == cplx(1.0, 0.0)) {                                                          \
         for (i = 0; i < len; i++)                                                           \
