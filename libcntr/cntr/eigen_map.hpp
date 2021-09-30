@@ -1,7 +1,7 @@
 #ifndef _CNTR_EIGEN_MAP_H_
 #define _CNTR_EIGEN_MAP_H_
 
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 
 namespace cntr {
 

@@ -10,7 +10,7 @@
 #include <string>
 #include "string.h"
 
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 
 #ifndef CPLX
   #define CPLX cdouble

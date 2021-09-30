@@ -62,7 +62,7 @@
 
 // using eigen library
 #include "eigen_typedef.h"
-#include <eigen3/unsupported/Eigen/MatrixFunctions>
+#include <unsupported/Eigen/MatrixFunctions>
 
 
 // global types
