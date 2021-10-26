@@ -244,7 +244,7 @@ int main(int argc,char *argv[]){
         for(int k=0;k<Nk_rank;k++){
           err_ele += corrK_rank[k].step_dyson_with_error(tstp,iter,SolverOrder,lattice);
           diag::get_Polarization_Bubble(tstp,Norb,Ntau,kindex_rank[k],corrK_rank[k].P_,gk_all_timesteps,lattice);
-          err_bos += corrK_rank[k].step_W_with_error(tstp,iter,tstp,SolverOrder,lattice);
+          err_bos += corrK_rank[k].step_W_with_error(tstp,iter,SolverOrder,lattice);
         }
         MPI_Allreduce(MPI_IN_PLACE,&err_ele,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
         MPI_Allreduce(MPI_IN_PLACE,&err_bos,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
@@ -317,23 +317,28 @@ int main(int argc,char *argv[]){
             diag::set_density_k(n,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);          
             if(tid==tid_root){
               diag::get_loc(n,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
+              diag::get_loc(n,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
     	      }
             // update mean field and self-energy
             for(int k=0;k<Nk_rank;k++){
               diag::sigma_Hartree(n,Norb,corrK_rank[k].SHartree_,lattice,density_k,vertex,Ut);
               diag::sigma_Fock(n,Norb,kindex_rank[k],corrK_rank[k].SFock_,lattice,density_k,vertex,Ut);
               diag::sigma_GW(n,kindex_rank[k],corrK_rank[k].Sigma_,gk_all_timesteps,wk_all_timesteps,lattice,Ntau,Norb);
-              diag::get_Polarization_Bubble(n,Norb,Ntau,kindex_rank[k],corrK_rank[k].P_,gk_all_timesteps,lattice);
+            }
+
+            err_ele=0.0,err_bos=0.0;
+            for(int k=0;k<Nk_rank;k++){
     	        // solve Dyson equation
               err_ele += corrK_rank[k].step_dyson_with_error(n,iter,SolverOrder,lattice);
-              err_bos += corrK_rank[k].step_W_with_error(n,iter,n,SolverOrder,lattice);
+              diag::get_Polarization_Bubble(n,Norb,Ntau,kindex_rank[k],corrK_rank[k].P_,gk_all_timesteps,lattice);
+              err_bos += corrK_rank[k].step_W_with_error(n,iter,SolverOrder,lattice);
               
             }
             MPI_Allreduce(MPI_IN_PLACE,&err_ele,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
             MPI_Allreduce(MPI_IN_PLACE,&err_bos,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
 	          // update propagators via MPI
-            diag::gather_gk_timestep(n,Nk_rank,gk_all_timesteps,corrK_rank,kindex_rank);
-            diag::gather_wk_timestep(n,Nk_rank,wk_all_timesteps,corrK_rank,kindex_rank);
+            // diag::gather_gk_timestep(n,Nk_rank,gk_all_timesteps,corrK_rank,kindex_rank);
+            // diag::gather_wk_timestep(n,Nk_rank,wk_all_timesteps,corrK_rank,kindex_rank);
             diag::set_density_k(n,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);
             if(tid==tid_root){
               diag::get_loc(n,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
@@ -407,7 +412,7 @@ int main(int argc,char *argv[]){
           for(int k=0;k<Nk_rank;k++){
             err_ele += corrK_rank[k].step_dyson_with_error(tstp,iter,SolverOrder,lattice);
             diag::get_Polarization_Bubble(tstp,Norb,Ntau,kindex_rank[k],corrK_rank[k].P_,gk_all_timesteps,lattice);
-            err_bos += corrK_rank[k].step_W_with_error(tstp,iter,tstp,SolverOrder,lattice);
+            err_bos += corrK_rank[k].step_W_with_error(tstp,iter,SolverOrder,lattice);
 
           }
           MPI_Allreduce(MPI_IN_PLACE,&err_ele,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
