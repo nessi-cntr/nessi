@@ -82,7 +82,7 @@ def Run(sysparams,solverparams,file_field,output_file,mpicmd,
     if len(log_file) > 0:
         log_flag = ' > ' + log_file
         
-    os.system(mpicmd + ' ' + prog + ' ' + flin + ' ' + output_file + log_flag)
+    os.system(mpicmd + ' ' + prog + ' ' + flin + ' ' + log_flag)
 #----------------------------------------------------------------------     
 def ReadData(fname):
 	f = h5py.File(fname, 'r')

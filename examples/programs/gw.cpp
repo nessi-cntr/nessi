@@ -38,7 +38,6 @@ int main(int argc,char *argv[]){
   double HoppingT,HubbardU,V,beta,h,MuChem,MatsMaxErr,BootstrapMaxErr,TimeMaxErr;
   double RampV0;
   char* flin;
-  char* flout;
   std::vector<double> Epulse;
   //..................................................
   //                internal
@@ -79,9 +78,9 @@ int main(int argc,char *argv[]){
 
       if(argc<2) throw("COMMAND LINE ARGUMENT MISSING");
 
-      if (argc < 3) {
+      if (argc < 2) {
         // Tell the user how to run the program
-        std::cerr << " Please provide a prefix for the output files. Exiting ..." << std::endl;
+        std::cerr << " Please provide a prefix for the input files. Exiting ..." << std::endl;
         /* "Usage messages" are a conventional way of telling the user
          * how to run a program if they enter the command incorrectly.
          */
@@ -117,9 +116,6 @@ int main(int argc,char *argv[]){
 
       // Pulse 
       find_param_tvector(argv[1],"__Epulse=",Epulse,Nt);
-
-      // output file prefix
-      flout=argv[2];
 
     }
     //============================================================================
