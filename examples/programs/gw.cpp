@@ -281,7 +281,7 @@ int main(int argc,char *argv[]){
         cout << "Time [equilibrium calculation] = " << elapsed_seconds << "s\n\n";
       }
     } // end Matsubara Dyson iteration
-
+    if(Nt>=SolverOrder){
     //============================================================================
     //           BOOTSTRAPPING PHASE
     //============================================================================
@@ -364,7 +364,7 @@ int main(int argc,char *argv[]){
           }
            return 1;
         }
-        
+
         end = MPI_Wtime();
 
         if(tid==tid_root){
@@ -447,11 +447,13 @@ int main(int argc,char *argv[]){
         }
 
     }
+    }
     {
       // Get kinetic and potential energy
       CFUNC Ekin(Nt,1),Epot(Nt,1),Epulsetmp(Nt,1);
-      cdmatrix tmp(1,1);
-      for(tstp=-1; tstp <= Nt; tstp++){
+      if(Nt>=SolverOrder){
+        cdmatrix tmp(1,1);
+        for(tstp=-1; tstp <= Nt; tstp++){
           if(tid==tid_root){
             tmp(0,0)=diag::KineticEnergy(tstp,lattice,density_k);
             Ekin.set_value(tstp,tmp);
@@ -462,6 +464,7 @@ int main(int argc,char *argv[]){
           if(tid==tid_root){
             Epot.set_value(tstp,tmp);
           }
+        }
       }
       // print to hdf5
       if(tid==tid_root){
@@ -484,13 +487,12 @@ int main(int argc,char *argv[]){
         Ekin.write_to_hdf5(group_id,"Ekin");
         Epot.write_to_hdf5(group_id,"Epot");
         close_group(group_id);
+        
         // Print local green's function
         if(SaveGreen==1){
-          
           group_id = create_group(file_id, "Gloc");
           store_herm_greens_function(group_id, Gloc);
           close_group(group_id);
-    
           group_id = create_group(file_id, "Wloc");
           store_herm_greens_function(group_id, Wloc);
           close_group(group_id);     
@@ -505,13 +507,11 @@ int main(int argc,char *argv[]){
             hid_t file_id = open_hdf5_file(std::string(fnametmp));
             corrK_rank[k].G_.write_to_hdf5_slices(file_id,"G",output);
             corrK_rank[k].W_.write_to_hdf5_slices(file_id,"W",output);
-            
             hid_t group_id = create_group(file_id, "parm");
             store_double_attribute_to_hid(group_id, "dt", h);
             store_double_attribute_to_hid(group_id, "kk", lattice.kpoints_[kindex_rank[k]]);
             store_int_attribute_to_hid(group_id, "Nt", Nt);
             close_group(group_id);
-
             close_hdf5_file(file_id);
           }
       }
