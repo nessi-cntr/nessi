@@ -267,11 +267,12 @@ int main(int argc,char *argv[]){
 
       }
 
-      if(!matsubara_converged && tid==tid_root){
-        cout << endl;
-        cout << " Matsubara iteration not converged! Exiting ... " << endl;
-        // should end here ....
-        return 0;
+      if(!matsubara_converged ){
+        if(tid==tid_root){
+          cout << endl;
+          cout << " Matsubara iteration not converged! Exiting ... " << endl;  
+        }
+        return 1;
       }
       end = MPI_Wtime();;
       if(tid==tid_root){
@@ -356,13 +357,14 @@ int main(int argc,char *argv[]){
               break;
           }
         } //end iter
-        if(!bootstrap_converged && tid==tid_root){
-           cout << endl;
+        if(!bootstrap_converged){
+           if(tid==tid_root){
+            cout << endl;
             cout << " Bootstrap iteration not converged! Exiting ... " << endl;
-            // should end here ....
-           return 0;
+          }
+           return 1;
         }
-
+        
         end = MPI_Wtime();
 
         if(tid==tid_root){
