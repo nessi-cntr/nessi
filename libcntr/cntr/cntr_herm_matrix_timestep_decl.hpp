@@ -86,6 +86,8 @@ class herm_matrix_timestep {
     template <class Matrix> void set_tv(int i, int j, Matrix &M);
     /// @private
     template <class Matrix> void set_mat(int i, Matrix &M);
+    /// @private
+    void set_mat_herm(void);
 
     /// @private
     template <class Matrix> void get_les(int i, int j, Matrix &M);

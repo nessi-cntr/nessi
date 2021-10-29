@@ -1522,17 +1522,26 @@ template<typename T> inline void herm_matrix_timestep<T>::set_mat(int i,cplx &x)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
+/// @private
+/** \brief <b> Hermitianizes the Matsubara component at for all imaginary times. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+* > Forces the Matsubara component to be hermitian by
+* > transforming \f$C^\mathrm{M}(\tau_i) \rightarriw [C^\mathrm{M}(\tau_i) + (C^\mathrm{M}(\tau_i))^\ddagger]/2\f$
+* > for all `i=0,...,ntau`.
+*/
+template<typename T>
+void herm_matrix_timestep<T>::set_mat_herm(void){
+  cdmatrix tmp(size1_,size2_);
+  for(int i=0;i<ntau_;i++){
+    this->get_mat(i,tmp);
+    tmp=(tmp+tmp.adjoint())/2.0;
+    this->set_mat(i,tmp);
+  }
+}
 
 
 // G(t,t') ==> F(t)G(t,t')   ... ft+t*element_size_ points to F(t)
