@@ -178,7 +178,7 @@ namespace gw{
     return cntr::distance_norm2(tstp,gtmp,G_);
   }
 
-  double kpoint::step_W_with_error(int tstp,int iter, int n,int SolverOrder,lattice_1d_1b &latt){
+  double kpoint::step_W_with_error(int tstp,int iter,int SolverOrder,lattice_1d_1b &latt){
     GREEN_TSTP gtmp(tstp,ntau_,nrpa_,nrpa_,BOSON);
     W_.get_timestep(tstp,gtmp);
     step_W(tstp,SolverOrder,latt);

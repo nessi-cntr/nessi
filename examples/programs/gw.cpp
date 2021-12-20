@@ -38,7 +38,6 @@ int main(int argc,char *argv[]){
   double HoppingT,HubbardU,V,beta,h,MuChem,MatsMaxErr,BootstrapMaxErr,TimeMaxErr;
   double RampV0;
   char* flin;
-  char* flout;
   std::vector<double> Epulse;
   //..................................................
   //                internal
@@ -79,9 +78,9 @@ int main(int argc,char *argv[]){
 
       if(argc<2) throw("COMMAND LINE ARGUMENT MISSING");
 
-      if (argc < 3) {
+      if (argc < 2) {
         // Tell the user how to run the program
-        std::cerr << " Please provide a prefix for the output files. Exiting ..." << std::endl;
+        std::cerr << " Please provide a prefix for the input files. Exiting ..." << std::endl;
         /* "Usage messages" are a conventional way of telling the user
          * how to run a program if they enter the command incorrectly.
          */
@@ -117,9 +116,6 @@ int main(int argc,char *argv[]){
 
       // Pulse 
       find_param_tvector(argv[1],"__Epulse=",Epulse,Nt);
-
-      // output file prefix
-      flout=argv[2];
 
     }
     //============================================================================
@@ -244,7 +240,7 @@ int main(int argc,char *argv[]){
         for(int k=0;k<Nk_rank;k++){
           err_ele += corrK_rank[k].step_dyson_with_error(tstp,iter,SolverOrder,lattice);
           diag::get_Polarization_Bubble(tstp,Norb,Ntau,kindex_rank[k],corrK_rank[k].P_,gk_all_timesteps,lattice);
-          err_bos += corrK_rank[k].step_W_with_error(tstp,iter,tstp,SolverOrder,lattice);
+          err_bos += corrK_rank[k].step_W_with_error(tstp,iter,SolverOrder,lattice);
         }
         MPI_Allreduce(MPI_IN_PLACE,&err_ele,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
         MPI_Allreduce(MPI_IN_PLACE,&err_bos,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
@@ -267,11 +263,12 @@ int main(int argc,char *argv[]){
 
       }
 
-      if(!matsubara_converged && tid==tid_root){
-        cout << endl;
-        cout << " Matsubara iteration not converged! Exiting ... " << endl;
-        // should end here ....
-        return 0;
+      if(!matsubara_converged ){
+        if(tid==tid_root){
+          cout << endl;
+          cout << " Matsubara iteration not converged! Exiting ... " << endl;  
+        }
+        return 1;
       }
       end = MPI_Wtime();;
       if(tid==tid_root){
@@ -280,7 +277,7 @@ int main(int argc,char *argv[]){
         cout << "Time [equilibrium calculation] = " << elapsed_seconds << "s\n\n";
       }
     } // end Matsubara Dyson iteration
-
+    if(Nt>=SolverOrder){
     //============================================================================
     //           BOOTSTRAPPING PHASE
     //============================================================================
@@ -317,23 +314,28 @@ int main(int argc,char *argv[]){
             diag::set_density_k(n,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);          
             if(tid==tid_root){
               diag::get_loc(n,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
+              diag::get_loc(n,Ntau,Norb,lattice,Wloc,wk_all_timesteps);
     	      }
             // update mean field and self-energy
             for(int k=0;k<Nk_rank;k++){
               diag::sigma_Hartree(n,Norb,corrK_rank[k].SHartree_,lattice,density_k,vertex,Ut);
               diag::sigma_Fock(n,Norb,kindex_rank[k],corrK_rank[k].SFock_,lattice,density_k,vertex,Ut);
               diag::sigma_GW(n,kindex_rank[k],corrK_rank[k].Sigma_,gk_all_timesteps,wk_all_timesteps,lattice,Ntau,Norb);
-              diag::get_Polarization_Bubble(n,Norb,Ntau,kindex_rank[k],corrK_rank[k].P_,gk_all_timesteps,lattice);
+            }
+
+            err_ele=0.0,err_bos=0.0;
+            for(int k=0;k<Nk_rank;k++){
     	        // solve Dyson equation
               err_ele += corrK_rank[k].step_dyson_with_error(n,iter,SolverOrder,lattice);
-              err_bos += corrK_rank[k].step_W_with_error(n,iter,n,SolverOrder,lattice);
+              diag::get_Polarization_Bubble(n,Norb,Ntau,kindex_rank[k],corrK_rank[k].P_,gk_all_timesteps,lattice);
+              err_bos += corrK_rank[k].step_W_with_error(n,iter,SolverOrder,lattice);
               
             }
             MPI_Allreduce(MPI_IN_PLACE,&err_ele,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
             MPI_Allreduce(MPI_IN_PLACE,&err_bos,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
 	          // update propagators via MPI
-            diag::gather_gk_timestep(n,Nk_rank,gk_all_timesteps,corrK_rank,kindex_rank);
-            diag::gather_wk_timestep(n,Nk_rank,wk_all_timesteps,corrK_rank,kindex_rank);
+            // diag::gather_gk_timestep(n,Nk_rank,gk_all_timesteps,corrK_rank,kindex_rank);
+            // diag::gather_wk_timestep(n,Nk_rank,wk_all_timesteps,corrK_rank,kindex_rank);
             diag::set_density_k(n,Norb,gk_all_timesteps,lattice,density_k,kindex_rank,rho_loc);
             if(tid==tid_root){
               diag::get_loc(n,Ntau,Norb,lattice,Gloc,gk_all_timesteps);
@@ -351,11 +353,12 @@ int main(int argc,char *argv[]){
               break;
           }
         } //end iter
-        if(!bootstrap_converged && tid==tid_root){
-           cout << endl;
+        if(!bootstrap_converged){
+           if(tid==tid_root){
+            cout << endl;
             cout << " Bootstrap iteration not converged! Exiting ... " << endl;
-            // should end here ....
-           return 0;
+          }
+           return 1;
         }
 
         end = MPI_Wtime();
@@ -407,7 +410,7 @@ int main(int argc,char *argv[]){
           for(int k=0;k<Nk_rank;k++){
             err_ele += corrK_rank[k].step_dyson_with_error(tstp,iter,SolverOrder,lattice);
             diag::get_Polarization_Bubble(tstp,Norb,Ntau,kindex_rank[k],corrK_rank[k].P_,gk_all_timesteps,lattice);
-            err_bos += corrK_rank[k].step_W_with_error(tstp,iter,tstp,SolverOrder,lattice);
+            err_bos += corrK_rank[k].step_W_with_error(tstp,iter,SolverOrder,lattice);
 
           }
           MPI_Allreduce(MPI_IN_PLACE,&err_ele,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD);
@@ -440,11 +443,13 @@ int main(int argc,char *argv[]){
         }
 
     }
+    }
     {
       // Get kinetic and potential energy
       CFUNC Ekin(Nt,1),Epot(Nt,1),Epulsetmp(Nt,1);
-      cdmatrix tmp(1,1);
-      for(tstp=-1; tstp <= Nt; tstp++){
+      if(Nt>=SolverOrder){
+        cdmatrix tmp(1,1);
+        for(tstp=-1; tstp <= Nt; tstp++){
           if(tid==tid_root){
             tmp(0,0)=diag::KineticEnergy(tstp,lattice,density_k);
             Ekin.set_value(tstp,tmp);
@@ -455,6 +460,7 @@ int main(int argc,char *argv[]){
           if(tid==tid_root){
             Epot.set_value(tstp,tmp);
           }
+        }
       }
       // print to hdf5
       if(tid==tid_root){
@@ -477,13 +483,12 @@ int main(int argc,char *argv[]){
         Ekin.write_to_hdf5(group_id,"Ekin");
         Epot.write_to_hdf5(group_id,"Epot");
         close_group(group_id);
+        
         // Print local green's function
         if(SaveGreen==1){
-          
           group_id = create_group(file_id, "Gloc");
           store_herm_greens_function(group_id, Gloc);
           close_group(group_id);
-    
           group_id = create_group(file_id, "Wloc");
           store_herm_greens_function(group_id, Wloc);
           close_group(group_id);     
@@ -498,13 +503,11 @@ int main(int argc,char *argv[]){
             hid_t file_id = open_hdf5_file(std::string(fnametmp));
             corrK_rank[k].G_.write_to_hdf5_slices(file_id,"G",output);
             corrK_rank[k].W_.write_to_hdf5_slices(file_id,"W",output);
-            
             hid_t group_id = create_group(file_id, "parm");
             store_double_attribute_to_hid(group_id, "dt", h);
             store_double_attribute_to_hid(group_id, "kk", lattice.kpoints_[kindex_rank[k]]);
             store_int_attribute_to_hid(group_id, "Nt", Nt);
             close_group(group_id);
-
             close_hdf5_file(file_id);
           }
       }
