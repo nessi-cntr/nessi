@@ -446,7 +446,7 @@ int main(int argc,char *argv[]){
     }
     {
       // Get kinetic and potential energy
-      CFUNC Ekin(Nt,1),Epot(Nt,1),Epulsetmp(Nt,1);
+      CFUNC Ekin(Nt,1),Epot(Nt,1),Epulsetmp(Nt,1),curr(Nt,1);
       if(Nt>=SolverOrder){
         cdmatrix tmp(1,1);
         for(tstp=-1; tstp <= Nt; tstp++){
@@ -455,6 +455,8 @@ int main(int argc,char *argv[]){
             Ekin.set_value(tstp,tmp);
             tmp(0,0)=Epulse[tstp+1];
             Epulsetmp.set_value(tstp,tmp);
+            tmp(0,0)=diag::current(tstp,lattice,density_k);
+            curr.set_value(tstp,tmp);
           }
           tmp(0,0) = diag::CorrelationEnergy(tstp,Nk_rank,SolverOrder,beta,h,corrK_rank,kindex_rank,lattice);
           if(tid==tid_root){
@@ -481,6 +483,7 @@ int main(int argc,char *argv[]){
         close_group(group_id);
         group_id = create_group(file_id, "obs");
         Ekin.write_to_hdf5(group_id,"Ekin");
+        curr.write_to_hdf5(group_id,"curr");
         Epot.write_to_hdf5(group_id,"Epot");
         close_group(group_id);
         
@@ -503,6 +506,7 @@ int main(int argc,char *argv[]){
             hid_t file_id = open_hdf5_file(std::string(fnametmp));
             corrK_rank[k].G_.write_to_hdf5_slices(file_id,"G",output);
             corrK_rank[k].W_.write_to_hdf5_slices(file_id,"W",output);
+            corrK_rank[k].Sigma_.write_to_hdf5_slices(file_id,"Sigma",output);
             hid_t group_id = create_group(file_id, "parm");
             store_double_attribute_to_hid(group_id, "dt", h);
             store_double_attribute_to_hid(group_id, "kk", lattice.kpoints_[kindex_rank[k]]);

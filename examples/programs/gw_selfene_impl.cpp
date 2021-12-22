@@ -244,4 +244,18 @@ namespace diag {
       // MPI::COMM_WORLD.Allreduce(&etmp,&etot,1,MPI::DOUBLE,MPI_SUM);
       return etot;
       }
+
+   //Evaluate current
+   double current(int tstp,lattice_1d_1b &lattice,std::vector<CFUNC> & density_k){
+      cdmatrix rtmp,hktmp;
+      double curr=0.0;
+      for(int k=0;k<lattice.nk_;k++){
+         double wt=lattice.kweight_[k];
+         density_k[k].get_value(tstp,rtmp);
+         lattice.vk(hktmp,tstp,lattice.kpoints_[k]);
+         curr+=std::real((hktmp*rtmp).trace())*wt;
+      }
+      return curr;
+   }
+
    }

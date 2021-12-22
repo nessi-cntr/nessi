@@ -31,5 +31,6 @@ namespace diag {
 	void extrapolate_timestep_G(int tstp,int Nk_rank,int SolverOrder,int Nt,std::vector<gw::kpoint> &corrK_rank);
 	void extrapolate_rho(int tstp,int Nk,std::vector<CFUNC> &density_k);
 	double KineticEnergy(int tstp,lattice_1d_1b &lattice,std::vector<CFUNC> & density_k);
+	double current(int tstp,lattice_1d_1b &lattice,std::vector<CFUNC> & density_k);
 	double CorrelationEnergy(int tstp,int Nk_rank,int SolverOrder,double beta, double h,std::vector<gw::kpoint> &corrK_rank,std::vector<int> &kindex_rank,lattice_1d_1b &lattice);
 }
