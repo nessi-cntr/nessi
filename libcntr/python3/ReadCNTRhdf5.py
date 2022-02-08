@@ -209,7 +209,7 @@ def read_gf_group(group):
 
         new_data = np.zeros(
             (d.nt[0]+1, d.nt[0]+1, d.size1[0], d.size2[0]),
-            dtype=np.complex)
+            dtype=complex)
         
         new_data[idx] = data
         setattr(d, key, new_data)
@@ -228,7 +228,7 @@ def read_gf_tavrel_group(group):
         maximum=max(max(p[1].shape for p in item.iteritems()))
         size1=item.items()[0][1].shape[1]
         size2=item.items()[0][1].shape[2]
-        new_data = np.zeros((length,maximum,size1,size2), dtype=np.complex)
+        new_data = np.zeros((length,maximum,size1,size2), dtype=complex)
         t=0
         for skey, sitem in item.items():
             data = sitem[:][:][:]
@@ -263,7 +263,7 @@ def read_gf_slices_group(group):
     
     
     for key in key:
-        new_data = np.zeros((len(dall),maximum[0]+1, dall[len(dall)-1].size1[0], dall[len(dall)-1].size2[0]), dtype=np.complex)
+        new_data = np.zeros((len(dall),maximum[0]+1, dall[len(dall)-1].size1[0], dall[len(dall)-1].size2[0]), dtype=complex)
         tstep = np.array([],dtype=int)
         for t in np.arange(len(dall)):
             data = getattr(dall[t], key)
