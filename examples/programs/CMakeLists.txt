@@ -7,6 +7,7 @@ set( regular_EXECUTABLES
      test_equilibrium.x
      test_nonequilibrium.x
      integration.x
+     test_jason.x
 )
 
 set( withhdf5_EXECUTABLES
@@ -28,6 +29,7 @@ set( EXE_hubbard_chain_tpp.x_SOURCES hubbard_chain_selfen_impl.cpp hubbard_chain
 
 set( EXE_test_equilibrium.x_SOURCES test_equilibrium.cpp )
 set( EXE_test_nonequilibrium.x_SOURCES test_nonequilibrium.cpp )
+set( EXE_test_jason.x_SOURCES test_jason.cpp )
 set( EXE_gw.x_SOURCES gw.cpp gw_latt_impl.cpp gw_kpoints_impl.cpp  gw_selfene_impl.cpp )
 set( EXE_integration.x_SOURCES integration.cpp )
 set( EXE_Holstein_bethe_Nambu_Migdal.x_SOURCES Holstein_impurity_impl.cpp Holstein_utils_impl.cpp Holstein_bethe_Nambu_Migdal.cpp )
