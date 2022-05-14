@@ -168,10 +168,10 @@ def read_gf(filename):
 
     ntau, nt, dim = d.ntau, d.nt, d.dim
 
-    G = { 'mat' : np.zeros((ntau+1, dim, dim), dtype=np.complex),
-          'tv'  : np.zeros((nt+1, ntau+1, dim, dim), dtype=np.complex),
-          'ret' : np.zeros((nt+1, nt+1, dim, dim), dtype=np.complex),
-          'les' : np.zeros((nt+1, nt+1, dim, dim), dtype=np.complex), }
+    G = { 'mat' : np.zeros((ntau+1, dim, dim), dtype=complex),
+          'tv'  : np.zeros((nt+1, ntau+1, dim, dim), dtype=complex),
+          'ret' : np.zeros((nt+1, nt+1, dim, dim), dtype=complex),
+          'les' : np.zeros((nt+1, nt+1, dim, dim), dtype=complex), }
     
     for line in f.readlines():
         if not ':' in line:

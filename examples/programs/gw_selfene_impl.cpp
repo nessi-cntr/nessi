@@ -226,11 +226,12 @@ namespace diag {
 
    //Evaluate the potential energy
    double CorrelationEnergy(int tstp,int Nk_rank,int SolverOrder,double beta, double h,std::vector<gw::kpoint> &corrK_rank,
-      lattice_1d_1b &lattice){
+      std::vector<int> &kindex_rank,lattice_1d_1b &lattice){
       cdmatrix tmpH,tmpF,tmpR;
       double etmp=0.0,etot=0.0;
       for(int k=0;k<Nk_rank;k++){
-         double wk=lattice.kweight_[k]; 
+	 int kir = kindex_rank[k];
+         double wk=lattice.kweight_[kir]; 
          corrK_rank[k].rho_.get_value(tstp,tmpR);
          corrK_rank[k].SHartree_.get_value(tstp,tmpH);
          corrK_rank[k].SFock_.get_value(tstp,tmpF);
@@ -243,4 +244,18 @@ namespace diag {
       // MPI::COMM_WORLD.Allreduce(&etmp,&etot,1,MPI::DOUBLE,MPI_SUM);
       return etot;
       }
+
+   //Evaluate current
+   double current(int tstp,lattice_1d_1b &lattice,std::vector<CFUNC> & density_k){
+      cdmatrix rtmp,hktmp;
+      double curr=0.0;
+      for(int k=0;k<lattice.nk_;k++){
+         double wt=lattice.kweight_[k];
+         density_k[k].get_value(tstp,rtmp);
+         lattice.vk(hktmp,tstp,lattice.kpoints_[k]);
+         curr+=std::real((hktmp*rtmp).trace())*wt;
+      }
+      return curr;
+   }
+
    }

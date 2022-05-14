@@ -48,7 +48,7 @@ namespace gw{
     void step_D(int tstp,int SolverOrder,lattice_1d_1b &latt);
     void step_dyson(int tstp,int iter,int SolverOrder,lattice_1d_1b &latt);
     double step_dyson_with_error(int tstp,int iter,int SolverOrder,lattice_1d_1b &latt);
-    double step_W_with_error(int tstp,int iter, int n,int SolverOrder,lattice_1d_1b &latt);
+    double step_W_with_error(int tstp,int iter,int SolverOrder,lattice_1d_1b &latt);
 
     double beta_;
     double h_;

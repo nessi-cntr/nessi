@@ -30,7 +30,7 @@ def GenSysParams(Nk,HoppingT,HubbardU,V,MuChem,Beta):
 def GenSolverParams(Nt,Ntau,h,SaveGreen=False,SaveMomentum=False,MatsMaxIter=100,
                         MatsMaxErr= 1.0e-8,
                         BootstrapMaxIter= 20,BootstrapMaxErr=1.0e-8,
-                        TimeMaxErr=1.0e-8,CorrectorSteps=10):
+                        TimeMaxErr=1.0e-8,CorrectorSteps=10,output=100):
 
     savegf = 0
     if SaveGreen:
@@ -52,6 +52,9 @@ def GenSolverParams(Nt,Ntau,h,SaveGreen=False,SaveMomentum=False,MatsMaxIter=100
                     'SaveGreen': savegf,
                     'SaveMomentum': savegk
                         }
+    if SaveMomentum:
+        solverparams.update({'output':output})
+
     return solverparams
 #----------------------------------------------------------------------
 def GenInputFile(input_file,sysparams,solverparams,file_field):
@@ -79,7 +82,7 @@ def Run(sysparams,solverparams,file_field,output_file,mpicmd,
     if len(log_file) > 0:
         log_flag = ' > ' + log_file
         
-    os.system(mpicmd + ' ' + prog + ' ' + flin + ' ' + output_file + log_flag)
+    os.system(mpicmd + ' ' + prog + ' ' + flin + ' ' + log_flag)
 #----------------------------------------------------------------------     
 def ReadData(fname):
 	f = h5py.File(fname, 'r')
@@ -106,10 +109,10 @@ if __name__ == '__main__':
     beta=10.0
     sysparams = GenSysParams(Nk,thop,U,V,mu,beta)
 
-    Nt = 400
-    Ntau = 200
+    Nt = 1
+    Ntau = 100
     h = 0.02
-    solverparams = GenSolverParams(Nt,Ntau,h,MatsMaxErr= 1.0e-10,BootstrapMaxErr=1.0e-10)
+    solverparams = GenSolverParams(Nt,Ntau,h,SaveGreen=True,SaveMomentum=True,MatsMaxErr= 1.0e-10,BootstrapMaxErr=1.0e-10,output=1)
 
     # field 
     E0 = 0.2
