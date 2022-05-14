@@ -1734,5 +1734,5 @@ void dyson(herm_matrix<T> &G, T mu, function<T> &H, herm_matrix<T> &Sigma,
 }
 
 }
-#include "truncation/moving_herm_dyson.hpp"
+// #include "truncation/moving_herm_dyson.hpp"
 #endif  // CNTR_DYSON_IMPL_H

@@ -319,7 +319,7 @@ namespace cntr {
   void herm_matrix_timestep_moving<T>::MPI_Reduce(int root) {
     int taskid;
     //int len1 = 2 * ((tstp_ + 1) * 2 + (ntau_ + 1)) * size1_ * size1_; This is the original version from timestep check if the reduction to the data window is correct!!
-    int len1 = ((tc_ + 1) * 2 ) * element_size;
+    int len1 = ((tc_ + 1) * 2 ) * element_size_;
     taskid = MPI::COMM_WORLD.Get_rank();
     if (sizeof(T) == sizeof(double)) {
       if (taskid == root) {
