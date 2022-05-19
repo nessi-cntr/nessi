@@ -10,18 +10,21 @@ namespace cntr {
   template <typename T> class herm_matrix_timestep_moving;
   template <typename T> class herm_matrix_moving;
   template <typename T>
-  /** \brief <b> Class `herm_matrix_timestep_trunc_view` serves for interfacing with class herm_matrix_timestep_trunc</b>
-   * without copying the data.
+  /** \brief <b> Class `herm_matrix_timestep_moving_view` serves for interfacing with 
+   * class `herm_matrix_timestep_moving` without copying the data.  </b>
    *
    * <!-- ====== DOCUMENTATION ====== -->
    *
    *  \par Purpose
    * <!-- ========= -->
-   *  Occasionally you may have a pre-defined object of herm_matrix_trunc or herm_matrix_timestep_trunc that you want to use.
-   *  While one option is to make a copy of the data, most commonly you probably want to re-use this memory as a libcntr type,
+   *  Occasionally you may have a pre-defined object of herm_matrix_moving or 
+   *  herm_matrix_timestep_moving that you want to use.
+   *  While one option is to make a copy of the data, most commonly you probably 
+   *  want to re-use this memory as a libcntr type,
    *  and this class serves as an interface. Mark similar concept of a map class in Eigen.
-   *  To construct this class you need: a pointers to the region of memory defining different components (`ret`,`tv`,`les`,`mat`)
-   *  and usual defining constants for the herm_matrix_timestep.
+   *  To construct this class you need: a pointers to the region of memory defining 
+   *  different components (`ret`,`les`)
+   *  and usual defining constants for the herm_matrix_timestep_moving.
    *  The contour function can be of scalar type or matrix-valued.
    *
    *  Square-matrix-type contour functions are fully supported, while non-square-
@@ -115,10 +118,10 @@ namespace cntr {
     // private:
     void get_data(std::complex<T> *ret, std::complex<T> *les);
     /// @private
-    /** \brief <b> Pointer to the retarded component. 'ret_+ \f$t \;*\f$ element\_size'  corresponds to \f$(0,0)\f$-component of \f$ G^R(tstp,t) \f$ </b> */
+    /** \brief <b> Pointer to the retarded component. 'ret_+ \f$j \;*\f$ element\_size'  corresponds to \f$(0,0)\f$-component of \f$ G^R(t0,t0-j) \f$ </b> */
     std::complex<T> *ret_;
     /// @private
-    /** \brief <b> Pointer to the lesser component. 'less_+ \f$t \;*\f$ element\_size'  corresponds to \f$(0,0)\f$-component of \f$ G^<(t,tstp) \f$ </b> */
+    /** \brief <b> Pointer to the lesser component. 'less_+ \f$j \;*\f$ element\_size'  corresponds to \f$(0,0)\f$-component of \f$ G^<(t0,t0-j) \f$ </b> */
     std::complex<T> *les_;
     /// @private
     /** \brief <b> time cut-off.</b> */

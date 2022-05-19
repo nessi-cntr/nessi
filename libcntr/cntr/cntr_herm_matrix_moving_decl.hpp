@@ -4,6 +4,13 @@
 #include "cntr_global_settings.hpp"
 
 namespace cntr {
+  /*//////////////////////////////////////////////////////////
+
+    Internal storage order such that
+    G.ret_[t1] + t2*element_size_  -> Gret(t0-t1,t0-t1-t2)
+    G.les_[t1] + t2*element_size_  -> Gles(t0-t1,t0-t1-t2)
+
+  ///////////////////////////////////////////////////////////*/
 
   template <typename T> class function;
   template <typename T> class herm_matrix_timestep;
@@ -11,8 +18,9 @@ namespace cntr {
   template <typename T> class herm_matrix_timestep_view;
   template <typename T> class herm_matrix_timestep_moving;
   template <typename T> class function_moving;
-   
-    /** \brief <b> Class `herm_matrix_moving` for two-time contour objects \f$ C(t,t') \f$
+  template <typename T> class herm_pseudo;
+  
+/** \brief <b> Class `herm_matrix_moving` for two-time contour objects \f$ C(t,t') \f$
    * stored for a reduced range of times.</b>
    *
    * <!-- ====== DOCUMENTATION ====== -->
@@ -20,9 +28,9 @@ namespace cntr {
    *  \par Purpose
    * <!-- ========= -->
    *
-   *  This class is a modification of `herm_matrix` where data is stored for limited time
-   *. in range \f$ t_0\geq t>=t_0-t_c \f$. 
-   *  The class `herm_matrix` stores two non-redundant Keldysh components
+   *  This class is a modification of `herm_matrix` where data is stored in the time
+   *  range \f$ t_0\geq t>=t_0-t_c \f$. 
+   *  The class `herm_matrix_moving` stores two non-redundant Keldysh components
    *   - retarded component \f$ C^\mathrm{R}(t_i,t_i-s) \f$ for \f$ s=0,\ldots,t_c\f$
    *   - lesser component \f$ C^<(t_i,t_i-s) \f$ for \f$ s=0,\ldots,t_c.\f$
    *
@@ -32,13 +40,6 @@ namespace cntr {
    *
    *
    */
-  /*//////////////////////////////////////////////////////////
-
-    Internal storage order such that
-    G.ret_[t1] + t2*element_size_  -> Gret(t0-t1,t0-t1-t2)
-    G.les_[t1] + t2*element_size_  -> Gles(t0-t1,t0-t1-t2)
-
-  ///////////////////////////////////////////////////////////*/
   template <typename T> class herm_matrix_moving{
   public:
     typedef std::complex<T> cplx;
@@ -52,6 +53,7 @@ namespace cntr {
     void clear(void);
     void resize(int tc,int size1);
     /* access size etc ... */
+    /// @private
     int element_size(void) const{ return element_size_;}
     int size1(void) const{ return size1_;}
     int size2(void) const{ return size2_;}
@@ -60,7 +62,9 @@ namespace cntr {
     int sig(void) const{ return sig_;}
     void set_t0(int t0);
     // raw pointer to elements ... to be used with care
+    /// @private
     inline cplx * lesptr(int i,int j){return les_[i] + j*element_size_;}  // points to Gret(t0-i,t0-i-j)
+    /// @private
     inline cplx * retptr(int i,int j){return ret_[i] + j*element_size_;}  // points to Gles(t0-i,t0-i-j)
     // reading basic and derived elements to any Matrix type:
     // the get_... address time-arguments "relative to t0"  (i,j) == (t0-i,t0-i-j)
@@ -75,9 +79,13 @@ namespace cntr {
     cplx density_matrix(int i);  //  -sig*ii*Gles(t0-i,t0-i)
     template<class Matrix> void density_matrix(int tstp,Matrix &M);
     // writing basic elements (also relative to t0)
+    /// @private
     template<class Matrix> void set_les(int i,int j,Matrix &M);
+    /// @private
     template<class Matrix> void set_ret(int i,int j,Matrix &M);
+    /// @private
     inline void set_les(int i,int j,cplx x);
+    /// @private
     inline void set_ret(int i,int j,cplx x);
     // INPUT/OUTPUT
     void print_to_file(const char *file,int precision=16);
@@ -89,6 +97,7 @@ namespace cntr {
     void set_timestep(int i,int tstp,herm_matrix<T> &g,herm_matrix<T> &gcc);
     void set_from_G_backward(int tstp,herm_matrix<T> &g,herm_matrix<T> &gcc);
     void set_from_G_backward(int tstp,herm_matrix<T> &g);
+    void set_from_G_backward(int tstp, const herm_pseudo<T> &g);
     void get_timestep(int i,herm_matrix_timestep_moving<T> &g);
 
     void set_timestep(int i,herm_matrix_timestep_moving<T> &g);
@@ -129,14 +138,23 @@ namespace cntr {
 
 
   private:
+    /** \brief <b> Pointer to the data array stoirng lesser and retarded component.</b> */
     cplx* data_;
+    /** \brief <b> Pointer to a pointer storing the lesser component.</b> */
     cplx** les_;
+    /** \brief <b> Pointer to a pointer storing the retarded component.</b> */
     cplx** ret_;
+    /** \brief <b> Cutoff time.</b> */
     int tc_;
+    /** \brief <b> Physical time.</b> */
     int t0_;
+    /** \brief <b> Number of the colums in the Matrix form.</b> */
     int size1_;
+    /** \brief <b> Number of the rows in the Matrix form.</b> */
     int size2_;
+    /** \brief <b> Size of the Matrix form; size1*size2. </b> */
     int element_size_;
+    /** \brief <b> Bose = +1, Fermi =-1. </b> */
     int sig_; // Bose = +1, Fermi =-1
   };
 

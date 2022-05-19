@@ -10,7 +10,7 @@
 
 namespace cntr {
 
-    /** \brief <b> Class `herm_matrix_timestep` deals with contour objects \f$ C(t,t') \f$
+    /** \brief <b> Class `herm_matrix_timestep_moving` deals with contour objects \f$ C(t,t') \f$
    * at a particular timestep \f$t'\f$.</b>
    *
    * <!-- ====== DOCUMENTATION ====== -->
@@ -18,8 +18,8 @@ namespace cntr {
    *  \par Purpose
    * <!-- ========= -->
    *
-   *  The class 'herm_matrix_timestep' has almost the same functionality
-   * as the class 'herm_matrix'. Here, one considers however contour objects \f$ C(t,t') \f$
+   * The class 'herm_matrix_timestep_moving' has almost the same functionality
+   * as the class 'herm_matrix_moving'. Here, one considers however contour objects \f$ C(t,t') \f$
    * at a particular timestep \f$t'\f$ (timeslice with respect to the first argument \f$t\f$)
    * The contour function \f$ C(t,t') \f$ can be of scalar type or matrix-valued.
    * NOTE: the bose/fermi sign for the herm_matrix_timestep
@@ -55,19 +55,29 @@ namespace cntr {
     // reading basic and derived elements to any Matrix type:
     // the get_... address time-arguments "relative to t0"  (i,j) == (t0-i,t0-i-j)
     // and work only for 0 <= i,j <= tc
+    /// @private
     template<class Matrix> void get_les(int j,Matrix &M);
+    /// @private
     template<class Matrix> void get_gtr(int j,Matrix &M);
+    /// @private
     template<class Matrix> void get_ret(int j,Matrix &M);
     // these will adress only (0,0) element for dim>1:
+    /// @private
     inline void get_les(int j,cplx &x);
+    /// @private
     inline void get_gtr(int j,cplx &x);
+    /// @private
     inline void get_ret(int j,cplx &x);
     cplx density_matrix(void);  //  -sig*ii*Gles(t0-i,t0-i)
     template<class Matrix> void density_matrix(Matrix &M);
     // writing basic elements (also relative to t0)
+    /// @private
     template<class Matrix> void set_les(int j,Matrix &M);
+    /// @private
     template<class Matrix> void set_ret(int j,Matrix &M);
+    /// @private
     inline void set_les(int j,cplx x);
+    /// @private
     inline void set_ret(int j,cplx x);
     // ADD, CP, SET, MULTIPLY, ETC
     void incr_timestep(herm_matrix_timestep_moving<T> &g,cplx alpha);
@@ -86,15 +96,24 @@ namespace cntr {
     //void Recv_timestep(int tstp, int ntau, int size1, int root, int tag);
 #endif
   private:
+    /** \brief <b> Pointer to the data for the time step (t0). </b> */
     cplx* data_;
+    /** \brief <b> Pointer to the lesser part for the time step (t0). 'data_+\f$(tc+1+tc)\f$ * element_size' correponds to (0,0)-component of \f$ G^<(t0,t0-tc)\f$ and 'les_(tc)'. </b> */
     cplx* les_;
+    /** \brief <b> Pointer to the retarded part for the time step (t0). 'data_+\f$tc\f$ * element_size' correponds to (0,0)-component of \f$ G^<(t0,t0-tc)\f$ and 'ret_(tc)'. </b> */
     cplx* ret_;
+    /** \brief <b> Given cutoff time tc </b> */
     int tc_;
+    /** \brief <b> Current physical time step </b> */
     int t0_;
+    /** \brief <b> Number of the colums in the Matrix form.</b> */
     int size1_;
+    /** \brief <b> Number of the rows in the Matrix form.</b> */
     int size2_;
+    /** \brief <b> Size of the Matrix form; size1*size2. </b> */
     int element_size_;
-    int sig_; // Bose = +1, Fermi =-1
+    /** \brief <b> Bose = +1, Fermi =-1. </b> */
+    int sig_;
   };
 
 } // namespace cntr

@@ -8,7 +8,7 @@ namespace cntr {
   // Bubbles for moving propagators
   // C(t-tstp,t-tstp-m)= ii * A(t-tstp,t-tstp-m) * B(t-tstp-m,t-tstp), l=0...tc
   // where aret[m] -> A(t-tstp,t-tstp-m) etc.
-
+/// @private
   template<typename T>
   void get_bubble_1_timestep_moving(int tc,std::complex<T> *cret,std::complex<T> *cles,int sc,int c1,int c2,std::complex<T> *aret,std::complex<T> *ales,std::complex<T> *accret,std::complex<T> *accles,int sa,int a1,int a2,std::complex<T> *bret,std::complex<T> *bles,std::complex<T> *bccret,std::complex<T> *bccles,int sb,int b1,int b2,int sigb){
     int m;
@@ -38,7 +38,7 @@ namespace cntr {
 
   // A,B hermitian, orbital dimension > 1:
   // C_{c1,c2}(t1,t2) = ii * A_{a1,a2}(t1,t2) * B_{b2,b1}(t2,t1)
-
+/// @private
   template <typename T>
   void Bubble1_moving(int tstp, herm_matrix_timestep_moving_view<T> &C, int c1, int c2,
 		      herm_matrix_timestep_moving_view<T> &A, herm_matrix_timestep_moving_view<T> &Acc, int a1,
@@ -69,18 +69,21 @@ namespace cntr {
   				 B.sig());
   
   }
+  /// @private
   template <typename T>
   void Bubble1_moving(int tstp, herm_matrix_timestep_moving_view<T> &C, int c1, int c2,
 		      herm_matrix_timestep_moving_view<T> &A, int a1, int a2,
 		      herm_matrix_timestep_moving_view<T> &B, int b1, int b2) {
     return Bubble1_moving(tstp, C, c1, c2, A, A, a1, a2, B, B, b1, b2);
   }
+  /// @private
   template <typename T>
   void Bubble1_moving(int tstp, herm_matrix_timestep_moving_view<T> &C, herm_matrix_timestep_moving_view<T> &A,
 		      herm_matrix_timestep_moving_view<T> &Acc, herm_matrix_timestep_moving_view<T> &B,
 		      herm_matrix_timestep_moving_view<T> &Bcc) {
     return Bubble1_moving(tstp, C, 0, 0, A, Acc, 0, 0, B, Bcc, 0, 0);
   }
+  /// @private
   template <typename T>
   void Bubble1_moving(int tstp, herm_matrix_timestep_moving_view<T> &C, herm_matrix_timestep_moving_view<T> &A,
 		      herm_matrix_timestep_moving_view<T> &B) {
@@ -121,7 +124,7 @@ namespace cntr {
     Bubble1_moving(tstp, ctmp, atmp, btmp);
   }
 
-
+/// @private
   template<typename T>
   void get_bubble_2_timestep_moving(int tc,std::complex<T> *cret,std::complex<T> *cles,int sc,int c1,int c2,std::complex<T> *aret,std::complex<T> *ales,std::complex<T> *accret,std::complex<T> *accles,int sa,int a1,int a2,std::complex<T> *bret,std::complex<T> *bles,std::complex<T> *bccret,std::complex<T> *bccles,int sb,int b1,int b2){
     int m;
@@ -143,6 +146,7 @@ namespace cntr {
       cles[m*sc2+c12] = ii* ales[m*sa2+a12] * bles[m*sb2+b12]; 
     }
   }
+  /// @private
   template <typename T>
   void Bubble2_moving(int tstp, herm_matrix_timestep_moving_view<T> &C, int c1, int c2,
 		      herm_matrix_timestep_moving_view<T> &A, herm_matrix_timestep_moving_view<T> &Acc, int a1,
@@ -171,19 +175,21 @@ namespace cntr {
   				 B.retptr(0),B.lesptr(0),Bcc.retptr(0),Bcc.lesptr(0),B.size1(),b1,b2);
 
   }
-  
+  /// @private
   template <typename T>
   void Bubble2_moving(int tstp, herm_matrix_timestep_moving_view<T> &C, int c1, int c2,
 		      herm_matrix_timestep_moving_view<T> &A, int a1, int a2,
 		      herm_matrix_timestep_moving_view<T> &B, int b1, int b2) {
     return Bubble2_moving(tstp, C, c1, c2, A, A, a1, a2, B, B, b1, b2);
   }
+  /// @private
   template <typename T>
   void Bubble2_moving(int tstp, herm_matrix_timestep_moving_view<T> &C, herm_matrix_timestep_moving_view<T> &A,
 		      herm_matrix_timestep_moving_view<T> &Acc, herm_matrix_timestep_moving_view<T> &B,
 		      herm_matrix_timestep_moving_view<T> &Bcc) {
     return Bubble2_moving(tstp, C, 0, 0, A, Acc, 0, 0, B, Bcc, 0, 0);
   }
+  /// @private
   template <typename T>
   void Bubble2_moving(int tstp, herm_matrix_timestep_moving_view<T> &C, herm_matrix_timestep_moving_view<T> &A,
 		      herm_matrix_timestep_moving_view<T> &B) {

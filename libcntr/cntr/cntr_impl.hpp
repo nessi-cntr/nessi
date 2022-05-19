@@ -34,6 +34,7 @@
 #include "cntr_vie2_impl.hpp"
 #include "cntr_pseudo_vie2_impl.hpp"
 #include "cntr_dyson_impl.hpp"
+#include "cntr_dyson_moving_impl.hpp"
 #include "cntr_pseudodyson_impl.hpp"
 
 #include "cntr_bubble_impl.hpp"
