@@ -8,6 +8,7 @@ set( regular_EXECUTABLES
      test_nonequilibrium.x
      integration.x
      test_jason.x
+     test_truncation_bethe_quench.x
 )
 
 set( withhdf5_EXECUTABLES
@@ -34,6 +35,7 @@ set( EXE_gw.x_SOURCES gw.cpp gw_latt_impl.cpp gw_kpoints_impl.cpp  gw_selfene_im
 set( EXE_integration.x_SOURCES integration.cpp )
 set( EXE_Holstein_bethe_Nambu_Migdal.x_SOURCES Holstein_impurity_impl.cpp Holstein_utils_impl.cpp Holstein_bethe_Nambu_Migdal.cpp )
 set( EXE_Holstein_bethe_Nambu_uMig.x_SOURCES Holstein_impurity_impl.cpp Holstein_utils_impl.cpp Holstein_bethe_Nambu_uMig.cpp )
+set( EXE_test_truncation_bethe_quench.x_SOURCES test_truncation_bethe_quench.cpp )
 
 set( EXE_Holstein_bethe_Migdal.x_SOURCES Holstein_impurity_impl.cpp Holstein_utils_impl.cpp Holstein_bethe_Migdal.cpp )
 set( EXE_Holstein_bethe_uMig.x_SOURCES Holstein_impurity_impl.cpp Holstein_utils_impl.cpp Holstein_bethe_uMig.cpp )

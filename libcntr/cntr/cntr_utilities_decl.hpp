@@ -9,8 +9,10 @@ namespace cntr {
   template <typename T> class function;
   template <typename T> class herm_matrix;
   template <typename T> class herm_matrix_timestep;
+  template <typename T> class herm_matrix_timestep_moving;
   template <typename T> class herm_matrix_timestep_view;
   template <typename T> class herm_pseudo;
+  template <typename T> class herm_matrix_moving;
 
   /* /////////////////////////////////////////////////////////////////////////////////////////
   // poly extrapolation/interpolation to tstp n+1, using n,...,n-k, with k = integration order
@@ -19,11 +21,16 @@ namespace cntr {
   /// @private
   template <typename T>
   void extrapolate_timestep(int n,herm_matrix<T> &G,integration::Integrator<T> &I);
-    template <typename T>
-  void extrapolate_timestep(int n, herm_matrix<T> &G, int SolveOrder=MAX_SOLVE_ORDER);
   template <typename T>
+  void extrapolate_timestep(int n, herm_matrix<T> &G, int SolveOrder=MAX_SOLVE_ORDER);
   /// @private
+  template <typename T>
   void extrapolate_timestep(int n,herm_pseudo<T> &G,integration::Integrator<T> &I);
+  /// @private
+  template <typename T>
+  void extrapolate_timestep(herm_matrix_moving<T> &G,integration::Integrator<T> &I);
+  template <typename T>
+  void extrapolate_timestep(herm_matrix_moving<T> &G,int ExtrapolationOrder=MAX_SOLVE_ORDER);
 
   /// @private
   template <typename T>
@@ -102,6 +109,8 @@ namespace cntr {
   template <typename T> T distance_norm2(herm_matrix_timestep<T> &g1,herm_matrix_timestep<T> &g2);
   template <typename T> T distance_norm2_eigen(int tstp,herm_matrix_timestep<T> &g1,herm_matrix<T> &g2);
 
+  template <typename T> T distance_norm2(int j,herm_matrix_moving<T> &g1,herm_matrix_moving<T> &g2);
+  template <typename T> T distance_norm2(int j,herm_matrix_moving<T> &g1,herm_matrix_timestep_moving<T> &g2);
   /* /////////////////////////////////////////////////////////////////////////////////////////
   // evaluate memory for various objects:
   ///////////////////////////////////////////////////////////////////////////////////////// */

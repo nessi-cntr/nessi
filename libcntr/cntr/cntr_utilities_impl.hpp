@@ -5,9 +5,11 @@
 //#include "cntr_exception.hpp"
 #include "cntr_elements.hpp"
 #include "cntr_herm_matrix_decl.hpp"
+#include "cntr_herm_matrix_moving_decl.hpp"
 #include "cntr_herm_matrix_timestep_view_decl.hpp"
 #include "cntr_herm_matrix_timestep_view_impl.hpp"
 #include "cntr_herm_matrix_timestep_decl.hpp"
+#include "cntr_herm_matrix_timestep_moving_decl.hpp"
 #include "cntr_herm_pseudo_decl.hpp"
 #include "cntr_function_decl.hpp"
 #include "cntr_convolution_decl.hpp"
@@ -273,8 +275,104 @@ void extrapolate_timestep(int n, function<T> &f, int ExtrapolationOrder) {
     else
         extrapolate_timestep_dispatch<T, LARGESIZE>(n, f, integration::I<T>(ExtrapolationOrder));
 }
-
-
+/// @private
+template <typename T,int SIZE1>
+void extrapolate_timestep_dispatch(herm_matrix_moving<T> &G,integration::Integrator<T> &I){
+    typedef std::complex<T> cplx;
+    int tc=G.tc();
+    int k=I.k();
+    int sg=G.element_size();
+    int size1=G.size1();
+    cplx *gtemp=new cplx [sg];
+    T *p1=new T [k+1];
+    if(k==0){
+        for(int j=0;j<=tc;j++){
+            element_set<T,SIZE1>(size1,G.retptr(0,j),G.retptr(1,j));
+            element_set<T,SIZE1>(size1,G.lesptr(0,j),G.lesptr(1,j));
+        }
+    }else{
+        for(int m=0;m<=k;m++){
+            p1[m]=0.0;
+            for(int l=0;l<=k;l++) p1[m]+=(1-2*(l%2))*I.poly_interpolation(l,m);
+        }
+        //for(int j=0;j<=tc;j++){
+	for(int j=0;j<tc-k;j++){//modified by cstahl
+            element_set_zero<T,SIZE1>(size1,gtemp);
+            for(int l=0;l<=k;l++) element_incr<T,SIZE1>(size1,gtemp,p1[l],G.retptr(l+1,j));
+            element_set<T,SIZE1>(size1,G.retptr(0,j),gtemp);
+            element_set_zero<T,SIZE1>(size1,gtemp);
+            for(int l=0;l<=k;l++) element_incr<T,SIZE1>(size1,gtemp,p1[l],G.lesptr(l+1,j));
+            element_set<T,SIZE1>(size1,G.lesptr(0,j),gtemp);
+        }
+	//added by cstahl // has been tested and showed good results!
+	for(int j=tc-k;j<=tc;j++){
+	  element_set_zero<T,SIZE1>(size1,gtemp);
+	  for(int l=0;l<=k;l++) element_incr<T,SIZE1>(size1,gtemp,p1[l],G.retptr(l+1,j-l-1));
+	  element_set<T,SIZE1>(size1,G.retptr(0,j),gtemp);
+	  element_set_zero<T,SIZE1>(size1,gtemp);
+	  for(int l=0;l<=k;l++) element_incr<T,SIZE1>(size1,gtemp,p1[l],G.lesptr(l+1,j-l-1));
+	  element_set<T,SIZE1>(size1,G.lesptr(0,j),gtemp);
+	}
+	//end of added section
+    }
+    delete [] gtemp;
+    delete [] p1;
+}
+  /// @private
+/** \brief <b>  k-th order polynomial extrapolation to t=t0+1 of the retarded and lesser components of herm_matrix_moving. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > k-th order polynomial extrapolation to t=t0+1 of the retarded and lesser components of herm_matrix_moving.
+ * > Information at times t=n,n-1,,,,n-k is used.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param G
+ * > herm_matrix_moving to be extrapolated.
+ * @param I
+ * > Integrator to be used with the function
+ */
+template <typename T> 
+void extrapolate_timestep(herm_matrix_moving<T> &G,integration::Integrator<T> &I){
+    int k=I.k();
+    int tc=G.tc();
+    int size1=G.size1();
+    //std::cout<<"k"<<k<<std::endl;
+    //std::cout<<"tc"<<tc<<std::endl;
+    assert(k+1<=tc);
+    if(size1) extrapolate_timestep_dispatch<T,1>(G,I);
+    else extrapolate_timestep_dispatch<T,LARGESIZE>(G,I);
+}
+  
+/** \brief <b>  k-th order polynomial extrapolation to t=t0+1 of the retarded and lesser components of herm_matrix_moving. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > k-th order polynomial extrapolation to t=t0+1 of the retarded and lesser components of herm_matrix_moving.
+ * > Information at times t=n,n-1,,,,n-k is used.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param G
+ * > herm_matrix_moving to be extrapolated.
+ * @param ExtrapolationOrder
+ * > Order of the Extrapolation routine k
+ */
+template <typename T>
+void extrapolate_timestep(herm_matrix_moving<T> &G, int ExtrapolationOrder) {
+    if (G.size1() == 1)
+        extrapolate_timestep_dispatch<T, 1>(G, integration::I<T>(ExtrapolationOrder));
+    else
+        extrapolate_timestep_dispatch<T, LARGESIZE>(G, integration::I<T>(ExtrapolationOrder));
+}
+  
 /// @private
 //  k-th order polynomial interpolation of contour function
 //  to arbitrary point on time interval [tstp-kt,tstp],
@@ -1993,7 +2091,82 @@ T distance_norm2_eigen(int tstp,herm_matrix_timestep<T> &g1,herm_matrix<T> &g2){
 	 }
    }
 }
+  /// @private
+template <typename T>
+T distance_norm2_moving_dispatch(int n,int size,std::complex<T> *ret1,std::complex<T> *ret2){
+    T err=0.0;
+    int sg=size*size;
+    std::complex<T> *temp= new std::complex<T> [sg];
+    for(int i=0;i<=n;i++){
+        element_set<T,LARGESIZE>(size,temp,ret1+i*sg);
+        element_incr<T,LARGESIZE>(size,temp,-1.0,ret2+i*sg);
+        err+=element_norm2<T,LARGESIZE>(size,temp);
+    }
+    delete [] temp;
+    return err;
+}
+/** \brief <b>  Evaluate the Euclidean norm between  a `herm_matrix_moving` and `herm_matrix_moving`  at a given time index. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between  of a `herm_matrix_moving` \f$g_1\f$ and a `herm_matrix_moving` (\f$g_2\f$) at a given time index ('j').
+ * > To evaluate the norm, the elements of retarded and lesser.  The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param j
+ * > time index
+ * @param g1
+ * > herm_matrix_moving
+ * @param g2
+ * > herm_matrix_moving
+ */
+template <typename T>
+T distance_norm2(int j,herm_matrix_moving<T> &g1,herm_matrix_moving<T> &g2){
+    int size1=g1.size1();
+    int tc=g1.tc();
+    T err=0.0;
+    assert(0<=j && j<=tc);
+    assert(tc==g2.tc());
+    assert(size1==g2.size1());
 
+    err+=distance_norm2_moving_dispatch(tc,size1,g1.retptr(j,0),g2.retptr(j,0));
+    err+=distance_norm2_moving_dispatch(tc,size1,g1.lesptr(j,0),g2.lesptr(j,0));
+    return err;
+}
+/** \brief <b>  Evaluate the Euclidean norm between  a `herm_matrix_moving` and `herm_matrix_timestep_moving`  at a given time index. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *  \par Purpose
+ * <!-- ========= -->
+ * > Evaluate the Euclidean norm between  of a `herm_matrix_moving` \f$g_1\f$ and a `herm_matrix_timestep_moving` (\f$g_2\f$) at a given time index ('j').
+ * > To evaluate the norm, the elements of retarded and lesser.  The norm is not normalized per elements, but it is the summention of all the elements.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param j
+ * > time index
+ * @param g1
+ * > herm_matrix_moving
+ * @param g2
+ * > herm_matrix_timestep_moving
+ */
+template <typename T>
+T distance_norm2(int j,herm_matrix_moving<T> &g1,herm_matrix_timestep_moving<T> &g2){
+    int size1=g1.size1();
+    int tc=g1.tc();
+    T err=0.0;
+    assert(0<=j && j<=tc);
+    assert(tc==g2.tc());
+    assert(size1==g2.size1());
+
+    err+=distance_norm2_moving_dispatch(tc,size1,g1.retptr(j,0),g2.retptr(0));
+    err+=distance_norm2_moving_dispatch(tc,size1,g1.lesptr(j,0),g2.lesptr(0));
+    return err;
+}
 /** \brief <b> Evaluate the memory necessary for a herm_matrix. </b>
  *
  * <!-- ====== DOCUMENTATION ====== -->

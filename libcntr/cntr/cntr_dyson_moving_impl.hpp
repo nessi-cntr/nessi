@@ -266,7 +266,7 @@ namespace cntr{
 * > \f$ [ id/dt + \mu - H(t) ] G(t,t^\prime) - [\Sigma*G](t,t^\prime) = \delta(t,t^\prime)\f$
 * > for a hermitian matrix \f$G(t, t^\prime)\f$ on a truncated time window,
 * > i.e., \f$ G^{\mathrm{R}}(nh,t'<=nh) \f$, \f$ G^<(nh,t'<=nh)\f$ . Timestep must be \f$ >=t_c>=k\f$ ,
-* > where tc is the cutoff time and k is the Integration order 'I'.
+* > where tc is the cutoff time and k is the integration order of 'I'.
 * > Here, are given: \f$\Sigma(t, t^\prime)\f$, \f$\mu\f$, and \f$H(t)\f$.
 *
 * <!-- ARGUMENTS
@@ -315,7 +315,7 @@ namespace cntr{
 * > \f$ [ id/dt + \mu - H(t) ] G(t,t^\prime) - [\Sigma*G](t,t^\prime) = \delta(t,t^\prime)\f$
 * > for a hermitian matrix \f$G(t, t^\prime)\f$ on a truncated time window,
 * > i.e., \f$ G^{\mathrm{R}}(nh,t'<=nh) \f$, \f$ G^<(nh,t'<=nh)\f$ . Timestep must be \f$ >=t_c>=k\f$ ,
-* > where tc is the cutoff time and k is the Integration order 'I'.
+* > where tc is the cutoff time and k is the integration order .
 * > Here, are given: \f$\Sigma(t, t^\prime)\f$, \f$\mu\f$, and \f$H(t)\f$.
 *
 * <!-- ARGUMENTS
