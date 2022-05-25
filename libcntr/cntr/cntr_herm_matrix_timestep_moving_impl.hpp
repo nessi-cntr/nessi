@@ -703,18 +703,18 @@ namespace cntr {
 */
   template <typename T>
   void herm_matrix_timestep_moving<T>::MPI_Reduce(int root) {
-    int taskid;
     //int len1 = 2 * ((tstp_ + 1) * 2 + (ntau_ + 1)) * size1_ * size1_; This is the original version from timestep check if the reduction to the data window is correct!!
     int len1 = ((tc_ + 1) * 2 ) * element_size_;
-    taskid = MPI::COMM_WORLD.Get_rank();
+    int taskid;
+    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
     if (sizeof(T) == sizeof(double)) {
       if (taskid == root) {
-	MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, (double *)this->data_, len1,
-			       MPI::DOUBLE, MPI::SUM, root);
+	MPI_Reduce(MPI_IN_PLACE, (double *)this->data_, len1,
+		   MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
       } else {
-	MPI::COMM_WORLD.Reduce((double *)this->data_,
-			       (double *)this->data_, len1, MPI::DOUBLE,
-			       MPI::SUM, root);
+	MPI_Reduce((double *)this->data_,
+			       (double *)this->data_, len1, MPI_DOUBLE,
+		   MPI_SUM, root, MPI_COMM_WORLD);
       }
     } else {
       std::cerr << "herm_matrix_timestep_moving<T>::MPI_Reduce only for double "

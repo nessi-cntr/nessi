@@ -123,7 +123,7 @@ namespace cntr {
 * > The `herm_matrix_moving` according to which the class should be initialized
 */ 
   template <typename T>
-  herm_matrix_timestep_moving_view<T>::herm_matrix_timestep_moving_view(int tstp, herm_matrix_moving<T> &g){
+  herm_matrix_timestep_moving_view<T>::herm_matrix_timestep_moving_view(int i, herm_matrix_moving<T> &g){
     assert(tstp<=g.t0() && tstp>=(g.t0()-g.tc()) && g.t0()>0);
     tc_=g.tc();
     t0_=g.t0();
@@ -132,8 +132,8 @@ namespace cntr {
     element_size_=size1_*size2_;
     sig_= g.sig();
     //only valid for the wasteful square storage scheme currently implemented
-    ret_=g.retptr(t0_-tstp,0);
-    les_=g.lesptr(t0_-tstp,0);
+    ret_=g.retptr(t0_-i,0);
+    les_=g.lesptr(t0_-i,0);
   }
   /** \brief <b> Initializes the `herm_matrix_timestep_moving_view` class with the same layout as a given `herm_matrix_timestep_moving g`. </b>
 *
@@ -225,7 +225,7 @@ namespace cntr {
 */  
   template <typename T>
   herm_matrix_timestep_moving_view<T>::herm_matrix_timestep_moving_view(int tc, int t0, int size1, int size2, int sig) {
-    assert(size1>=0 && tc>=1 && t0>=tc);
+    assert(size1>=0 && size2>=0 && tc>=1 && t0>=tc);
     tc_=tc;
     t0_=t0;
     size1_=size1;
@@ -485,16 +485,17 @@ namespace cntr {
   /// @private
   template<>
   inline void my_mpi_reduce_moving<double>(std::complex<double> *data, int len, int root) {
-    int tid = MPI::COMM_WORLD.Get_rank();
-    int ntasks = MPI::COMM_WORLD.Get_size();
+    int tid,ntasks;
+    MPI_Comm_rank(MPI_COMM_WORLD, &tid);
+    MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
     assert(root>=0 && root <= ntasks -1);
     assert(len>=0);
     if (tid == root) {
-      MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, (double *)data, 2 * len,
-			     MPI::DOUBLE, MPI::SUM, root);
+      MPI_Reduce(MPI_IN_PLACE, (double *)data, 2 * len,
+		 MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
     } else {
-      MPI::COMM_WORLD.Reduce((double *)data, (double *)data, 2 * len,
-			     MPI::DOUBLE, MPI::SUM, root);
+      MPI_Reduce((double *)data, (double *)data, 2 * len,
+		 MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
     }
   }
   /// @private
