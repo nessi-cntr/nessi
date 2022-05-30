@@ -299,13 +299,23 @@ class bethedos {
     double lo_;
     /** \brief <b> Hopping integral and 4V corresponds to the bandwidth </b> */
     double V_;
+
+    double Eshift_;
     bethedos() {
+        Eshift_ = 0.0;
         V_ = 1;
         lo_ = -2;
         hi_ = 2;
     }
+    bethedos(double Eshift) {
+        Eshift_ = Eshift;
+        V_ = 1;
+        lo_ = -2 + Eshift_;
+        hi_ = 2 + Eshift_;
+    }
     double operator()(double x) {
-        double arg = 4.0 * V_ * V_ - x * x;
+        double xv = x - Eshift_;
+        double arg = 4.0 * V_ * V_ - xv * xv;
         double num = V_ * V_ * 3.14159265358979323846 * 2;
         return (arg < 0 ? 0.0 : sqrt(arg) / num);
     }
@@ -574,8 +584,8 @@ void green_equilibrium(herm_matrix<T> &G,dos_function &dos,double beta,double h,
 */
 template <typename T>
 void green_equilibrium_mat_bethe(herm_matrix<T> &G, double beta, int limit,
-                                 int nn,double mu) {
-    bethedos dos;
+                                 int nn,double mu,double Eshift) {
+    bethedos dos(Eshift);
     green_equilibrium_mat(G, dos, beta, limit, nn,mu);
 }
 
@@ -607,8 +617,8 @@ void green_equilibrium_mat_bethe(herm_matrix<T> &G, double beta, int limit,
 
 template <typename T>
 void green_equilibrium_bethe(herm_matrix<T> &G, double beta, double h,
-                             int limit, int nn,double mu) {
-    bethedos dos;
+                             int limit, int nn, double mu, double Eshift) {
+    bethedos dos(Eshift);
     green_equilibrium(G, dos, beta, h, limit, nn,mu);
 }
 

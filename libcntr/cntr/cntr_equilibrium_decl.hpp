@@ -40,10 +40,10 @@ namespace cntr {
   // BETHE DOS, bandwidh 4
   template <typename T>
   void green_equilibrium_mat_bethe(herm_matrix<T> &G, double beta,
-    int limit = 100, int nn = 20,double mu=0.0);
+    int limit = 100, int nn = 20,double mu=0.0,double Eshift=0.0);
   template <typename T>
   void green_equilibrium_bethe(herm_matrix<T> &G, double beta, double h,
-    int limit = 100, int nn = 20,double mu=0.0);
+    int limit = 100, int nn = 20,double mu=0.0,double Eshift=0.0);
   // user-defined DOS
   template <typename T, class dos_function>
   void green_equilibrium_mat(herm_matrix<T> &G, dos_function &dos, double beta,
