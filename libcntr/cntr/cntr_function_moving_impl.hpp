@@ -49,6 +49,7 @@ namespace cntr {
   template <typename T> 
   function_moving<T>::function_moving(int tc,int size1){
     assert(-1<=tc);
+    assert(size1>0);
     // CNTR_ASSERT(MOVING_HERM_ASSERT_LEVEL,!(tc==-1 && size1>0),__PRETTY_FUNCTION__)
     tc_=tc;
     t0_=0;
@@ -396,8 +397,8 @@ template <typename T>  void  function_moving<T>::resize(int tc,int size1){
     assert(tc_<=tstp && tstp <= f.nt());
     for(int i=0;i<=tc_;i++){
       MatrixXcd tmp;
-      f.get_value(i,tmp);
-      set_value(tstp-i,tmp);
+      f.get_value(tstp-i,tmp);
+      set_value(i,tmp);
     }
   }
 

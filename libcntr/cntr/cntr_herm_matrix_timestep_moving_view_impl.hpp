@@ -124,7 +124,6 @@ namespace cntr {
 */ 
   template <typename T>
   herm_matrix_timestep_moving_view<T>::herm_matrix_timestep_moving_view(int i, herm_matrix_moving<T> &g){
-    assert(tstp<=g.t0() && tstp>=(g.t0()-g.tc()) && g.t0()>0);
     tc_=g.tc();
     t0_=g.t0();
     size1_=g.size1();
@@ -149,16 +148,15 @@ namespace cntr {
 *
 * <!-- ARGUMENTS
 *      ========= -->
-* @param t0
-* > Time step 
+* @param i
+* > Time index 
 * @param g
 * > The `herm_matrix_timestep_moving` according to which the class should be initialized
 */
   template <typename T>
-  herm_matrix_timestep_moving_view<T>::herm_matrix_timestep_moving_view(int t0, herm_matrix_timestep_moving<T> &g){
-    assert(t0==g.t0() && g.t0()>0);
+  herm_matrix_timestep_moving_view<T>::herm_matrix_timestep_moving_view(int i, herm_matrix_timestep_moving<T> &g){
     tc_=g.tc();
-    t0_=t0;
+    t0_=g.t0();
     size1_=g.size1();
     size2_=g.size2();
     element_size_=size1_*size2_;
@@ -181,16 +179,15 @@ namespace cntr {
 *
 * <!-- ARGUMENTS
 *      ========= -->
-* @param t0
-* > Time step 
+* @param i
+* > Time index
 * @param g
 * > The `herm_matrix_timestep_moving_view` according to which the class should be initialized
 */
   template <typename T>
-  herm_matrix_timestep_moving_view<T>::herm_matrix_timestep_moving_view(int t0, herm_matrix_timestep_moving_view<T> &g){
-    assert(t0==g.t0() && g.t0()>0);
+  herm_matrix_timestep_moving_view<T>::herm_matrix_timestep_moving_view(int i, herm_matrix_timestep_moving_view<T> &g){
     tc_=g.tc_;
-    t0_=t0;
+    t0_=g.t0_;
     size1_=g.size1_;
     size2_=g.size2_;
     element_size_=size1_*size2_;
@@ -474,6 +471,235 @@ namespace cntr {
   //   herm_matrix_timestep_moving_view<T> tmp(t0_,g);
   //   get_data(tmp)
   //     }
+
+
+/** \brief <b> Sets all components of `herm_matrix_timestep_moving_view`  to the components of
+ *  a given `herm_matrix_moving` at time index `i`. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > Sets all components of the `herm_matrix_timestep_moving` at time index `i` to
+ * > the components of given `herm_matrix_moving`.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param i
+ * > The time index at which the components are set.
+ *
+ * @param g1
+ * > The `herm_matrix_moving` from which the time step is copied.
+ *
+ */
+template <typename T>
+void herm_matrix_timestep_moving_view<T>::set_timestep(int i, herm_matrix_moving<T> &g1) {
+  assert(tc_== g1.tc() && "tc_== g1.tc()");
+  assert(i >= 0 && i <= g1.tc() && "i >= 0 && i <= g1.tc()");
+  assert(g1.size1() == size1_ && "g1.size1() == size1_");
+  memcpy(retptr(0), g1.retptr(i, 0),
+	 sizeof(cplx) * (tc_ + 1) * element_size_);
+  memcpy(lesptr(0), g1.lesptr(i, 0),
+	 sizeof(cplx) * (tc_ + 1) * element_size_);
+	
+}
+
+/** \brief <b> Sets all components of `herm_matrix_timestep_moving_view`  to the components of
+ *  a given `herm_matrix_timestep_moving`. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > Sets all components of the `herm_matrix_timestep_moving_view` to
+ * > the components of given `herm_matrix_timestep_moving`.
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ * @param i
+ * > The time index at which the components are set. (DUMMY VARIABLE FOR CONSISTENCY ONLY)
+ *
+ * @param g1
+ * > The `herm_matrix_timestep` from which the time step is copied.
+ *
+ */
+template <typename T>
+void herm_matrix_timestep_moving_view<T>::set_timestep(int i, herm_matrix_timestep_moving<T> &g1) {
+  assert(tc_== g1.tc() && "tc_== g1.tc()");
+  assert(i >= 0 && i <= g1.tc() && "i >= 0 && i <= g1.tc()");
+  assert(g1.size1() == size1_ && "g1.size1() == size1_");
+  memcpy(retptr(0), g1.retptr(0),
+	 sizeof(cplx) * (tc_ + 1) * element_size_);
+  memcpy(lesptr(0), g1.lesptr(0),
+	 sizeof(cplx) * (tc_ + 1) * element_size_);
+
+}
+
+
+/** \brief <b> Sets all components  to zero. </b>
+ *
+ * <!-- ====== DOCUMENTATION ====== -->
+ *
+ *  \par Purpose
+ * <!-- ========= -->
+ *
+ * > Sets all components of the `herm_matrix_timestep_moving_view` to zero
+ *
+ * <!-- ARGUMENTS
+ *      ========= -->
+ *
+ */
+template <typename T>
+void herm_matrix_timestep_moving_view<T>::clear_timestep(void) {
+        memset(retptr(0), 0, sizeof(cplx) * (tc_ + 1) * element_size_);
+        memset(lesptr(0), 0, sizeof(cplx) * (tc_ + 1) * element_size_);
+}
+
+
+  
+/* #######################################################################################
+#
+#   WRITING ELEMENTS FROM ANY MATRIX TYPE
+#   OR FROM COMPLEX NUMBERS (then only the (0,0) element is addressed for dim>0)
+#
+########################################################################################*/
+#define herm_matrix_SET_ELEMENT_MATRIX                                       \
+      {                                                                        \
+         int r, s;                                                             \
+         for (r = 0; r < size1_; r++)                                            \
+            for (s = 0; s < size2_; s++)                                        \
+               x[r * size2_ + s] = M(r, s);                                    \
+         }
+
+/// @private
+/** \brief <b> Sets the retarded component at given times. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sets \f$G^\mathrm{R}(t_i, t_j)\f$ to given matrix `M`.
+* > Restricted to the domain of `herm_matrix`: \f$i \ge j\f$.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of time \f$ t_i\f$.
+* @param j
+* > Index of time \f$ t_j\f$.
+* @param M
+* > Matrix in which the retarded component is given.
+*/
+template<typename T> template <class Matrix> void herm_matrix_timestep_moving_view<T>::set_ret(int j,Matrix &M){
+         assert(j <= tc_);
+         cplx *x=retptr(j);
+         herm_matrix_SET_ELEMENT_MATRIX
+      }
+
+/// @private
+/** \brief <b> Sets the lesser component at given times. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Sets the lesser component \f$G^<(t_i,t_j)\f$ of `herm_matrix_timestep`
+* > to a given complex matrix `M`. Restricted to the domain of `herm_matrix`: \f$j \ge i\f$.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > Index of time \f$ t_i\f$.
+* @param j
+* > Index of time \f$ t_j\f$.
+* @param M
+* > Matrix in which the lesser component is given.
+*/
+  template<typename T> template <class Matrix> void herm_matrix_timestep_moving_view<T>::set_les(int j, Matrix &M){
+      assert(j == tc_);
+      cplx *x=lesptr(j);
+      herm_matrix_SET_ELEMENT_MATRIX
+   }
+
+////////////////////////////////////////////////////////////////////////////////////////
+// the following routines are not very "efficent" but sometimes simple to
+// implement
+#define herm_matrix_READ_ELEMENT                                             \
+{                                                                        \
+   int r, s, dim = size1_;                                              \
+   M.resize(dim, dim);                                                  \
+   for (r = 0; r < dim; r++)                                            \
+      for (s = 0; s < dim; s++)                                        \
+         M(r, s) = x[r * dim + s];                                    \
+   }
+
+/// @private
+/** \brief <b> Returns the lesser component at a given time step. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+*
+* > Returns the lesser component \f$ C^\mathrm{<}(t_j,t_i) \f$
+* > at a given time \f$ t_j\f$ with \f$ j <= tstp\f$ for particular time step `i=tstp`
+* > to a given matrix class.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param j
+* > Index of time \f$ t_j\f$ .
+* @param M
+* > Matrix to which the lesser component is given.
+*/
+template <typename T> template <class Matrix>
+      void herm_matrix_timestep_moving_view<T>::get_les(int j, Matrix &M){
+         assert(j == tc_);
+         cplx *x;
+         x = lesptr(j);
+         herm_matrix_READ_ELEMENT
+      }
+
+/// @private
+/** \brief <b> Returns the retarded component at a given time step. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+*
+* > Returns the retarded component \f$ C^\mathrm{R}(tstp, t_j) \f$
+* > at a given time \f$ t_j\f$ for particular time step `tstp`
+* > to a given matrix class.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param j
+* > Index of time \f$ t_j\f$ .
+* @param M
+* > Matrix to which the retarded component is given.
+*/
+template <typename T>
+template <class Matrix>
+      void herm_matrix_timestep_moving_view<T>::get_ret(int j, Matrix &M) {
+         assert(j <= tc_);
+         cplx *x;
+         x = retptr(j);
+         herm_matrix_READ_ELEMENT
+      }
+  
 #if CNTR_USE_MPI ==1
   /// @private
   template <typename T>
@@ -576,6 +802,350 @@ namespace cntr {
     x=lesptr(0);
     herm_matrix_READ_ELEMENT M *=CPLX(0.0,1.0*sig_);   
   }
+
+  /** \brief <b> Multiply  `herm_matrix_timestep_moving_view` with scalar `weight`.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Multiply `herm_matrix_timestep_moving_view` with a scalar.
+* > Works for scalar or square-matrix contour objects.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param weight
+* > The `template argument` multiplication factor
+*/
+
+template <typename T>
+void herm_matrix_timestep_moving_view<T>::smul(T weight) {
+    int m;
+    CPLX *x0;
+    x0 = ret_;
+    for (m = 0; m <= tc_; m++) {
+      element_smul<T, LARGESIZE>(size1_, x0 + m * element_size_,
+				 weight);
+    }
+    x0 = les_;
+    for (m = 0; m <= tc_; m++) {
+      element_smul<T, LARGESIZE>(size1_, x0 + m * element_size_,
+				 weight);
+    }
+    
+}
+
+  
+/** \brief <b> Left-multiplication of the `herm_matrix_timestep_moving_view` with a contour function </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Left-multiplication of the `herm_matrix_timestep_moving` with a time dependent contour function F(t)
+* > i.e. it performs operation \f$G(t,t') \rightarrow w F(t)G(t,t')\f$
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > [int] The time index at which \f$F(t)\f$ and \f$G(t,t^\prime)\f$ are multiplied.
+* @param ft
+* > the moving contour function F(t)
+* @param weight
+* > some number (weight)
+*/
+template <typename T>
+void herm_matrix_timestep_moving_view<T>::left_multiply(int i, function_moving<T> &ft, T weight) {
+   assert( ft.tc() == tc_);
+   assert( ft.t0() == t0_);
+
+   this->left_multiply(ft.ptr(-1), ft.ptr(0), weight);
+}
+
+/// @private
+/** \brief <b> Left-multiplies the `herm_matrix_moving_timestep` with contour function. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* Performs the operation \f$C(t,t^\prime) \rightarrow w F(t)C(t,t^\prime)\f$, where \f$C(t,t^\prime)\f$ is the
+* `herm_matrix_moving`, \f$F(t)\f$ is a `function` given in pointer format and \f$w\f$ is a real weight. The operation is performed
+* at given time step `tstp`. This is a lower-level routine. The interface where \f$F(t)\f$ is supplied as
+* contour function is preferred.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > [int] The time step at which \f$F(t)\f$ and \f$C(t,t^\prime)\f$ are multiplied.
+* @param *ft
+* > [complex<T>] Pointer to \f$F(t)\f$ on the real axis. It is assumed that ft+t*element_size_ points to \f$ F(t) \f$.
+* @param weight
+* > [T] The weight as above.
+*/
+template <typename T>
+void herm_matrix_timestep_moving_view<T>::left_multiply(int i,std::complex<T> *ft, T weight) {
+    int m;
+    cplx *xtemp, *ftemp, *x0;
+    xtemp = new cplx[element_size_];
+    ftemp = ft + i * element_size_;//CHECK THIS
+    x0 = retptr(i, 0);
+    for (m = 0; m <= tc_; m++) {
+      element_mult<T, LARGESIZE>(size1_, xtemp, ftemp,
+				 x0 + m * element_size_);
+      element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+      element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+    }
+    x0 = lesptr(i, 0);
+    for (m = 0; m <= tc_; m++) {
+      element_mult<T, LARGESIZE>(size1_, xtemp, ftemp,
+				 x0 + m * element_size_);
+      element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+      element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+    }
+    
+    delete[] xtemp;
+}
+
+
+/** \brief <b> Right-multiplication of the `herm_matrix_timestep_moving_view` with a contour function </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Right-multiplication of the `herm_matrix_timestep_moving_view` with a time dependent moving contour function F(t)
+* > i.e. it performs operation \f$G(t,t') \rightarrow w F(t)G(t,t')\f$
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param i
+* > [int] The time index at which \f$F(t)\f$ and \f$G(t,t^\prime)\f$ are multiplied.
+* @param ft
+* > the contour function F(t)
+* @param weight
+* > some number (weight)
+*/
+template <typename T>
+void herm_matrix_timestep_moving_view<T>::right_multiply(int i, function_moving<T> &ft, T weight) {
+   assert( ft.tc() >= tc_);
+
+   this->right_multiply(ft.ptr(0), weight);
+}
+
+/// @private
+/** \brief <b> Right-multiplies the `herm_matrix` with contour function. </b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* Performs the operation \f$C(t,t^\prime) \rightarrow w C(t,t^\prime) F(t^\prime)\f$, where \f$C(t,t^\prime)\f$ is the
+* `herm_matrix`, \f$F(t)\f$ is a `function` given in pointer format and \f$w\f$ is a real weight. The operation is performed
+* at given time step `tstp`. This is a lower-level routine. The interface where \f$F(t)\f$ is supplied as
+* contour function is preferred.
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param tstp
+* > [int] The time step at which \f$F(t)\f$ and \f$C(t,t^\prime)\f$ are multiplied.
+* @param *ft
+* > [complex<T>] Pointer to \f$F(t)\f$ on the real axis. It is assumed that ft+t*element_size_ points to \f$ F(t) \f$.
+* @param weight
+* > [T] The weight as above.
+*/
+  template <typename T>
+  void herm_matrix_timestep_moving_view<T>::right_multiply(int i, std::complex<T> *ft, T weight) {
+    int m;
+    cplx *xtemp, *x0;
+    xtemp = new cplx[element_size_];
+    x0 = retptr(i, 0);
+    for (m = 0; m <= tc_; m++) {
+      element_mult<T, LARGESIZE>(size1_, xtemp, x0 + m * element_size_,
+				 ft + m * element_size_);
+      element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+      element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+    }
+    x0 = lesptr(i, 0);
+    for (m = 0; m <= tc_; m++) {
+      element_mult<T, LARGESIZE>(size1_, xtemp, x0 + m * element_size_,
+				 ft + m * element_size_);
+      element_smul<T, LARGESIZE>(size1_, xtemp, weight);
+      element_set<T, LARGESIZE>(size1_, x0 + m * element_size_, xtemp);
+    }
+
+    delete[] xtemp;
+  }
+
+
+#define HERM_MATRIX_INCR_TSTP                                                \
+    if (alpha == CPLX(1.0, 0.0)) {                                           \
+        for (i = 0; i < len; i++)                                            \
+            x0[i] += x[i];                                                   \
+    } else {                                                                 \
+        for (i = 0; i < len; i++)                                            \
+            x0[i] += alpha * x[i];                                           \
+    }
+
+
+/** \brief <b> Increase the value of the  `herm_matrix_timestep_moving_view` for  \f$\alpha g(t) \f$</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Increase the value of `herm_matrix_timestep_moving_view` for a value of \f$\alpha g(t)\f$, where \f$ g(t)\f$
+* > is a `herm_matrix_timestep_moving_view` and \f$\alpha\f$ is a complex number
+* > Works for scalar or square-matrix contour objects.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param g
+* > The `herm_matrix_timestep_moving_view` which is added
+* @param alpha
+* > Constant multiplication factor
+*/
+
+template <typename T>
+void
+herm_matrix_timestep_moving_view<T>::incr_timestep(herm_matrix_timestep_moving_view<T> &g,
+                                            CPLX alpha) {
+  assert(tc_==g.tc() && size1_ == g.size1() && size2_ == g.size2());
+
+    int i, len;
+    CPLX *x, *x0;
+    len = (tc_ + 1) * element_size_;
+    x0 = ret_;
+    x = g.ret_;
+    HERM_MATRIX_INCR_TSTP
+    x0 = les_;
+    x = g.les_;
+    HERM_MATRIX_INCR_TSTP
+}
+#undef HERM_MATRIX_INCR_TSTP
+
+/** \brief <b> Increase the value of the  `herm_matrix_timestep_moving_view` for  \f$\alpha g(t) \f$.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Increase the value of `herm_matrix_timestep_moving_view` for a value of \f$\alpha g(t) \f$, where \f$ g(t)\f$
+* > is a `template argument` and \f$\alpha\f$ is a complex number
+* > Works for scalar or square-matrix contour objects.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param g
+* > The `template argument` which is added
+* @param alpha
+* > Constant multiplication factor
+*/
+
+
+template <typename T>
+template <class GG>
+void herm_matrix_timestep_moving_view<T>::incr_timestep(GG &g, CPLX alpha) {
+    herm_matrix_timestep_moving_view<T> tmp(0, g);
+    incr_timestep(tmp, alpha);
+}
+  
+#define HERM_MATRIX_INCR_TSTP                                                \
+    if (alpha == 1.0) {                                                      \
+        for (i = 0; i < len; i++)                                            \
+            x0[i] += x[i];                                                   \
+    } else {                                                                 \
+        for (i = 0; i < len; i++)                                            \
+            x0[i] += alpha * x[i];                                           \
+    }
+
+
+/** \brief <b> Increase the value of the  `herm_matrix_timestep_view` for  \f$\alpha g(t) \f$.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Increase the value of `herm_matrix_timestep_view` for a value of \f$\alpha g(t)\f$, where \f$ g(t)\f$
+* > is a `herm_matrix_timestep_view` and \f$\alpha \f$ is a `template argument`
+* > If \f$t>-1\f$ then `ret,les,tv` components are set, otherwise `mat`.
+* > Works for scalar or square-matrix contour objects.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param g
+* > The `template argument` which is added
+* @param alpha
+* > Constant `template argument` multiplication factor
+*/
+
+template <typename T>
+void
+herm_matrix_timestep_moving_view<T>::incr_timestep(herm_matrix_timestep_moving_view<T> &g,
+                                            T alpha) {
+    assert(size1_ == g.size1_ && size2_ == g.size2_);
+
+    int i, len;
+    CPLX *x, *x0;
+    len = (tc_ + 1) * element_size_;
+    x0 = ret_;
+    x = g.ret_;
+    HERM_MATRIX_INCR_TSTP
+    x0 = les_;
+    x = g.les_;
+    HERM_MATRIX_INCR_TSTP
+}
+#undef HERM_MATRIX_INCR_TSTP
+
+/** \brief <b> Increase the value of the  `template argument for  \f$\alpha g(t) \f$.</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*  \par Purpose
+* <!-- ========= -->
+*
+* > Increase the value of `template argument` for a value of \f$\alpha g(t)\f$, where \f$ g(t)\f$
+* > is a `template argument`[ either herm_matrix_timestep_moving_view, herm_matrix_timestep_moving, herm_matrix_moving]
+* > and \f$\alpha\f$ is a `template argument`.
+* > Works for scalar or square-matrix contour objects.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param g
+* > The `template argument` added
+* @param alpha
+* > Constant `template argument` multiplication factor
+*/
+
+template <typename T>
+template <class GG>
+void herm_matrix_timestep_moving_view<T>::incr_timestep(GG &g, T alpha) {
+    herm_matrix_timestep_moving_view<T> tmp(0, g);
+    incr_timestep(tmp, alpha);
+}
+  
 #undef herm_matrix_READ_ELEMENT
 #undef herm_matrix_READ_ELEMENT_MINUS_CONJ
 #undef CPLX

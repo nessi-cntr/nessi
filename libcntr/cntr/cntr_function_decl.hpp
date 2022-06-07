@@ -137,6 +137,7 @@ namespace cntr {
     int size1(void) const{ return size1_;}
     int size2(void) const{ return size2_;}
     int tc(void) const{ return tc_;}
+    int t0(void) const{ return t0_;}
     void set_t0(int t0);
     // raw pointer to elements ... to be used with care
     inline cplx * ptr(int i){return value_[i];}  // points to Gret(t0-i,t0-i-j)

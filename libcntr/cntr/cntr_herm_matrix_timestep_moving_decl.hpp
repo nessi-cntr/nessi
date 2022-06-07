@@ -8,6 +8,7 @@
 #include "cntr_herm_matrix_decl.hpp"
 #include "cntr_herm_matrix_timestep_view_impl.hpp"
 
+
 namespace cntr {
 
     /** \brief <b> Class `herm_matrix_timestep_moving` deals with contour objects \f$ C(t,t') \f$
@@ -38,7 +39,7 @@ namespace cntr {
     herm_matrix_timestep_moving(const herm_matrix_timestep_moving &g);
     herm_matrix_timestep_moving & operator=(const herm_matrix_timestep_moving &g);
     herm_matrix_timestep_moving(int n,herm_matrix_moving<T> &g);
-    void clear(void);
+    void clear_timestep(void);
     void resize(int tc,int size1);
     /* access size etc ... */
     int element_size(void) const{ return element_size_;}
@@ -70,6 +71,9 @@ namespace cntr {
     inline void get_ret(int j,cplx &x);
     cplx density_matrix(void);  //  -sig*ii*Gles(t0-i,t0-i)
     template<class Matrix> void density_matrix(Matrix &M);
+
+    void set_timestep(int i, herm_matrix_moving<T> &g1);
+    void set_timestep(int i, herm_matrix_timestep_moving<T> &g1);
     // writing basic elements (also relative to t0)
     /// @private
     template<class Matrix> void set_les(int j,Matrix &M);
@@ -81,6 +85,7 @@ namespace cntr {
     inline void set_ret(int j,cplx x);
     // ADD, CP, SET, MULTIPLY, ETC
     void incr_timestep(herm_matrix_timestep_moving<T> &g,cplx alpha);
+    void incr_timestep(int i, herm_matrix_moving<T> &g,cplx alpha);
     // works only for timestep 0
     void left_multiply(function_moving<T> &g,T weight);
     void right_multiply(function_moving<T> &g,T weight);

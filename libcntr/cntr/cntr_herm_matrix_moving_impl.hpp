@@ -489,6 +489,43 @@ namespace cntr {
     get_les(i,0,M);
     M *= std::complex<T>(0.0,1.0*sig_);
   }
+
+#define herm_matrix_SET_ELEMENT_MATRIX					\
+    {                                                                        \
+        int r, s;                                                             \
+        for (r = 0; r < size1_; r++)                                            \
+            for (s = 0; s < size2_; s++)                                        \
+                x[r * size2_ + s] = M(r, s);                                    \
+    }
+  /// @private
+  template<typename T> 
+  template<class Matrix>
+  void herm_matrix_moving<T>::set_les(int i,int j,Matrix &M){
+    assert(i<=tc_ && j<=tc_);
+    cplx *x = lesptr(i,j);
+    herm_matrix_SET_ELEMENT_MATRIX
+      }
+  
+  /// @private
+  template<typename T> 
+  template<class Matrix>
+  void herm_matrix_moving<T>::set_ret(int i,int j,Matrix &M){
+    assert(i<=tc_ && j<=tc_);
+    cplx *x = retptr(i,j);
+    herm_matrix_SET_ELEMENT_MATRIX
+      }
+  /// @private
+  template<typename T> 
+  inline void herm_matrix_moving<T>::set_les(int i,int j,cplx x){
+    assert(i<=tc_ && j<=tc_);
+    *lesptr(i,j) = x;
+  }
+  /// @private
+  template<typename T> 
+  inline void herm_matrix_moving<T>::set_ret(int i,int j,cplx x){
+    assert(i<=tc_ && j<=tc_);
+    *retptr(i,j) = x;  
+  }
 /* #######################################################################################
 #
 #   INPUT/OUTPUT FROM/TO FILES

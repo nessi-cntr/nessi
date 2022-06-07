@@ -88,13 +88,46 @@ namespace cntr {
     void get_data(GG &g);
     template <class GG>
     void get_data(int tstp,GG &g);
+    
+    /// @private
+    template <class Matrix> void set_ret(int j, Matrix &M);// sets G(t0,t0-j)
+    /// @private
+    template <class Matrix> void set_les(int j, Matrix &M);// sets G(t0,t0-j)
+    /// @private
+    template <class Matrix> void get_les(int j, Matrix &M);// gets G(t0,t0-j)
+    /// @private
+    template <class Matrix> void get_ret(int j, Matrix &M);// gets G(t0,t0-j)
+
+    void set_timestep(int tstp, herm_matrix_moving<T> &g1);
+    void set_timestep(int tstp, herm_matrix_timestep_moving<T> &g1);
+    void clear_timestep(void);
+    
     //void get_timestep(int tstp,herm_matrix_timestep<T> &timestep);
     // ** SET MATRIX_ELEMENT:  this(i1,i2) <= g(j1,j2)
     void set_matrixelement(int i1, int i2, herm_matrix_timestep_moving_view<T> &g,
                            int j1, int j2);
     template <class GG>
     void set_matrixelement(int i1, int i2, GG &g, int j1, int j2);
+    
+    /// @private
+    void left_multiply(int i, std::complex<T> *ft, T weight = 1.0);
+    void left_multiply(int i, function_moving<T> &ft, T weight = 1.0);
+    /// @private
+    void right_multiply(int i, std::complex<T> *ft, T weight = 1.0);
+    void right_multiply(int i, function_moving<T> &ft, T weight = 1.0);
+    //void left_multiply_hermconj(int i, function_moving<T> &ft, T weight = 1.0);
+    //void right_multiply_hermconj(int i, function_moving<T> &ft, T weight = 1.0);
+    void smul(T alpha);
     // ** INCR_TIMESTEP  this += alpha * g
+
+    void incr_timestep(herm_matrix_timestep_moving_view<T> &g,
+                       std::complex<T> alpha);
+    void incr_timestep(herm_matrix_timestep_moving_view<T> &g, T alpha);
+    template <class GG>
+    void incr_timestep(GG &g, std::complex<T> alpha);
+    template <class GG>
+    void incr_timestep(GG &g, T alpha);
+
     // TO-DO
     // ** Would be more more consistent with description, when read only... **
     // void incr_timestep(herm_matrix_timestep_moving_view<T> &g,

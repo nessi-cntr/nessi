@@ -8,6 +8,7 @@ namespace cntr {
 
   template <typename T> class herm_matrix;
   template <typename T> class function;
+  template <typename T> class herm_matrix_moving;
 
 /* #######################################################################################
 #
@@ -48,6 +49,13 @@ namespace cntr {
   void vie2_timestep(int n, herm_matrix<T> &G, herm_matrix<T> &F, herm_matrix<T> &Fcc,
          herm_matrix<T> &Q, integration::Integrator<T> &I, T beta, T h,
          const int matsubara_method=CNTR_MAT_FIXPOINT);
+
+  ///@private  
+  template < typename T>
+  void vie2_timestep(herm_matrix_moving<T> &G,herm_matrix_moving<T> &F,
+	 herm_matrix_moving<T> &Fcc,herm_matrix_moving<T> &Q,
+	 integration::Integrator<T> &I, T h);
+
 
   /// @private
   template <typename T>

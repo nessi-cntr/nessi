@@ -2516,7 +2516,209 @@ void vie2_omp(int omp_num_threads, herm_matrix<T> &G, herm_matrix<T> &F, herm_ma
 }
 
 #endif // CNTR_USE_OMP
+  ///@private
+template < typename T, int SIZE1 >
+void vie2_timestep_dispatch_ret(herm_matrix_moving<T> &G,herm_matrix_moving<T> &F,herm_matrix_moving<T> &Fcc,herm_matrix_moving<T> &Q, integration::Integrator<T> &I, T h){
+    typedef std::complex<T> cplx;
+    int k=I.get_k();
+    // various asserts are one level higher
+    cplx *mm,*qq,*one,*gtemp,*stemp,weight;
+    int i,j,p,l,q;
+    int size1=G.size1();
+    int tc=G.tc();
+    int sg=G.element_size();
+    mm = new cplx [k*k*sg];
+    qq = new cplx [k*sg];
+    one = new cplx [sg];
+    gtemp = new cplx [k*sg];
+    stemp = new cplx [sg];
+    element_set<T,SIZE1>(size1,one,1);
+    // SET ENTRIES IN TIMESTEP TO 0
+    for(i=0;i<=tc;i++) element_set_zero<T,SIZE1>(size1,G.retptr(0,i));
+    // INITIAL VALUE t' = t
+    element_set<T,SIZE1>(size1,G.retptr(0,0),Q.retptr(0,0));
+    // START VALUES  t' = n-j, j = 1...k: solve a kxk problem
+    for(i=0;i<k*k*sg;i++) mm[i]=0;
+    for(i=0;i<k*sg;i++) qq[i]=0;
+    for(j=1;j<=k;j++){
+        p=j-1;
+        element_incr<T,SIZE1>(size1,qq+p*sg,Q.retptr(0,j));
+        element_incr<T,SIZE1>(size1,mm+sg*(p+k*p),one);
+        // integral
+        for(l=0;l<=k;l++){
+            weight=-h*I.gregory_weights(j,l);
+            if(j>=l){
+                // ... F(t-l,t-j)=F(t-l,t-l-(j-l))
+                element_set<T,SIZE1>(size1,stemp,F.retptr(l,j-l));
+            }else{
+                // ... Fcc(t-j,t-l)=F(t-j,t-j-(l-j))
+                element_set<T,SIZE1>(size1,stemp,Fcc.retptr(j,l-j));
+                element_conj<T,SIZE1>(size1,stemp);
+                weight *= -1;
+            }
+            if(l==0){
+                element_incr<T,SIZE1>(size1,qq+p*sg,weight,G.retptr(0,0),stemp);
+            }else{
+                q=l-1;
+                element_incr<T,SIZE1>(size1,mm+sg*(p*k+q),-weight,stemp);
+            }
+        }
+    }
+    element_linsolve_left<T,SIZE1>(size1,k,gtemp,mm,qq); // gtemp * mm = qq 
+    for(j=1;j<=k;j++) element_set<T,SIZE1>(size1,G.retptr(0,j),gtemp + (j-1)*sg);
+    // REMAINING VALUES  t' = n-j, j = k+1,...,tc: solve a 1x1 problem
+    for(j=k+1;j<=tc;j++){
+        // qq <- Q(t,t-j)
+        element_set<T,SIZE1>(size1,qq,Q.retptr(0,j));
+        // qq += contribution from -\int_{t'}^t dt1 Fret(t,t1)Gret(t1,t')
+        //       which does not contain Gret(t,t')
+        element_set_zero<T,SIZE1>(size1,stemp);
+        if(j<2*k+2){
+            for(l=1;l<=j;l++){
+                element_incr<T,SIZE1>(size1,stemp,I.gregory_weights(j,l),F.retptr(0,l),G.retptr(l,j-l));
+            }
+        }else{
+            for(l=1;l<=k;l++){
+                element_incr<T,SIZE1>(size1,stemp,I.gregory_omega(l),F.retptr(0,l),G.retptr(l,j-l));
+            }
+            for(l=k+1;l<j-k;l++){
+	      element_incr<T,SIZE1>(size1,stemp,F.retptr(0,l),G.retptr(l,j-l));
+            }
+            for(l=j-k;l<=j;l++){
+                element_incr<T,SIZE1>(size1,stemp,I.gregory_omega(j-l),F.retptr(0,l),G.retptr(l,j-l));
+            }
+        }
+        element_incr<T,SIZE1>(size1,qq,-h,stemp);
+        // get prefactor of G on the other side
+        for(i=0;i<sg;i++) mm[i] = one[i]  + h*I.gregory_omega(0)*F.retptr(0,0)[i];
+        element_linsolve_right<T,SIZE1>(size1,G.retptr(0,j),mm,qq);
+    }
+    delete [] stemp;
+    delete [] qq;
+    delete [] mm;
+    delete [] gtemp;
+    delete [] one;
+    return;
+}
 
+  ///@private
+template < typename T, int SIZE1 >
+void vie2_timestep_dispatch_les(herm_matrix_moving<T> &G,herm_matrix_moving<T> &F,herm_matrix_moving<T> &Fcc,herm_matrix_moving<T> &Q, integration::Integrator<T> &I, T h){
+    typedef std::complex<T> cplx;
+    int k=I.get_k();
+    // various asserts are one level higher
+    cplx *mm,*qq,*one,*gtemp,*stemp,weight;
+    int i,j,l,dl,dl1;
+    int size1=G.size1();
+    int tc=G.tc();
+    int sg=G.element_size();
+    mm = new cplx [sg];
+    qq = new cplx [sg];
+    one = new cplx [sg];
+    gtemp = new cplx [sg];
+    stemp = new cplx [sg];
+    element_set<T,SIZE1>(size1,one,1);
+    for(i=0;i<=tc;i++) element_set_zero<T,SIZE1>(size1,G.lesptr(0,i));
+    // DO Gles(t,t-j), j=tc,...,1
+    element_set_zero<T,SIZE1>(size1,mm);
+    element_set_zero<T,SIZE1>(size1,qq);
+    // NOTE: THE SEQUENCE IS VERY IMPORTANT: THE LAST STEP (j=0) NEEDS j=tc,...,1 AS INPUT
+    for(j=tc;j>=0;j--){
+        // qq <- Q(t,t-j)
+        element_set<T,SIZE1>(size1,qq,Q.lesptr(0,j));
+        // qq += contribution from -\int_{t'}^t dt1 Fret(t,t1)Gles(t1,t') which does not contain Gles(t,t')
+        element_set_zero<T,SIZE1>(size1,stemp);
+        for(l=1;l<=tc;l++){
+            if(j>l){
+                 element_set<T,SIZE1>(size1,gtemp,G.lesptr(l,j-l));
+            }else{
+                 element_minusconj<T,SIZE1>(size1,gtemp,G.lesptr(j,l-j));
+            }
+            element_incr<T,SIZE1>(size1,stemp,I.gregory_weights(tc,l),F.retptr(0,l),gtemp);
+        }
+        element_incr<T,SIZE1>(size1,qq,-h,stemp);
+        // qq += contribution from -\int_{t'}^t dt1 Fles(t,t1)Gadv(t1,t')
+        element_set_zero<T,SIZE1>(size1,stemp);
+        dl=tc-j;
+        dl1=(dl>k ? dl : k);
+        for(l=0;l<=dl1;l++){
+            // Gadv(t-tc+l,t-j) = Gret(t-j,t-tc+l)^*
+            if(tc-l>j){
+                 element_conj<T,SIZE1>(size1,gtemp,G.retptr(j,tc-l-j));
+            }else{
+                 element_set<T,SIZE1>(size1,gtemp,G.retptr(tc-l,j-tc+l));
+		 element_smul<T,SIZE1>(size1,gtemp,CPLX(-1.0,0));//added by cstahl
+            }
+            element_incr<T,SIZE1>(size1,stemp,I.gregory_weights(tc-j,l),F.lesptr(0,tc-l),gtemp);
+        }
+        element_incr<T,SIZE1>(size1,qq,-h,stemp);
+        // get prefactor of G on the other side
+        for(i=0;i<sg;i++) mm[i] = one[i]  + h*I.gregory_omega(0)*F.retptr(0,0)[i];
+        element_linsolve_right<T,SIZE1>(size1,G.lesptr(0,j),mm,qq);
+    }
+    delete [] stemp;
+    delete [] qq;
+    delete [] mm;
+    delete [] gtemp;
+    delete [] one;
+    return;
+}
+
+  ///@private
+template < typename T>
+void vie2_timestep(herm_matrix_moving<T> &G,herm_matrix_moving<T> &F,herm_matrix_moving<T> &Fcc,herm_matrix_moving<T> &Q, integration::Integrator<T> &I, T h){
+    int kt=I.get_k();
+    int size1=G.size1();
+    assert(kt*2+2<=G.tc());
+    assert(G.size1()==F.size1());
+    assert(G.size1()==Fcc.size1());
+    assert(G.size1()==Q.size1());
+    assert(G.tc()==F.tc());
+    assert(G.tc()==Fcc.tc());
+    assert(G.tc()==Q.tc());
+    
+    if(size1==1){
+        vie2_timestep_dispatch_ret<T,1>(G,F,Fcc,Q,I,h);
+        vie2_timestep_dispatch_les<T,1>(G,F,Fcc,Q,I,h);
+    }else{
+        vie2_timestep_dispatch_ret<T,LARGESIZE>(G,F,Fcc,Q,I,h);
+        vie2_timestep_dispatch_les<T,LARGESIZE>(G,F,Fcc,Q,I,h);
+    }
+}
+
+/** \brief <b> One step VIE solver \f$(1+F)*G=Q\f$ for a Green's function \f$G\f$ at a given timestep</b>
+*
+* <!-- ====== DOCUMENTATION ====== -->
+*
+*   \par Purpose
+* <!-- ========= -->
+*
+* > One solves the linear equation \f$(1+F)*G=Q\f$ for \f$G(t, t^\prime)\f$ at a given timestep, for given:
+* > input kernel \f$F(t, t^\prime)\f$, its hermitian conjugate \f$F^\ddagger(t, t^\prime)\f$, the source term \f$Q(t, t^\prime)\f$, and
+* > the integrator class 'I'.
+*
+*
+* <!-- ARGUMENTS
+*      ========= -->
+*
+* @param &G
+* > [herm_matrix<T>] solution
+* @param &F
+* > [herm_matrix<T>] green's function  on left-hand side
+* @param &Fcc
+* > [herm_matrix<T>] Complex conjugate of F
+* @param &Q
+* > [herm_matrix<T>] green's function  on right-hand side
+* @param SolveOrder
+* > [int] integrator order
+* @param h
+* > [double] time interval
+*/
+template < typename T>
+void vie2_timestep(herm_matrix_moving<T> &G,herm_matrix_moving<T> &F,herm_matrix_moving<T> &Fcc,herm_matrix_moving<T> &Q, int kt, T h){
+    vie2_timestep(G,F,Fcc,Q,integration::I<T>(kt),h);
+}
+  
 #undef CPLX
 
 } // namespace cntr
