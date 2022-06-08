@@ -68,6 +68,24 @@ void store_array_to_hid(hid_t file_id, std::string label,
   status = H5Sclose(space_id);
 
 }
+
+void store_slice_to_hid(hid_t file_id, std::string label, 
+			void * data_ptr, hsize_t * start, hsize_t * slice ,hsize_t * shape, hsize_t len_shape, hid_t type_id) {
+
+  hid_t data_id = H5Dopen(file_id, label.c_str(),H5P_DEFAULT);//Open more appropriate as we are overwriting the data otherwise has therefore to be called after store to array
+  // Error handling?
+  herr_t status;
+  hid_t mem_space = H5Screate_simple(len_shape, slice, NULL);
+  hid_t file_space = H5Dget_space(data_id);//Pointer to data in File
+  H5Sselect_hyperslab(file_space, H5S_SELECT_SET, start, NULL, slice, NULL);//Check what H5S_SELECT_SET does
+  status = H5Dwrite(data_id, type_id,
+		    mem_space, file_space, H5P_DEFAULT, data_ptr);
+  status = H5Sclose(file_space);
+  status = H5Sclose(mem_space);
+  status = H5Dclose(data_id);
+  
+}
+
 void store_array_multi_to_hid(hid_t file_id, std::string label, 
   double  *data_ptr, std::vector<hsize_t> &shape, hsize_t len_shape, hid_t type_id) {
   //hsize_t len_shape=1, shape[1]; shape[0] = data_size;
@@ -127,6 +145,19 @@ void store_cplx_array_to_hid(
   H5Tinsert(H5T_COMPLEX, "i", sizeof(double), H5T_NATIVE_DOUBLE);
   
   store_array_to_hid(file_id, label, (void *) data_ptr,
+		     shape, len_shape, H5T_COMPLEX);
+}
+
+void store_cplx_slice_to_hid(
+  hid_t file_id, std::string label, 
+  std::complex<double> * data_ptr, hsize_t * start, hsize_t * slice, hsize_t * shape, hsize_t len_shape) {
+
+  // -- COMPLEX COMPOUND HDF5 TYPE
+  hid_t H5T_COMPLEX = H5Tcreate(H5T_COMPOUND, sizeof(double)*2);
+  H5Tinsert(H5T_COMPLEX, "r", 0, H5T_NATIVE_DOUBLE);
+  H5Tinsert(H5T_COMPLEX, "i", sizeof(double), H5T_NATIVE_DOUBLE);
+  
+  store_slice_to_hid(file_id, label, (void *) data_ptr, start, slice,
 		     shape, len_shape, H5T_COMPLEX);
 }
 

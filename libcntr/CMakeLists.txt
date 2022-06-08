@@ -43,7 +43,8 @@ if (hdf5)
 endif (hdf5)
 
 # ~~ Add Eigen ~~
-find_package(Eigen3 REQUIRED)
+#find_package(Eigen3 REQUIRED)
+set(EIGEN3_INCLUDE_DIR "~/CPPlib/eigen3")
 include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
 
 # ~~ Relocatable code for shared library ~~
@@ -75,7 +76,7 @@ endif(BUILD_TEST)
 
 # ~~ Generation of documentation ~~
 # first we can indicate the documentation build as an option and set it to ON by default
-option(BUILD_DOC "Build documentation" ON)
+option(BUILD_DOC "Build documentation" OFF)
 
 if(BUILD_DOC)
     # check if Doxygen is installed

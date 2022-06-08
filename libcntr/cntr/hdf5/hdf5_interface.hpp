@@ -30,6 +30,9 @@ void close_group(hid_t group_id);
 void store_array_to_hid(hid_t file_id, std::string label, 
   void * data_ptr, hsize_t * shape, hsize_t len_shape, hid_t type_id);
 
+void store_slice_to_hid(hid_t file_id, std::string label, void * data_ptr,
+  hsize_t * start, hsize_t * slice ,hsize_t * shape, hsize_t len_shape, hid_t type_id);
+
 void store_data_to_hid(hid_t file_id, std::string label, 
   void * data_ptr, size_t data_size, hid_t typie_id);
 
@@ -39,7 +42,11 @@ void store_attribute_to_hid(hid_t file_id, std::string label,
 void store_cplx_array_to_hid(
   hid_t file_id, std::string label, 
   std::complex<double> * data_ptr, hsize_t * shape, hsize_t len_shape);
-  
+
+void store_cplx_slice_to_hid(
+  hid_t file_id, std::string label, std::complex<double> * data_ptr,
+  hsize_t * start, hsize_t * slice, hsize_t * shape, hsize_t len_shape);
+
 void store_cplx_data_to_hid(hid_t file_id, std::string label, 
   std::complex<double> * data_ptr, size_t data_size);
 

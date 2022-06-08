@@ -3,7 +3,8 @@
 """ Helper functions for post processing for cntr hdf5-file based output
  data (Green's functions and observables).
 
-Author: Hugo Strand, hugo.strand@gmail.com (2015) 
+Author: Hugo Strand, hugo.strand@gmail.com (2015)
+Author of trunc routines: Christopher Stahl, christopher.stahl@fau.de (2022)
 
 """
 
@@ -47,6 +48,37 @@ def read_group(group,key_lim=None):
 
     return d
 
+def read_group_trunc(group,key_lim=None):
+    if key_lim==None:
+        klist=list(group.items())
+    else:
+        klist=[]
+        for key in key_lim:
+            index=list(group.keys()).index(key)
+            klist.append(list(group.items())[index])
+    
+    d = Dummy()
+    for key, item in klist:
+
+        #print key, type(item)
+        
+        if isgroup(item):
+
+            if isgreensfunction_trunc(item):
+                setattr(d, key, read_gf_group_trunc(item))
+            else:
+                setattr(d, key, read_group(item))
+
+        elif isdataset(item):
+            setattr(d, key, read_ndarray_from_data_set(item))
+
+        else:
+            print(key, type(item))
+            raise NotImplementedError
+
+    return d
+
+
 def read_group_slices(filename):
 
     fd = h5py.File(filename)
@@ -77,6 +109,14 @@ def read_imp_h5file(filename,key_lim=None):
 
     fd = h5py.File(filename)
     imp = read_group(fd,key_lim)
+    fd.close()
+
+    return imp
+
+def read_imp_trunc_h5file(filename,key_lim=None):
+
+    fd = h5py.File(filename)
+    imp = read_group_trunc(fd,key_lim)
     fd.close()
 
     return imp
@@ -171,6 +211,12 @@ def isgreensfunction(group):
     attribs = set(('size1', 'size2', 'element_size', 'sig', 'les', 'mat'))
     return attribs.issubset(set(group.keys()))
 
+def isgreensfunction_trunc(group):
+
+    # -- Sanity check for known Gf attributes
+    attribs = set(('size1', 'size2', 'element_size', 'sig', 'les'))
+    return attribs.issubset(set(group.keys()))
+
 # ----------------------------------------------------------------------
 def isstrippedgreensfunction(group):
 
@@ -211,10 +257,43 @@ def read_gf_group(group):
             (d.nt[0]+1, d.nt[0]+1, d.size1[0], d.size2[0]),
             dtype=complex)
         
-        new_data[idx] = data
+        new_data[tuple(idx)] = data
         setattr(d, key, new_data)
 
     return d
+
+def read_gf_group_trunc(group):
+
+    if not isgreensfunction_trunc(group):
+        raise NotImplementedError
+    
+    #print group.keys()
+    d = read_all_sets(group)
+
+    # -- Don't reshape stripped Green's function
+    if isstrippedgreensfunction(group): return d
+    
+    # -- Reshape the Green's function components
+    
+    # Recast vectors of triangular (upper/lower) to full matrices
+    key_idx = [
+        ('les',trunc_idx(d.tc+1) ),
+        ('ret',trunc_idx(d.tc+1) ),
+        ]
+
+    for key, idx in key_idx:
+        data = getattr(d, key)
+
+        new_data = np.zeros(
+            (d.tc[0]+1, d.tc[0]+1, d.size1[0], d.size2[0]),
+            dtype=np.complex)
+        
+        new_data[tuple(idx)] = data
+        setattr(d, key, new_data)
+
+    return d
+
+
 
 # ----------------------------------------------------------------------
 def read_gf_tavrel_group(group):
@@ -285,6 +364,16 @@ def triu_indices_colmaj(N):
         for idx0 in range(0, idx1+1):
             indices[0].append(idx0)
             indices[1].append(idx1)
+
+    return indices
+
+
+def trunc_idx(N):
+    indices =[[], []]
+    for idx1 in range(N[0]):
+        for idx0 in range(N[0]):
+            indices[0].append(idx1)
+            indices[1].append(idx0)
 
     return indices
 
