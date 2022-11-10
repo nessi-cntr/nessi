@@ -49,7 +49,7 @@ def read_group(group,key_lim=None):
 
 def read_group_slices(filename):
 
-    fd = h5py.File(filename)
+    fd = h5py.File(filename, 'r')
 
     imp = Dummy()
     for key, item in fd.items():
@@ -75,7 +75,7 @@ def isgroup(group):
 # ----------------------------------------------------------------------
 def read_imp_h5file(filename,key_lim=None):
 
-    fd = h5py.File(filename)
+    fd = h5py.File(filename, 'r')
     imp = read_group(fd,key_lim)
     fd.close()
 
@@ -84,7 +84,7 @@ def read_imp_h5file(filename,key_lim=None):
 # ----------------------------------------------------------------------
 def read_imp_h5file_slices(filename,key_lim=None):
 
-    fd = h5py.File(filename)
+    fd = h5py.File(filename, 'r')
     if key_lim==None:
         klist=list(fd.items())
     else:
@@ -109,7 +109,7 @@ def read_imp_h5file_slices(filename,key_lim=None):
 # ----------------------------------------------------------------------
 def read_imp_h5file_old(filename):
 
-    fd = h5py.File(filename)
+    fd = h5py.File(filename, 'r')
 
     imp = Dummy()
     for key, item in fd.items():
@@ -124,7 +124,7 @@ def read_imp_h5file_old(filename):
 # ----------------------------------------------------------------------
 def read_gf_h5file(filename):
 
-    fd = h5py.File(filename)
+    fd = h5py.File(filename, 'r')
 
     if len(fd.keys()) > 1:
         raise NotImplementedError
@@ -211,7 +211,7 @@ def read_gf_group(group):
             (d.nt[0]+1, d.nt[0]+1, d.size1[0], d.size2[0]),
             dtype=complex)
         
-        new_data[idx] = data
+        new_data[tuple(idx)] = data
         setattr(d, key, new_data)
 
     return d
