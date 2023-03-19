@@ -11,8 +11,8 @@ namespace cntr {
   extern template dvector fermi<double>(double beta,dvector &omega);
   extern template dvector fermi_exp<double>(double beta,double tau,dvector &omega);
   extern template cdmatrix diag_prop<double>(double time,dvector &omega);
-  extern template void green_equilibrium_mat_bethe<double>(herm_matrix<double> &G,double beta,int limit,int nn,double mu);
-  extern template void green_equilibrium_bethe<double>(herm_matrix<double> &G,double beta,double h,int limit,int nn,double mu);
+  extern template void green_equilibrium_mat_bethe<double>(herm_matrix<double> &G,double beta,int limit,int nn,double mu,double Eshift);
+  extern template void green_equilibrium_bethe<double>(herm_matrix<double> &G,double beta,double h,int limit,int nn,double mu,double Eshift);
 
 
   // prefered interfaces

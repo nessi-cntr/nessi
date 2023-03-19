@@ -16,8 +16,8 @@ namespace cntr {
   /// @private
   template cdmatrix diag_prop<double>(double time,dvector &omega);
 
-  template void green_equilibrium_mat_bethe<double>(herm_matrix<double> &G,double beta,int limit,int nn,double mu);
-  template void green_equilibrium_bethe<double>(herm_matrix<double> &G,double beta,double h,int limit,int nn,double mu);
+  template void green_equilibrium_mat_bethe<double>(herm_matrix<double> &G,double beta,int limit,int nn,double mu,double Eshift);
+  template void green_equilibrium_bethe<double>(herm_matrix<double> &G,double beta,double h,int limit,int nn,double mu,double Eshift);
 
   // green_from_H: prefered interfaces
   /// @private
