@@ -17,8 +17,12 @@ jobs:
       run: sudo apt-get install -y libeigen3-dev
     - name: Install mpi
       run: sudo apt-get install -y libopenmpi-dev openmpi-bin
+    - name: Install hdf5
+      run: sudo apt-get install -y libhdf5-dev
+    - name: Install cmake
+      run: sudo apt-get install -y cmake
     - name: configure
-      run: ./configure
+      run: mkdir -p cbuild; cd cbuild; CC=mpicc CXX=mpic++ cmake ../
     - name: make
       run: make
     - name: make test
