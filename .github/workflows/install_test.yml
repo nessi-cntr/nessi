@@ -24,7 +24,7 @@ jobs:
     - name: Prepare configure
       run: cd libcntr; mkdir -p cbuild; cd cbuild
     - name: configure
-      run:  cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-std=c++11" -Domp=ON -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=OFF -P ../
+      run:  cmake .. -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-std=c++11" -Domp=ON -Dmpi=ON -Dhdf5=ON -DBUILD_DOC=OFF
     - name: make
       run: make
     - name: make test
