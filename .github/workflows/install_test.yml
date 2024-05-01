@@ -22,7 +22,9 @@ jobs:
     - name: Install cmake
       run: sudo apt-get install -y cmake
     - name: configure
-      run: mkdir -p cbuild; cd cbuild; CC=mpicc CXX=mpic++ cmake ../
+      run: mkdir -p cbuild; cd cbuild
+      run: pwd
+      #run: CC=mpicc CXX=mpic++ cmake
     - name: make
       run: make
     - name: make test
