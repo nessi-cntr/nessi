@@ -49,4 +49,11 @@
 #include "cntr_extern_templates.hpp"
 #endif
 
+#ifdef CNTR_USE_NESS
+#include "ness2.hpp"
+#endif
+
+
+
+
 #endif // GREEN_CNTR_FULL

@@ -1,7 +1,7 @@
 import sys
 import os
 import numpy as np
-from scipy.integrate import simps
+from scipy.integrate import simpson
 from scipy import stats
 import matplotlib.pyplot as plt
 from ReadCNTR import write_input_file
@@ -48,8 +48,8 @@ if __name__ == '__main__':
             err_greg[ir,k-1] = np.mean(err)
         for n in range(1,npts+1):
             xr = h*np.arange(0,n+1)
-            c_int = simps(np.cos(xr),dx=h)
-            s_int = simps(np.sin(xr),dx=h)
+            c_int = simpson(np.cos(xr),dx=h)
+            s_int = simpson(np.sin(xr),dx=h)
             err_simps[ir] += np.abs(c_int + 1.j*s_int -Iexact(xr[n]))/npts
 
     fig,ax = plt.subplots(figsize=(5,4))

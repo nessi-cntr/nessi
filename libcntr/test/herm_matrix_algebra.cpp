@@ -17,7 +17,7 @@ TEST_CASE("herm_matrix algebra","[herm_matrix_algebra]"){
   double eps3=0.435,eps4=0.5676,lam2=0.1566;
   double wr=0.3;
   std::complex<double> I(0.0,1.0);
-  std::complex<double> wz=(1.0,-0.3);
+  std::complex<double> wz(1.0,-0.3);
   cdmatrix h1(2,2);
   cdmatrix h2(2,2);
   GREEN G1(nt,ntau,size,-1);

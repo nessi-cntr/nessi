@@ -106,6 +106,51 @@ class function {
     int total_size_;
 };
 
+template <typename T>
+  class function_moving {
+  public:
+    typedef std::complex<T> cplx;
+    /* construction, destruction */
+    function_moving();
+    ~function_moving(); 
+    function_moving(int tc,int size1=1);
+    function_moving(const function_moving &g);
+    function_moving & operator=(const function_moving &g);
+    void clear(void);
+    void resize(int tc,int size1);
+    int element_size(void) const{ return element_size_;}
+    int size1(void) const{ return size1_;}
+    int size2(void) const{ return size2_;}
+    int tc(void) const{ return tc_;}
+    inline cplx * ptr(int i){return value_[i];}  // points to Gret(t0-i,t0-i-j)
+    template<class EigenMatrix>
+    void set_value(int i,EigenMatrix &M);
+    template<class EigenMatrix>
+    void get_value(int i,EigenMatrix &M);
+    cplx & operator[](int i){return *ptr(i);} // useful only for size=1
+    cplx & operator[](int i) const{return *ptr(i);} // useful only for size=1
+    void print_to_file(const char *file,int precision=16);
+    void read_from_file(const char *file);
+    void forward(void);
+
+    void set_from_function_backward(function<T>& f,int tstp);
+    void set_from_function_backward(int tstp,function<T>& f);
+    void set_from_function_forward(int tstp, function<T>& f);
+
+  private:
+    cplx* data_;
+    cplx** value_;
+    /** \brief <b> Cutoff time</b> */
+    int tc_;
+    /** \brief <b> Number of the colums in the Matrix form.</b> */
+    int size1_;
+    /** \brief <b> Number of the rows in the Matrix form.</b> */
+    int size2_;
+    /// @private
+    /** \brief <b> Size of the Matrix form; size1*size2. </b> */
+    int element_size_;
+  };
+
 }  // namespace cntr
 
 #endif  // CNTR_FUNCTION_DECL_H

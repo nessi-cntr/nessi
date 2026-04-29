@@ -79,10 +79,9 @@ void lattice_1d_1b::hk(cdmatrix &hkmatrix,int tstp,double kk,int iter){
 
 //define velocity
 void lattice_1d_1b::vk(cdmatrix &vkmatrix,int tstp,double kk){
-  cdmatrix tmpTT,tmpA;
+  cdmatrix tmpTT;
   tt_.get_value(tstp,tmpTT);
-  Apulse_.get_value(tstp,tmpA);
-  double vk=2.0*std::real(tmpTT(0,0))*sin(kk - std::real(tmpA(0,0)));
+  double vk=2.0*std::real(tmpTT(0,0))*sin(kk);
   vkmatrix.resize(Norb_,Norb_);
   vkmatrix.setZero();
   vkmatrix(0,0)=vk;

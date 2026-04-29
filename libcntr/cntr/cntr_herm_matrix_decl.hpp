@@ -22,17 +22,15 @@ template <typename T>
  *  functions \f$ C(t,t') \f$ and provides a number of tools to perform operations
  *  on such functions.
  *  The class `herm_matrix` stores the non-redundant Keldysh components
- *   - Matsubara component \f$ C^\mathrm{M}(\tau_k) \f$ for i=0,...,`nt`,
- *   - retarded component \f$ C^\mathrm{R}(t_i,t_j) \f$ for i=0,...,`nt`, j=0,...,i ,
- *   - lesser component \f$ C^<(t_j,t_i) \f$ for i=0,...,`nt`, j=0,...,i ,
- *   - left-mixing component \f$ C^\rceil(t_i,\tau_k) \f$ for i=0,...,`nt`, i=0,...,`nt`.
+ *   - Matsubara component \f$ C^\mathrm{M}(\tau_k) \f$ for `i=0,...,nt`,
+ *   - retarded component \f$ C^\mathrm{R}(t_i,t_j) \f$ for `i=0,...,nt`,` j=0,...,i` ,
+ *   - lesser component \f$ C^<(t_j,t_i) \f$ for `i=0,...,nt`, `j=0,...,i` ,
+ *   - left-mixing component \f$ C^\rceil(t_i,\tau_k) \f$ for `i=0,...,nt`, `i=0,...,nt`.
  *
  *  All other Keldysh components can be expressed by the hermitian symmetries
- > \f{align*}{
- *   C^<(t_i,t_j) &= - [C^<(t_j,t_i)]^\ddagger \ , \\
- *   C^\mathrm{R}(t_i,t_j) &= [C^\mathrm{A}(t_j,t_i)]^\ddagger \ , \\
- *   C^\lceil(\tau_k,t_i) &= -\eta [C^\rceil(t_i,\beta - \tau_k)]^\ddagger \ .
- * \f}
+ *    \f$ C^<(t_i,t_j) = - [C^<(t_j,t_i)]^\ddagger, \f$
+ *    \f$ C^\mathrm{R}(t_i,t_j) = [C^\mathrm{A}(t_j,t_i)]^\ddagger, \f$
+ *    \f$ C^\lceil(\tau_k,t_i) = -\eta [C^\rceil(t_i,\beta - \tau_k)]^\ddagger . \f$
  *
  * The contour function \f$ C(t,t') \f$ can be of scalar type or matrix-valued.
  * Square-matrix-type contour functions are fully supported, while non-square-

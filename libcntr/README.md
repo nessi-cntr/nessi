@@ -24,8 +24,9 @@ nessi_small.svg | Image for the generated Doxygen documentation
 
 ### Prerequisites
 * [cmake](https://cmake.org)
-* [eigen3](http://eigen.tuxfamily.org/index.php?title=Main_Page) 
+* [eigen3](http://eigen.tuxfamily.org/index.php?title=Main_Page)
 * [hdf5](https://www.hdfgroup.org/solutions/hdf5/) - optional, but recommended
+* [fftw3](https://www.fftw.org) - required for NESS support
 
 ### Configuration and installation
 
@@ -82,9 +83,13 @@ make
 
 ### HDF5
 
-To enable hdf5 support add the `hdf5` option to the cmake configure script:
+To enable HDF5 support add the `hdf5` option to the cmake configure script:
 
     -Dhdf5=ON
+
+If HDF5 is installed in a non-standard location, specify the installation prefix with `hdf5_prefix`:
+
+    -Dhdf5_prefix=/path/to/hdf5
 
 ### MPI and OpenMP
 
@@ -94,14 +99,43 @@ To turn on OpenMP and/or MPI parallelization define the options `omp` and/or `mp
     -Dmpi=ON
 
 
-### doxygen
+### NESS (Non-Equilibrium Steady State)
 
-The **libcntr** is fully documented using the automated documentation tool [doxygen](http://www.doxygen.nl). To build the documentation,
-add the cmake variable
+To enable the Non-Equilibrium Steady-State (NESS) functionalities, add the `ness` option:
+
+    -Dness=ON
+
+NESS support requires [fftw3](https://www.fftw.org). If FFTW3 is installed in a non-standard location, specify the prefix with `fftw3_prefix`:
+
+    -Dfftw3_prefix=/path/to/fftw3
+
+When both `ness=ON` and `omp=ON`, the build system will attempt to link against the threaded FFTW variant (`fftw3_omp` or `fftw3_threads`) for parallelized FFT transforms. If neither is found it falls back to the single-threaded library with a warning.
+
+
+### Doxygen
+
+The **libcntr** library is documented using [doxygen](http://www.doxygen.nl). To build the Doxygen documentation, add:
 
     -DBUILD_DOC=ON
 
 to the configure script. Upon running `make`, the documentation will be generated under `doc/html/index.html`.
+
+
+### Sphinx documentation
+
+A Sphinx-based documentation site can be built on top of the Doxygen output using [Breathe](https://breathe.readthedocs.io) as a bridge. This requires the following additional Python packages:
+
+```
+pip install sphinx breathe myst-parser sphinx-rtd-theme
+```
+
+The Sphinx build depends on the Doxygen XML output, so first configure and build with `-DBUILD_DOC=ON` as described above. Then, from the root directory:
+
+```
+sphinx-build -b html . _build/html
+```
+
+The rendered HTML documentation will be available under `_build/html/index.html`.
 
 
 ### Tests
@@ -131,14 +165,17 @@ cmake \
     -DBUILD_DOC=ON \
     -Domp=ON \
     -Dhdf5=ON \
+    -Dhdf5_prefix=/opt/local \
     -Dmpi=ON \
+    -Dness=ON \
+    -Dfftw3_prefix=/opt/local \
     -DCMAKE_INCLUDE_PATH=/opt/local/include \
     -DCMAKE_LIBRARY_PATH=/opt/local/lib \
     -DCMAKE_CXX_FLAGS="-std=c++11 -fpermissive" \
     ..
 ```
 
-The dynamic linking scheme under MacOSX requires specifying `-DCMAKE_INSTALL_NAME_DIR=$HOME/opt/lib` as the directory where the library `libcntr.dylib` will be installed. In this example, all libraries (eigen3, hdf5) have been installed under the prefix `opt/local`.
+The dynamic linking scheme under MacOSX requires specifying `-DCMAKE_INSTALL_NAME_DIR=$HOME/opt/lib` as the directory where the library `libcntr.dylib` will be installed. In this example, all libraries (eigen3, hdf5, fftw3) have been installed under the prefix `/opt/local`.
 
 Under Linux, the above job script would look like
 
@@ -151,12 +188,13 @@ cmake \
     -Domp=ON \
     -Dhdf5=ON \
     -Dmpi=ON \
+    -Dness=ON \
     -DCMAKE_INCLUDE_PATH=/usr/local/include \
     -DCMAKE_LIBRARY_PATH=/usr/local/lib \
     -DCMAKE_CXX_FLAGS="-std=c++11 -fpermissive" \
     ..
 ```
 
-Here we have assumed that the dependencies are installed under `/usr/local/`.
+Here we have assumed that the dependencies are installed under `/usr/local/`. When FFTW3 or HDF5 are in non-standard locations, add the corresponding `_prefix` variables (e.g. `-Dfftw3_prefix=/opt/fftw3`).
 
 

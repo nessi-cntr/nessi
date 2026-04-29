@@ -213,6 +213,8 @@ double distribution_eq(T beta,T omega,int sign)
     return green_cntr_full_equilibrium_fermi(beta,omega);
   }else if(sign==1){
     return bose(beta,omega);
+  }else{
+      return green_cntr_full_equilibrium_fermi(beta,omega);
   }
 }
 /// @private
@@ -223,6 +225,8 @@ double distribution_exp_eq(T beta,T tau,T omega,int sign)
     return fermi_exp(beta,tau,omega);
   }else if(sign==1){
     return bose_exp(beta,tau,omega);
+  }else{
+      return fermi_exp(beta,tau,omega);
   }
 }
 
@@ -299,23 +303,21 @@ class bethedos {
     double lo_;
     /** \brief <b> Hopping integral and 4V corresponds to the bandwidth </b> */
     double V_;
-
-    double Eshift_;
+    double E0_;
     bethedos() {
-        Eshift_ = 0.0;
         V_ = 1;
         lo_ = -2;
         hi_ = 2;
+        E0_ = 0;
     }
-    bethedos(double Eshift) {
-        Eshift_ = Eshift;
-        V_ = 1;
-        lo_ = -2 + Eshift_;
-        hi_ = 2 + Eshift_;
-    }
+    bethedos(double a, double b){
+         lo_ = a;
+         hi_ = b;
+         V_ = (b-a)/4.0;
+         E0_ = (b+a)/2.0;
+      }
     double operator()(double x) {
-        double xv = x - Eshift_;
-        double arg = 4.0 * V_ * V_ - xv * xv;
+        double arg = 4.0 * V_ * V_ - (x-E0_) * (x-E0_);
         double num = V_ * V_ * 3.14159265358979323846 * 2;
         return (arg < 0 ? 0.0 : sqrt(arg) / num);
     }
@@ -584,8 +586,8 @@ void green_equilibrium(herm_matrix<T> &G,dos_function &dos,double beta,double h,
 */
 template <typename T>
 void green_equilibrium_mat_bethe(herm_matrix<T> &G, double beta, int limit,
-                                 int nn,double mu,double Eshift) {
-    bethedos dos(Eshift);
+                                 int nn,double mu) {
+    bethedos dos;
     green_equilibrium_mat(G, dos, beta, limit, nn,mu);
 }
 
@@ -603,8 +605,6 @@ void green_equilibrium_mat_bethe(herm_matrix<T> &G, double beta, int limit,
 *
 * @param G
 * > The output Greens function set to the equilibrium free propagator
-* @param mu
-* > chemical potential
 * @param beta
 * > inverse temperature
 * @param h
@@ -613,12 +613,14 @@ void green_equilibrium_mat_bethe(herm_matrix<T> &G, double beta, int limit,
 * > max number of intervals in Fourier transform
 * @param nn
 * > number of points in each interval of the Fourier transform
+* @param mu
+* > chemical potential
 */
 
 template <typename T>
 void green_equilibrium_bethe(herm_matrix<T> &G, double beta, double h,
-                             int limit, int nn, double mu, double Eshift) {
-    bethedos dos(Eshift);
+                             int limit, int nn,double mu) {
+    bethedos dos;
     green_equilibrium(G, dos, beta, h, limit, nn,mu);
 }
 

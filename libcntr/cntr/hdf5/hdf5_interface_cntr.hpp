@@ -39,7 +39,7 @@ void write_gf_tavtrel_to_hdf5_group(hid_t group_id,GG &g,int dt) {
 	shape[2] = size2;
 	for(int tav=0;tav<=nt;tav+=dt){
 		int len=(tav<=nt-tav ? tav : nt-tav);
-		std::sprintf(name,"%d",tav);
+		std::snprintf(name,sizeof(name),"%d",tav);
 		shape[0] = len+1;
 		// read data: trel2 is trel/2
 		for(int trel2=0;trel2<=len;trel2++){

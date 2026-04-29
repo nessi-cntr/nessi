@@ -5,9 +5,11 @@
 //#include "cntr_exception.hpp"
 #include "cntr_elements.hpp"
 #include "cntr_herm_matrix_decl.hpp"
+#include "cntr_herm_matrix_moving_decl.hpp"
 #include "cntr_herm_matrix_timestep_view_decl.hpp"
 #include "cntr_herm_matrix_timestep_view_impl.hpp"
 #include "cntr_herm_matrix_timestep_decl.hpp"
+#include "cntr_herm_matrix_timestep_moving_decl.hpp"
 #include "cntr_herm_pseudo_decl.hpp"
 #include "cntr_function_decl.hpp"
 #include "cntr_convolution_decl.hpp"
@@ -274,6 +276,71 @@ void extrapolate_timestep(int n, function<T> &f, int ExtrapolationOrder) {
         extrapolate_timestep_dispatch<T, LARGESIZE>(n, f, integration::I<T>(ExtrapolationOrder));
 }
 
+//------------------------ moving addition -----------------------------
+/// @private
+template <typename T,int SIZE1>
+void extrapolate_timestep_dispatch(herm_matrix_moving<T> &G,integration::Integrator<T> &I){
+    typedef std::complex<T> cplx;
+    int tc=G.tc();
+    int k=I.k();
+    int sg=G.element_size();
+    int size1=G.size1();
+    cplx *gtemp=new cplx [sg];
+    T *p1=new T [k+1];
+    if(k==0){
+        for(int j=0;j<=tc;j++){
+            element_set<T,SIZE1>(size1,G.retptr(0,j),G.retptr(1,j));
+            element_set<T,SIZE1>(size1,G.lesptr(0,j),G.lesptr(1,j));
+        }
+    }else{
+        for(int m=0;m<=k;m++){
+            p1[m]=0.0;
+            for(int l=0;l<=k;l++) p1[m]+=(1-2*(l%2))*I.poly_interpolation(l,m);
+        }
+        //for(int j=0;j<=tc;j++){
+        for(int j=0;j<tc-k;j++){//modified by cstahl
+            element_set_zero<T,SIZE1>(size1,gtemp);
+            for(int l=0;l<=k;l++) element_incr<T,SIZE1>(size1,gtemp,p1[l],G.retptr(l+1,j));
+            element_set<T,SIZE1>(size1,G.retptr(0,j),gtemp);
+            element_set_zero<T,SIZE1>(size1,gtemp);
+            for(int l=0;l<=k;l++) element_incr<T,SIZE1>(size1,gtemp,p1[l],G.lesptr(l+1,j));
+            element_set<T,SIZE1>(size1,G.lesptr(0,j),gtemp);
+        }
+        //added by cstahl // has been tested and showed good results!
+        for(int j=tc-k;j<=tc;j++){
+          element_set_zero<T,SIZE1>(size1,gtemp);
+          for(int l=0;l<=k;l++) element_incr<T,SIZE1>(size1,gtemp,p1[l],G.retptr(l+1,j-l-1));
+          element_set<T,SIZE1>(size1,G.retptr(0,j),gtemp);
+          element_set_zero<T,SIZE1>(size1,gtemp);
+          for(int l=0;l<=k;l++) element_incr<T,SIZE1>(size1,gtemp,p1[l],G.lesptr(l+1,j-l-1));
+          element_set<T,SIZE1>(size1,G.lesptr(0,j),gtemp);
+        }
+        //end of added section
+    }
+    delete [] gtemp;
+    delete [] p1;
+}
+
+template <typename T>
+void extrapolate_timestep(herm_matrix_moving<T> &G,integration::Integrator<T> &I){
+    int k=I.k();
+    int tc=G.tc();
+    int size1=G.size1();
+    //std::cout<<"k"<<k<<std::endl;
+    //std::cout<<"tc"<<tc<<std::endl;
+    assert(k+1<=tc);
+    if(size1) extrapolate_timestep_dispatch<T,1>(G,I);
+    else extrapolate_timestep_dispatch<T,LARGESIZE>(G,I);
+}
+
+template <typename T>
+void extrapolate_timestep(herm_matrix_moving<T> &G, int ExtrapolationOrder) {
+    if (G.size1() == 1)
+        extrapolate_timestep_dispatch<T, 1>(G, integration::I<T>(ExtrapolationOrder));
+    else
+        extrapolate_timestep_dispatch<T, LARGESIZE>(G, integration::I<T>(ExtrapolationOrder));
+}
+//------------------------ moving addition -----------------------------
 
 /// @private
 //  k-th order polynomial interpolation of contour function
@@ -1993,6 +2060,89 @@ T distance_norm2_eigen(int tstp,herm_matrix_timestep<T> &g1,herm_matrix<T> &g2){
 	 }
    }
 }
+//------------------------ moving addition -----------------------------
+/// @private
+template <typename T>
+T distance_norm2_moving_dispatch(int n,int size,std::complex<T> *ret1,std::complex<T> *ret2){
+    T err=0.0;
+    int sg=size*size;
+    std::complex<T> *temp= new std::complex<T> [sg];
+    for(int i=0;i<=n;i++){
+        element_set<T,LARGESIZE>(size,temp,ret1+i*sg);
+        element_incr<T,LARGESIZE>(size,temp,-1.0,ret2+i*sg);
+        err+=element_norm2<T,LARGESIZE>(size,temp);
+    }
+    delete [] temp;
+    return err;
+}
+
+template <typename T>
+T distance_norm2(herm_matrix_timestep_moving_view<T> &g1,herm_matrix_timestep_moving_view<T> &g2){
+    int size1=g1.size1();
+    int tc=g1.tc();
+    T err=0.0;
+    assert(tc==g2.tc());
+    assert(size1==g2.size1());
+
+    err+=distance_norm2_moving_dispatch(tc,size1,g1.retptr(0),g2.retptr(0));
+    err+=distance_norm2_moving_dispatch(tc,size1,g1.lesptr(0),g2.lesptr(0));
+    return err;
+}
+
+  template <typename T>
+  T distance_norm2(herm_matrix_timestep_moving_view<T> &g1,herm_matrix_timestep_moving<T> &g2){
+    herm_matrix_timestep_moving_view<T> temp2(g2);
+    return distance_norm2(g1,temp2);
+  }
+  template <typename T>
+  T distance_norm2(herm_matrix_timestep_moving_view<T> &g1,herm_matrix_moving<T> &g2, int j){
+    assert(j<=g2.tc() && j>=0);
+    herm_matrix_timestep_moving_view<T> temp2(g2,j);
+    return distance_norm2(g1,temp2);
+  }
+  template <typename T>
+  T distance_norm2(herm_matrix_timestep_moving<T> &g1,herm_matrix_timestep_moving_view<T> &g2){
+    herm_matrix_timestep_moving_view<T> temp1(g1);
+    return distance_norm2(temp1,g2);
+  }
+  template <typename T>
+  T distance_norm2(herm_matrix_timestep_moving<T> &g1,herm_matrix_timestep_moving<T> &g2){
+    herm_matrix_timestep_moving_view<T> temp1(g1);
+    herm_matrix_timestep_moving_view<T> temp2(g2);
+    return distance_norm2(temp1,temp2);
+  }
+  template <typename T>
+  T distance_norm2(herm_matrix_timestep_moving<T> &g1,herm_matrix_moving<T> &g2, int j){
+    assert(j<=g2.tc() && j>=0);
+    herm_matrix_timestep_moving_view<T> temp1(g1);
+    herm_matrix_timestep_moving_view<T> temp2(g2,j);
+    return distance_norm2(temp1,temp2);
+  }
+  template <typename T>
+  T distance_norm2(herm_matrix_moving<T> &g1, int i,herm_matrix_timestep_moving_view<T> &g2){
+    assert(i<=g1.tc() && i>=0);
+    herm_matrix_timestep_moving_view<T> temp1(g1,i);
+    return distance_norm2(temp1,g2);
+  }
+  template <typename T>
+  T distance_norm2(herm_matrix_moving<T> &g1, int i,herm_matrix_timestep_moving<T> &g2){
+    assert(i<=g1.tc() && i>=0);
+    herm_matrix_timestep_moving_view<T> temp1(g1,i);
+    herm_matrix_timestep_moving_view<T> temp2(g2);
+    return distance_norm2(temp1,temp2);
+  }
+  template <typename T>
+  T distance_norm2(herm_matrix_moving<T> &g1, int i,herm_matrix_moving<T> &g2, int j){
+    assert(j<=g2.tc() && j>=0);
+    assert(i<=g1.tc() && i>=0);
+    herm_matrix_timestep_moving_view<T> temp1(g1,i);
+    herm_matrix_timestep_moving_view<T> temp2(g2,j);
+    return distance_norm2(temp1,temp2);
+  }
+
+  
+
+//------------------------ moving addition -----------------------------
 
 /** \brief <b> Evaluate the memory necessary for a herm_matrix. </b>
  *

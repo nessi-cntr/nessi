@@ -223,7 +223,7 @@ public:
    *
    * Returns the order \f$k\f$ of the integrator class.
    */
-  int get_k(void) {return k_;}
+  int get_k(void) const {return k_;}
    /** \brief <b> Returns the order \f$k\f$ of the integrator class.  </b>
    *
    * <!-- ====== DOCUMENTATION ====== -->
@@ -233,7 +233,7 @@ public:
    *
    * Returns the order \f$k\f$ of the integrator class.
    */
-  int k(void) {return k_;}
+  int k(void) const {return k_;}
   
   /** \brief <b> Returns the the weight needed for polynomial interpolation.  </b>
    *
@@ -259,7 +259,7 @@ public:
    * @param l
    * > Second index of coefficients.
    */
-  T poly_interpolation(int alpha,int l) {return  poly_interpolation_[alpha*(k_+1)+l];}
+  T poly_interpolation(int alpha,int l) const {return  poly_interpolation_[alpha*(k_+1)+l];}
 
 
    /** \brief <b> Returns the the weight needed for polynomial differentiation.  </b>
@@ -287,7 +287,7 @@ public:
    * @param l
    * > Second index of coefficients.
    */
-  T poly_differentiation(int i,int l) {return  poly_differentiation_[i*(k_+1)+l];}
+  T poly_differentiation(int i,int l) const {return  poly_differentiation_[i*(k_+1)+l];}
 
   /** \brief <b> Returns the the weight needed for polynomial integration.  </b>
    *
@@ -318,7 +318,7 @@ public:
    * @param l
    * > Index of weight.
    */
-  T poly_integration(int i,int j,int l) {return  poly_integration_[i*(k_+1)*(k_+1) + j*(k_+1) + l];}
+  T poly_integration(int i,int j,int l) const {return  poly_integration_[i*(k_+1)*(k_+1) + j*(k_+1) + l];}
 
   
   /** \brief <b> Returns the the backwards differencing coefficients.  </b>
@@ -343,7 +343,7 @@ public:
    * @param l
    * > Index of weight.
    */
-  T bd_weights(int l) {return bd_weights_[l];}
+  T bd_weights(int l) const {return bd_weights_[l];}
 
   /** \brief <b> Returns the Gregory weights for integration.  </b>
    *
@@ -379,7 +379,7 @@ public:
    * @param j
    * > Index of the Gregory weight.
    */
-  T gregory_weights(int n,int j){
+  T gregory_weights(int n,int j) const {
   int k1=k_+1,k2=2*k1;
   assert( j>=0 && ( j<=k_ || j<=n) );
   if( n>=k2 ){
@@ -402,7 +402,7 @@ public:
    * @param j
    * > Index of the Gregory weight.
    */
-  T gregory_omega(int j) {return gregory_omega_[j];}
+  T gregory_omega(int j) const {return gregory_omega_[j];}
 
 
   /** \brief <b> Returns the special quadrature weights for computing integrals on the Matsubara axis.  </b>
@@ -436,7 +436,7 @@ public:
    * @param l
    * > The second indes of the weights.
    */
-  T rcorr(int m,int j,int l){ 
+  T rcorr(int m,int j,int l) const {
   int k1=k_+1;
   if(k_<2) return 0; 
   assert(m<k_ && j<=k_ && l<=k_);
@@ -471,7 +471,7 @@ public:
    * @param n
    * > The index of the upper integral bound.
    */
-  template <class M> M integrate(const std::vector<M> &f,int n){
+  template <class M> M integrate(const std::vector<M> &f,int n) const {
   int k1=k_+1,i,k2=2*k1,n1=n-k_;
   T *w;
   M sum=f[0];

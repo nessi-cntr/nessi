@@ -10,11 +10,49 @@
 // ********************************************************************
 #include "hdf5_interface.hpp"
 // ********************************************************************
-hid_t open_hdf5_file(std::string filename) {
-  hid_t file_id = H5Fcreate(filename.c_str(), 
-    H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-  return file_id;
+
+static inline const char* mode_str(h5_mode m) {
+  switch (m) {
+    case h5_mode::create_truncate: return "create_truncate";
+    case h5_mode::create_new:      return "create_new";
+    case h5_mode::rdonly:          return "rdonly";
+    case h5_mode::rdwr:            return "rdwr";
+  }
+  return "unknown";
 }
+  
+hid_t open_hdf5_file(std::string filename,h5_mode mode) { 
+  hid_t fid = -1;
+  switch (mode){
+  case h5_mode::create_truncate:
+    fid = H5Fcreate(filename.c_str(),H5F_ACC_TRUNC,
+                    H5P_DEFAULT, H5P_DEFAULT);
+    break;
+  case h5_mode::create_new:
+    fid = H5Fcreate(filename.c_str(),H5F_ACC_TRUNC,
+		    H5F_ACC_EXCL, H5P_DEFAULT);
+    break;
+  case  h5_mode::rdwr:
+    fid = H5Fopen(filename.c_str(),H5F_ACC_RDWR,H5P_DEFAULT);
+    break;
+  default:
+    std::cerr << "HDF5 error: unsupported mode " << mode_str(mode) << "\n";
+    throw std::runtime_error("HDF5 open/create failed");
+    break;
+  }
+  if (fid < 0) {
+    std::cerr << "HDF5 error: failed to open/create '" << filename
+              << "' with mode " << mode_str(mode) << "\n";
+    throw std::runtime_error("HDF5 open/create failed");
+  }
+  return fid;
+}
+
+//hid_t open_hdf5_file(std::string filename) {
+//  hid_t file_id = H5Fcreate(filename.c_str(), 
+//			    H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+//  return file_id;
+//}
 
 // ********************************************************************
 hid_t read_hdf5_file(std::string filename) {

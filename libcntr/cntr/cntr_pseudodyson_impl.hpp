@@ -399,6 +399,8 @@ template <typename T, class Matrix>
 void pseudodyson_timestep(int n, herm_pseudo<T> &G, T lam0, Matrix &H0,
                           std::vector<Matrix> &H, herm_pseudo<T> &Sigma,
                           integration::Integrator<T> &I, T beta, T h) {
+
+    std::cout<<"************* first *****************"<<std::endl;
     int size1 = G.size1(), l, m, j, k = I.k(), sg = size1 * size1;
     std::complex<T> *hh = new std::complex<T>[(n + 1) * size1 * size1];
     std::complex<T> *h0 = new std::complex<T>[size1 * size1];
@@ -475,6 +477,8 @@ template <typename T>
 void pseudodyson_timestep(int n, herm_pseudo<T> &G, T lam0, function<T> &H,
                           herm_pseudo<T> &Sigma, integration::Integrator<T> &I, T beta,
                           T h) {
+
+    //std::cout<<"************* second *****************"<<std::endl;
     int size1 = G.size1(), k = I.k();
     std::complex<T> *hh, *h0;
     assert(G.size1() == Sigma.size1());
@@ -486,6 +490,8 @@ void pseudodyson_timestep(int n, herm_pseudo<T> &G, T lam0, function<T> &H,
     assert((int)H.size1() == size1 && (int)H.size2() == size1);
     hh = H.ptr(0);
     h0 = H.ptr(-1);
+
+    //std::cout<<"*** "<<*hh<<" *** "<<*h0<<std::endl;
     if (size1 == 1) {
         dyson_timestep_ret<T, herm_pseudo<T>, 1>(n, G, lam0, hh, Sigma, I, h);
         pseudodyson_timestep_tv<T, 1>(n, G, lam0, h0, Sigma, I, beta, h);

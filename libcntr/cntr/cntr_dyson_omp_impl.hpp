@@ -1,6 +1,7 @@
 #ifndef CNTR_DYSON_OMP_IMPL_H
 #define CNTR_DYSON_OMP_IMPL_H
 
+#include <chrono>
 #include "cntr_dyson_omp_decl.hpp"
 //#include "cntr_exception.hpp"
 #include "cntr_elements.hpp"
@@ -41,6 +42,7 @@ void dyson_timestep_ret_omp(int omp_num_threads, int n, GG &G, T mu, std::comple
     cplx cplx_i = cplx(0, 1);
     int size1 = G.size1();
     int sg = G.element_size();
+    int n_arr = omp_num_threads;
     // check consistency:
     assert(k + 1<= n);
     assert(n<= Sigma.nt());
@@ -98,6 +100,7 @@ void dyson_timestep_ret_omp(int omp_num_threads, int n, GG &G, T mu, std::comple
                 gtemp[i] += mu * one[i];
             element_incr<T, SIZE1>(size1, mm + sg * (p + k * p), gtemp);
             // integral
+            //std::cout<< " j: "<<j<<" mm: "<<*mm<<" gtemp: "<<*gtemp<<std::endl;
             for (l = 0; l <= k; l++) {
                 weight = h * I.gregory_weights(j, l);
                 if (n - l >= n - j) {
@@ -119,8 +122,10 @@ void dyson_timestep_ret_omp(int omp_num_threads, int n, GG &G, T mu, std::comple
             }
         }
         element_linsolve_left<T, SIZE1>(size1, k, gtemp, mm, qq); // gtemp * mm = qq
-        for (j = 1; j <= k; j++)
+        for (j = 1; j <= k; j++){
             element_set<T, SIZE1>(size1, G.retptr(n, n - j), gtemp + (j - 1) * sg);
+            //std::cout<<" Gret: "<< *G.retptr(n, n-j) <<std::endl;
+        }
         delete[] gtemp;
         delete[] diffw;
         delete[] qq;
@@ -133,7 +138,13 @@ void dyson_timestep_ret_omp(int omp_num_threads, int n, GG &G, T mu, std::comple
 // now use equation ii*d/dt G(t,t1) = ... to compute G(n*h,j*h),j=0 ... n-k-1
 // OMP parallelization over j
 
-#pragma omp parallel num_threads(omp_num_threads)
+    //int omp_dim = 64;
+    //cplx *diffw = new cplx[k1 + 1];
+    //cplx *qq = new cplx[sg*n_arr];
+    /*cplx *mm = new cplx[sg][omp_num_threads];*/
+
+    auto start1i = std::chrono::high_resolution_clock::now();
+    #pragma omp parallel num_threads(omp_num_threads)
     {
         // convolution Sigma*G ->> written to G, on
         int j, p, i;
@@ -151,6 +162,7 @@ void dyson_timestep_ret_omp(int omp_num_threads, int n, GG &G, T mu, std::comple
                                            NULL, G, G, I, h);
         for (p = 0; p <= k1; p++)
             diffw[p] = I.bd_weights(p) * cplx_i / h; // use BD(k+1!!)
+
         for (j = 0; j < n - k; j++) {
             if (mask_ret[j]) {
                 element_set<T, SIZE1>(size1, qq, G.retptr(n, j)); // << Sigma*G(n,j)
@@ -163,10 +175,51 @@ void dyson_timestep_ret_omp(int omp_num_threads, int n, GG &G, T mu, std::comple
                 element_linsolve_right<T, SIZE1>(size1, G.retptr(n, j), mm, qq); // mm*G=qq
             }
         }
+        //if ((tid%50)==0){
+        //	std::cout << " nomp: " << nomp << ", tid: " << tid << ", k1: " << k1 << std::endl;
+        //}
         delete[] diffw;
         delete[] qq;
         delete[] mm;
     }
+    //delete[] diffw;
+    //----------------- different parallel version: S.Ray ------------------------------
+    
+        /*auto start1i = std::chrono::high_resolution_clock::now();
+        int j, p, i;
+        int nomp = omp_get_num_threads();
+        std::vector<bool> mask_ret(n + 1, false);
+        cplx w0 = h * I.gregory_omega(0);
+        cplx *diffw = new cplx[k1 + 1];
+        cplx *qq = new cplx[sg];
+        cplx *mm = new cplx[sg];
+
+        for (p = 0; p <= k1; p++)
+                diffw[p] = I.bd_weights(p) * cplx_i / h; // use BD(k+1!!)
+
+        #pragma omp parallel default(none) private(j,n,qq,size1,p,k,mask_ret,diffw,k1,mm,H,sg,mu,w0) shared(Sigma,G,I,h)
+        {
+        #pragma omp for
+        for (j = 0; j < n - k; j++) {
+            mask_ret[j] = true;
+            incr_convolution_ret<T, GG, SIZE1>(n, mask_ret, cplx(1.0, 0.0), G, Sigma, Sigma,
+                                           NULL, G, G, I, h);
+
+            element_set<T, SIZE1>(size1, qq, G.retptr(n, j)); // << Sigma*G(n,j)
+            // set up mm and qqj for 1x1 problem:
+            for (p = 1; p <= k1; p++)
+            	element_incr<T, SIZE1>(size1, qq, -diffw[p], G.retptr(n - p, j));
+            element_set<T, SIZE1>(size1, mm, diffw[0] + mu);
+            element_incr<T, SIZE1>(size1, mm, -w0, Sigma.retptr(j, j));
+            element_incr<T, SIZE1>(size1, mm, cplx(-1.0, 0.0), H + n * sg);
+            element_linsolve_right<T, SIZE1>(size1, G.retptr(n, j), mm, qq); // mm*G=qq
+        }
+        }
+        delete[] diffw;
+        delete[] qq;
+        delete[] mm;*/
+    auto start2i = std::chrono::high_resolution_clock::now();
+    std::cout << " Conv. time: " << std::chrono::duration_cast<std::chrono::milliseconds>(start2i-start1i).count() << "[ms]" << std::endl; 
     return;
 }
 // retarded start is not omp-paralellized
@@ -344,10 +397,27 @@ void dyson_timestep_les_omp(int omp_num_threads, int n, GG &G, T mu, std::comple
                 for (p = 1; p <= k1; p++)
                     element_incr<T, SIZE1>(size1, qq, diffw[p], G.lesptr(j, n - p));
                 element_set<T, SIZE1>(size1, mm, -diffw[0] + mu);
+                /*if (j==0){
+                    std::cout<<" --1-- mm: "<<*mm<<" qq: "<<*qq<<std::endl;
+                }*/
                 element_conj<T, SIZE1>(size1, stemp, Sigma.retptr(j, j));
+                /*if (j==0){
+                    std::cout<<" ------ mm: "<<-w0<<" stemp: "<<*stemp<<std::endl;
+                }*/
                 element_incr<T, SIZE1>(size1, mm, -w0, stemp);
+                /*if (j==0){
+                    std::cout<<" --2-- mm: "<<*mm<<std::endl;
+                }*/
                 element_incr<T, SIZE1>(size1, mm, cplx(-1.0, 0.0), H + n * sg);
+                /*if (j==0){
+                    std::cout<<" ---- mm: "<<*mm<<" qq: "<<*qq<<std::endl;
+                }*/
                 element_linsolve_left<T, SIZE1>(size1, G.lesptr(j, n), mm, qq);
+                /*if (j==0){
+                   std::cout<<" Gless: "<<*G.lesptr(j,n)<<" for j= "<<j<<std::endl;
+                   //std::cout<<" Sigma: "<<*Sigma.retptr(j, j)<<" for j= "<<j<<std::endl;
+		   std::cout<<" mm: "<<*mm<<" qq: "<<*qq<<std::endl;
+                }*/
             }
         }
         delete[] diffw;
@@ -399,6 +469,9 @@ void dyson_timestep_les_omp(int omp_num_threads, int n, GG &G, T mu, std::comple
                 element_incr<T, SIZE1>(size1, qq, cweight, Sigma.retptr(j, m),
                                        G.lesptr(m, n));
             }
+            /*if (j==n){
+               std::cout<<" mm: "<<*mm<<" qq: "<<*qq<<std::endl;
+            }*/
             element_linsolve_right<T, SIZE1>(size1, G.lesptr(j, n), mm, qq);
         }
         delete[] gles;
