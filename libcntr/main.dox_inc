@@ -24,16 +24,16 @@
 
     \section S3 Documentation
 
-    The full documentation, examples and tutorials are available <a href=>here</a>.
-    \note This will be updated soon for v2.0.0
+    The full documentation, examples and tutorials are available on the NESSi <a href="https://nessi.readthedocs.io/en/latest/">website</a>.
 
     \section S4 How to cite
     Please cite the following paper whenever you use parts of NESSi:
     
-    <a href="http://www.nessi.tuxfamily.org">Michael Schüler, Denis Golež, Yuta Murakami, Nikolaj Bittner, Andreas Herrmann, 
-      Hugo U. R. Strand, Philipp Werner, Martin Eckstein, CPC XX, XX (2019) </a>.
-      
+    <a href="https://www.sciencedirect.com/science/article/pii/S0010465520302277?dgcid=author">M. Schüler, D. Golež, Y. Murakami, N. Bittner, A. Herrmann, H. U. R. Strand, P. Werner, and M. Eckstein, NESSi: The Non-Equilibrium Systems Simulation package, Comput. Phys. Commun. 257, 107484 (2020).</a>
+          
     Please cite the following paper whenever you use the truncated memory or steady-state routines of NESSi:
+    
+    Version 2.0.0 paper, to be published.
     
     \note This will be updated soon for v2.0.0
 

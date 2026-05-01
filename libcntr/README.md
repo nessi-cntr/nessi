@@ -120,24 +120,6 @@ The **libcntr** library is documented using [doxygen](http://www.doxygen.nl). To
 
 to the configure script. Upon running `make`, the documentation will be generated under `doc/html/index.html`.
 
-
-### Sphinx documentation
-
-A Sphinx-based documentation site can be built on top of the Doxygen output using [Breathe](https://breathe.readthedocs.io) as a bridge. This requires the following additional Python packages:
-
-```
-pip install sphinx breathe myst-parser sphinx-rtd-theme
-```
-
-The Sphinx build depends on the Doxygen XML output, so first configure and build with `-DBUILD_DOC=ON` as described above. Then, from the root directory:
-
-```
-sphinx-build -b html . _build/html
-```
-
-The rendered HTML documentation will be available under `_build/html/index.html`.
-
-
 ### Tests
 
 We also provide a test suite for checking the functionality of every major routine in **libcntr** based on the Catch library. For running the tests, simply run
