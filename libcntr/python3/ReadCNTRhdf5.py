@@ -49,7 +49,7 @@ def read_group(group,key_lim=None):
 
 def read_group_slices(filename):
 
-    fd = h5py.File(filename, 'r')
+    fd = h5py.File(filename)
 
     imp = Dummy()
     for key, item in fd.items():
@@ -75,7 +75,7 @@ def isgroup(group):
 # ----------------------------------------------------------------------
 def read_imp_h5file(filename,key_lim=None):
 
-    fd = h5py.File(filename, 'r')
+    fd = h5py.File(filename)
     imp = read_group(fd,key_lim)
     fd.close()
 
@@ -84,7 +84,7 @@ def read_imp_h5file(filename,key_lim=None):
 # ----------------------------------------------------------------------
 def read_imp_h5file_slices(filename,key_lim=None):
 
-    fd = h5py.File(filename, 'r')
+    fd = h5py.File(filename)
     if key_lim==None:
         klist=list(fd.items())
     else:
@@ -109,7 +109,7 @@ def read_imp_h5file_slices(filename,key_lim=None):
 # ----------------------------------------------------------------------
 def read_imp_h5file_old(filename):
 
-    fd = h5py.File(filename, 'r')
+    fd = h5py.File(filename)
 
     imp = Dummy()
     for key, item in fd.items():
@@ -124,7 +124,7 @@ def read_imp_h5file_old(filename):
 # ----------------------------------------------------------------------
 def read_gf_h5file(filename):
 
-    fd = h5py.File(filename, 'r')
+    fd = h5py.File(filename)
 
     if len(fd.keys()) > 1:
         raise NotImplementedError
@@ -210,8 +210,10 @@ def read_gf_group(group):
         new_data = np.zeros(
             (d.nt[0]+1, d.nt[0]+1, d.size1[0], d.size2[0]),
             dtype=complex)
-        
-        new_data[tuple(idx)] = data
+
+        idx_array=np.array(idx)
+        new_data[idx_array[0],idx_array[1]] = data
+        #new_data[idx] = data
         setattr(d, key, new_data)
 
     return d
@@ -329,3 +331,32 @@ def strip_imp_h5file(filename):
             strip_gf_group(item)    
 
     fd.close()
+
+
+# ----------- new functionality to read herm_matrix_moving and herm_matrix_timestep_moving
+
+def read_herm_matrix_moving_group(group):
+    if 'herm_matrix_moving' not in group:
+        raise ValueError("missing group 'herm_matrix_moving'")
+    d = read_all_sets(group)
+
+    nt = int(np.asarray(d.tc).ravel()[0]) + 1
+    s1 = int(np.asarray(d.size1).ravel()[0])
+    s2 = int(np.asarray(d.size2).ravel()[0])
+
+    d.ret = d.ret.reshape(nt, nt, s1, s2)
+    d.les = d.les.reshape(nt, nt, s1, s2)
+    return d
+
+def read_herm_matrix_timestep_moving_group(group):
+    if 'herm_matrix_timestep_moving' not in group:
+        raise ValueError("missing group 'herm_matrix_timestep_moving'")
+    d = read_all_sets(group)
+
+    nt = int(np.asarray(d.tc).ravel()[0]) + 1
+    s1 = int(np.asarray(d.size1).ravel()[0])
+    s2 = int(np.asarray(d.size2).ravel()[0])
+
+    d.ret = d.ret.reshape(nt, s1, s2)
+    d.les = d.les.reshape(nt, s1, s2)
+    return d

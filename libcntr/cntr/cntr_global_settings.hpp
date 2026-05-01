@@ -12,6 +12,7 @@
 
 #if CNTR_USE_OMP==1
 #include <omp.h>
+//void omp_set_nested(1);
 #endif
 
 
@@ -47,6 +48,11 @@
 #define CFUNC cntr::function<double>
 #define CINTEG integration::I<double>
 #define II cdouble(0.0,1.0)
+// -- trncated greens functions:
+#define GTRUNC cntr::herm_matrix_moving<double>
+#define GTRUNC_TSTP cntr::herm_matrix_timestep_moving<double>
+#define CTRUNC cntr::function_moving<double>
+
 
 #define FERMION -1
 #define BOSON 1

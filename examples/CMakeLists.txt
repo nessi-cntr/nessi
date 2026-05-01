@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 project("demo_programs")
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -9,13 +9,37 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/exe)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/exe)
 
-option(mpi "Build with HDF5 support" OFF)
+# Optionally enable OpenMPI, OpenMP, HDF5
+
+option(ness "Enable NESS support" OFF)
+#if (ness)
+#   message(STATUS "Building with NESS support")
+
+    #  Find FFTW
+    #  find_library(FFTW3_LIB fftw3 PATHS ${CMAKE_LIBRARY_PATH} NO_DEFAULT_PATH)
+    #  find_path(FFTW3_INCLUDE_DIR NAMES fftw3.h PATHS ${CMAKE_INCLUDE_PATH})
+
+    #if (FFTW3_LIB AND FFTW3_INCLUDE_DIR)
+      #  message(STATUS "FFTW library found: ${FFTW3_LIB}")
+       # message(STATUS "FFTW include directory found: ${FFTW3_INCLUDE_DIR}")
+        #include_directories(${FFTW3_INCLUDE_DIR})
+       # add_definitions("-DCNTR_USE_FFTW")
+       # list(APPEND COMMON_LIBS ${FFTW3_LIB})
+    #else()
+      #  message(FATAL_ERROR "FFTW library or headers not found")
+    #endif()
+#endif()
+
+option(hdf5 "Build with HDF5 support" OFF)
 if (hdf5)
    message(STATUS "Building with HDF5")
-   find_package(HDF5)
-   set(HDF5_LIB ${LIBS} ${HDF5_LIBRARIES})
-   include_directories(${HDF5_INCLUDE_DIR})
-   #find_library(HDF5_LIB hdf5)
+   find_library(HDF5_LIB hdf5)
+   if (HDF5_LIB)
+      message(STATUS "Found HDF5: ${HDF5_LIB}")
+      list(APPEND COMMON_LIBS ${HDF5_LIB})
+   else()
+      message(FATAL_ERROR "HDF5 library not found!")
+   endif()
    add_definitions("-DCNTR_USE_HDF5")
 endif (hdf5)
 

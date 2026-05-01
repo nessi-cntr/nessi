@@ -1,7 +1,7 @@
 import sys
 import os
 import numpy as np
-from scipy.integrate import simps
+from scipy.integrate import simpson
 import matplotlib.pyplot as plt
 from ReadCNTR import write_input_file
 #----------------------------------------------------------------------
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     h = 0.05*np.pi
 
     fig,ax = plt.subplots()
-    ax.set_yscale("log", nonposy='clip')        
+    ax.set_yscale("log", nonpositive='clip')
 
     ax.set_xlabel(r'$x/\pi$')
     ax.set_ylabel('abs. error')
@@ -49,8 +49,8 @@ if __name__ == '__main__':
     err_simps = np.zeros(npts+1)
     for n in range(1,npts+1):
         xr = h*np.arange(0,n+1)
-        c_int = simps(np.cos(xr),dx=h)
-        s_int = simps(np.sin(xr),dx=h)
+        c_int = simpson(np.cos(xr),dx=h)
+        s_int = simpson(np.sin(xr),dx=h)
         err_simps[n] = np.abs(c_int + 1.j*s_int + 1.j*(np.exp(1.j*xr[n])-1.0)) 
  
     ax.plot(x[1:]/(np.pi),err_simps[1:],c='gray',label='simps.')

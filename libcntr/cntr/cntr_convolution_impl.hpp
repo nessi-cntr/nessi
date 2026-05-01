@@ -3673,7 +3673,7 @@ void convolution_timestep_les_jn(int j, int n, std::complex<T> *cc, int sizec, G
 *  \par Purpose
 * <!-- ========= -->
 *
-* >  Calls convolution routines to compute contour convolution \f$\rho=-i (A*FxB)^<\f$
+* >  Calls convolution routines to compute contour convolution \f$\rho= sign \cdot i (A*FxB)^<\f$
 * > of the objects 'A' and 'B' and a time-dependent contour function \f$F(t)\f$ at a given time step 't=nh'.
 * > If 'n=-1', one performs the Matsubara convolution.
 * > The objects 'A' and 'B' are of the class type 'GG'. Works for a scalar and square matrices.
@@ -3750,7 +3750,7 @@ void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, fun
 *  \par Purpose
 * <!-- ========= -->
 *
-* >  Calls convolution routines to compute contour convolution \f$\rho=-i (A*FxB)^<\f$
+* >  Calls convolution routines to compute contour convolution \f$\rho=sign \cdot i (A*FxB)^<\f$
 * > of the objects 'A' and 'B' and a time-dependent contour function \f$F(t)\f$ at a given time step 't=nh'.
 * > If 'n=-1', one performs the Matsubara convolution.
 * > The objects 'A' and 'B' are of the class type 'GG'. Works for a scalar and square matrices.
@@ -3784,7 +3784,7 @@ template <typename T, class GG>
 void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, function<T> &ft,
                                 GG &B, GG &Bcc, T beta, T h, int SolveOrder) {
     int size1 = A.size1();
-    int element_size = size1;
+    int element_size = size1*size1;
     std::complex<T> *rho_ptr;
     rho_ptr = new std::complex<T>[element_size];
 
@@ -3801,7 +3801,7 @@ void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, function<T
 *  \par Purpose
 * <!-- ========= -->
 *
-* >  Calls convolution routine to compute contour convolution \f$\rho=-i (A\ast F\ast B)^<\f$
+* >  Calls convolution routine to compute contour convolution \f$\rho=sign \cdot i (A\ast F\ast B)^<\f$
 * > of the objects 'A' and 'B' and a time-dependent contour function \f$F(t)\f$.
 * > The objects 'A' and 'B' are of the class type 'GG'. Works for a scalar and square matrices.
 *
@@ -3840,7 +3840,7 @@ void convolution_density_matrix(int tstp, std::complex<T> *rho, GG &A, function<
 *  \par Purpose
 * <!-- ========= -->
 *
-* >  Calls convolution routines to compute contour convolution \f$\rho=-i (A\ast F\ast B)^<\f$
+* >  Calls convolution routines to compute contour convolution \f$\rho=sign \cdot i (A\ast F\ast B)^<\f$
 * > of the objects 'A' and 'B' and a time-dependent contour function \f$F(t)\f$ at a given time step 't=nh'.
 * > If 'n=-1', one performs the Matsubara convolution.
 * > The objects 'A' and 'B' are of the class type 'GG'. Works for a scalar and square matrices.
@@ -3870,7 +3870,7 @@ template <typename T, class GG>
 void convolution_density_matrix(int n, cdmatrix &rho, GG &A, function<T> &ft,
                                 GG &B, T beta, T h, int SolveOrder) {
     int size1 = A.size1();
-    int element_size = size1;
+    int element_size = size1*size1;
     std::complex<T> *rho_ptr;
     rho_ptr = new std::complex<T>[element_size];
 
@@ -3888,7 +3888,7 @@ void convolution_density_matrix(int n, cdmatrix &rho, GG &A, function<T> &ft,
 *  \par Purpose
 * <!-- ========= -->
 *
-* >  Calls convolution routines to compute contour convolution \f$\rho=-i (A*B)^<\f$ at a given time step 't=nh'.
+* >  Calls convolution routines to compute contour convolution \f$\rho= sign \cdot i (A*B)^<\f$ at a given time step 't=nh'.
 * > The objects A and B are of the class type 'GG'. Works for a scalar and square matrices.
 *
 *
@@ -3960,7 +3960,7 @@ void convolution_density_matrix(int n, std::complex<T> *rho, GG &A, GG &Acc, GG 
 *  \par Purpose
 * <!-- ========= -->
 *
-* >  Calls convolution routines to compute contour convolution \f$\rho=-i (A*B)^<\f$ at a given time step 't=nh'.
+* >  Calls convolution routines to compute contour convolution \f$\rho=sign \cdot i (A*B)^<\f$ at a given time step 't=nh'.
 * > The objects A and B are of the class type 'GG'. Works for a scalar and square matrices.
 *
 *
@@ -3991,7 +3991,7 @@ void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, GG &B, GG 
     T beta, T h, int SolveOrder) {
 
     int size1 = A.size1();
-    int element_size = size1;
+    int element_size = size1*size1;
     std::complex<T> *rho_ptr;
     rho_ptr = new std::complex<T>[element_size];
 
@@ -4010,7 +4010,7 @@ void convolution_density_matrix(int n, cdmatrix &rho, GG &A, GG &Acc, GG &B, GG 
 *  \par Purpose
 * <!-- ========= -->
 *
-* >  Calls convolution routines to compute contour convolution \f$\rho=-i (A*B)^<\f$.
+* >  Calls convolution routines to compute contour convolution \f$\rho= sign \cdot i (A*B)^<\f$.
 * > The objects A and B are of the class type 'GG'. Works for a scalar and square matrices.
 *
 *
@@ -4047,7 +4047,7 @@ void convolution_density_matrix(int tstp, std::complex<T> *rho, GG &A, GG &B,
 *  \par Purpose
 * <!-- ========= -->
 *
-* >  Calls convolution routines to compute contour convolution \f$\rho=-i (A*B)^<\f$.
+* >  Calls convolution routines to compute contour convolution \f$\rho= sign \cdot i (A*B)^<\f$.
 * > The objects A and B are of the class type 'GG'. Works for a scalar and square matrices.
 *
 *
@@ -4073,7 +4073,7 @@ template <typename T, class GG>
 void convolution_density_matrix(int tstp, cdmatrix &rho, GG &A, GG &B,
                                 T beta, T h, int SolveOrder) {
     int size1 = A.size1();
-    int element_size = size1;
+    int element_size = size1*size1;
     std::complex<T> *rho_ptr;
     rho_ptr = new std::complex<T>[element_size];
 

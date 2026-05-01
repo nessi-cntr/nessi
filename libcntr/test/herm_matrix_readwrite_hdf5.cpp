@@ -64,7 +64,7 @@ TEST_CASE("read/write (hdf5)","[herm_matrix_read_write_hdf5]"){
       char subgroup[20];
       char groupname[40];
            
-      std::sprintf(subgroup, "t%d", tstp);
+      std::snprintf(subgroup,sizeof(subgroup), "t%d", tstp);
       strcpy(groupname,"testgroup/");
       strcat(groupname,subgroup);
         

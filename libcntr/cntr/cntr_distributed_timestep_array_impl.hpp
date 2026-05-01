@@ -65,7 +65,7 @@ template <typename T> distributed_timestep_array<T>& distributed_timestep_array<
 *  \par Purpose
 * <!-- ========= -->
 *
-* Initializes the `distributed_timestep_array` class including n blocks of the class herm_matrix_ti* mestep_view, which serves as an interface to herm_matrix_timestep without copying the data. At   * the initialization the pointers don't point anywhere yet.
+* Initializes the `distributed_timestep_array` class including n blocks of the class herm_matrix_timestep_view, which serves as an interface to herm_matrix_timestep without copying the data. At  the initialization the pointers don't point anywhere yet.
 *
 * <!-- ARGUMENTS
 *      ========= -->

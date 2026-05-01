@@ -452,7 +452,7 @@ TEST_CASE("utilities","[utilities]"){
   SECTION("force_matsubara_hermitian"){
     const int size=2;
     const double w1=-1.0,w2=0.8,w3=0.7;
-    const std::complex<double> wz=(1.0,-0.3);
+    const std::complex<double> wz(1.0,-0.3);
     GREEN G1(-1,ntau,size,FERMION);
     GREEN G2(-1,ntau,size,FERMION);
     cdmatrix ham1(size,size),ham2(size,size);

@@ -4,7 +4,6 @@
 #include <complex>
 #include <cmath>
 #include <cstring>
-#include <omp.h>
 
 #include "cntr/cntr.hpp"
 

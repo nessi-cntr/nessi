@@ -1,0 +1,12 @@
+__nt=32768.0
+__h=0.0015625
+__beta=10.0
+__U=1.0
+__mu=0.0
+__ntau=1000
+__BootstrapMaxIter=2000
+__BootstrapMaxErr=1e-08
+__CorrectorSteps=8
+__N_it=100
+__mixing=0.2
+__out_every=100

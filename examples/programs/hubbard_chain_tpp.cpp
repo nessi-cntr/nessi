@@ -64,7 +64,7 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
     //..................................................
     int tstp;
     double npart,err;
-    cdmatrix eps0,densm;
+    cdmatrix eps0,DensM;
     GREEN G,Sigma,Phi,PHIxU,UxPHI,TPP,gtemp;
     CFUNC Ut,eps_mf;
     //..................................................
@@ -183,8 +183,10 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
 
         // shift the chemical potential according to the expected average
         // occupation
-        G.density_matrix(-1,densm);
-        npart = (densm.trace()).real();
+        DensM.resize(Nsites,Nsites);
+        DensM.setZero();
+        G.density_matrix(-1,DensM);
+        npart = (DensM.trace()).real();
         MuChem = MuChem + HubbardU * npart / Nsites;
 
       }
@@ -218,8 +220,8 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
           cntr::dyson_mat(G, MuChem, eps_mf, Sigma, beta, SolveOrder);
 
           // compute number of particles
-          G.density_matrix(-1,densm);
-          npart = (densm.trace()).real();
+          G.density_matrix(-1,DensM);
+          npart = (DensM.trace()).real();
 
           // self-consistency check
           err = cntr::distance_norm2(tstp,G,gtemp);

@@ -97,6 +97,8 @@ void dyson_timestep_ret(int n, GG &G, T mu, std::complex<T> *H, GG &Sigma,
     hj = new cplx[sg];
     stemp = new cplx[sg]; // sic
     element_set<T, SIZE1>(size1, one, 1);
+
+    //std::cout<< "ss, sg, k = "<<ss<<" , "<<sg<<" , "<<k<<std::endl;
     // check consistency:
     assert(n > k);
     assert(Sigma.nt() >= n);

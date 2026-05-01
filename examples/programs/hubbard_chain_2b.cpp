@@ -175,6 +175,8 @@ double InteractionEnergy(int tstp,cdmatrix &eps0, CFUNC &eps_mf, GREEN &G, GREEN
 
         // shift the chemical potential according to the expected average
         // occupation
+        DensM.resize(Nsites,Nsites);
+        DensM.setZero();
         G.density_matrix(-1,DensM);
         npart = (DensM.trace()).real();
         MuChem = MuChem + HubbardU * npart / Nsites;

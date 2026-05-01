@@ -19,7 +19,11 @@
 
 // ********************************************************************
 
-hid_t open_hdf5_file(std::string filename);
+// hid_t open_hdf5_file(std::string filename);
+
+enum class h5_mode {  create_truncate  ,  create_new  ,  rdonly      ,  rdwr        };
+
+hid_t open_hdf5_file(std::string filename, h5_mode mode = h5_mode::create_truncate);
 hid_t read_hdf5_file(std::string filename);
 void close_hdf5_file(hid_t file_id);
 

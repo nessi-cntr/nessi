@@ -1857,7 +1857,7 @@ void herm_matrix<T>::write_to_hdf5_slices(hid_t group_id, int dt) {
     for (int tstp = -1; tstp <= nt_; tstp++) {
         if (tstp == -1 || tstp % dt == 0) {
             herm_matrix_timestep_view<T> tmp(tstp, *this);
-            std::sprintf(groupname, "t%d", tstp);
+            std::snprintf(groupname,sizeof(groupname), "t%d", tstp);
             subgroup_id = create_group(group_id, std::string(groupname));
             tmp.write_to_hdf5(subgroup_id);
         }
@@ -1957,7 +1957,7 @@ void herm_matrix<T>::write_to_hdf5_tavtrel(hid_t group_id, int dt) {
     shape[2] = size2_;
     for (int tav = 0; tav <= nt_; tav += dt) {
         int len = (tav <= nt_ - tav ? tav : nt_ - tav);
-        std::sprintf(name, "%d", tav);
+        std::snprintf(name,sizeof(name), "%d", tav);
         shape[0] = len + 1;
         // read data: trel2 is trel/2
         for (int trel2 = 0; trel2 <= len; trel2++) {

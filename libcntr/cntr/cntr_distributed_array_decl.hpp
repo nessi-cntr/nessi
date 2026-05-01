@@ -15,11 +15,11 @@ set of data blocks and includes usual MPI processes on them.</b>
  * <!-- ========= -->
  *
  * Auxiliary data structure for handling of data blocks (total number is n_) ,
- * which are stored in  * contiguous form in member data_ and
- * includes usual MPI routines. The class identity is marked by * tid_  \f$ \in (0,\ldots,ntasks_-1) \f$
- * and the value of the tid_ is just the MPI rank or 0 if MPI is not defined. 
- * Each data block j is owned by precisely one process, which is given by \f$ tid * _map(j) = tid_\f$.
- * The member maxlen marks the maximum size reserved for the block. 
+ * which are stored in  contiguous form in member data_ and
+ * includes usual MPI routines. The class identity is marked by `tid_`  \f$ \in \f$ `(0,...,ntasks_-1)`
+ * and the value of the tid_ is just the MPI rank or 0 if MPI is not defined.
+ * Each data block j is owned by precisely one process, which is given by `tid` `_map(j) = tid_`.
+ * The member maxlen marks the maximum size reserved for the block.
  * NOTE: even if the block is not owned by the process, the space for 
  * the data is allocated; the ownership plays a role when the data are 
  * manipulated

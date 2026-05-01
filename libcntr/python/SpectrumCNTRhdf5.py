@@ -9,7 +9,7 @@ import sys
 import matplotlib.pyplot as plt
 
 from operator import itemgetter
-from scipy.integrate import simps
+from scipy.integrate import simpson
 
 # ----------------------------------------------------------------------
 # Read G^R(tstp,t) from 'G_slice' for t<tstp
@@ -86,8 +86,8 @@ def fourier_t2w(v_t,tgrd,wgrd,method):
         for iw in range(len(wgrd)):
             f_re = np.cos(wgrd[iw]*tgrd[:])*v_t[:]
             f_im = np.sin(wgrd[iw]*tgrd[:])*v_t[:]
-            v_w_re = simps(f_re,dx=dt)
-            v_w_im = simps(f_im,dx=dt)
+            v_w_re = simpson(f_re,dx=dt)
+            v_w_im = simpson(f_im,dx=dt)
             v_w[iw] = v_w_re + xj*v_w_im
 
     return v_w
